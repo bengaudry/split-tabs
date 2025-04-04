@@ -1,54 +1,64 @@
 <!DOCTYPE html>
-<html lang="en">
+<html>
   <head>
     <meta charset="UTF-8" />
-    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
-    <title>Document</title>
-
     <style>
-      * {
-        box-sizing: border-box;
-        padding: 0;
+      body {
         margin: 0;
+        padding: 0;
+        display: flex;
+        height: 100vh;
+      }
+      #left-pane,
+      #right-pane {
+        flex: 1;
+        height: 100%;
+        border: none;
+      }
+      #left-pane {
+        border-right: 1px solid #ccc;
       }
     </style>
   </head>
   <body>
-    <main
-      style="
-        display: grid;
-        width: 100vw;
-        height: 100vh;
-        grid-template-columns: repeat(2, 1fr);
-      "
-    >
-      <iframe
-        src=""
-        frameborder="0"
-        id="left-view"
-        style="width: 100%; height: 100%"
-      />
-      <iframe
-        src=""
-        frameborder="0"
-        id="right-view"
-        style="width: 100%; height: 100%"
-      />
-    </main>
+    <div id="left-pane"></div>
+    <div id="right-pane"></div>
 
     <script>
-      // Iframes refs
-      const leftViewRef = document.getElementById("left-view");
-      const rightViewRef = document.getElementById("right-view");
+      // Listen for messages from the background script
+      browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+        if (message.type === "LOAD_URLS") {
+          loadUrls(message.leftUrl, message.rightUrl);
+        }
+      });
 
-      // Get views uris
-      const params = new URLSearchParams(document.location.search);
-      const leftViewUri = params.get("left-view-uri");
-      const rightViewUri = params.get("right-view-uri");
+      async function loadUrls(leftUrl, rightUrl) {
+        // Create a new window with our split view
+        const window = await browser.windows.create({
+          url: browser.runtime.getURL("split-view.html"),
+          type: "popup",
+          width: 1200,
+          height: 800,
+        });
 
-      // Set iframes src to views uris
-      leftViewRef.setAttribute("src", leftViewUri);
-      rightViewRef.setAttribute("src", rightViewUri);
+        // Wait for the window to load
+        await new Promise((resolve) => setTimeout(resolve, 500));
+
+        // Create tabs in the left and right panes
+        const leftTab = await browser.tabs.create({
+          url: leftUrl,
+          windowId: window.id,
+        });
+
+        const rightTab = await browser.tabs.create({
+          url: rightUrl,
+          windowId: window.id,
+        });
+
+        // Move the tabs to their respective positions
+        await browser.tabs.move(leftTab.id, { windowId: window.id, index: 0 });
+        await browser.tabs.move(rightTab.id, { windowId: window.id, index: 1 });
+      }
     </script>
   </body>
 </html>

@@ -3,7 +3,13 @@
   "name": "Split View Add-on",
   "version": "1.0",
   "description": "Adds a button to open a new tab in a split view.",
-  "permissions": ["tabs", "activeTab"],
+  "permissions": [
+    "tabs",
+    "activeTab",
+    "webRequest",
+    "webRequestBlocking",
+    "<all_urls>"
+  ],
   "browser_action": {
     "default_icon": {
       "48": "icons/icon-48.png"

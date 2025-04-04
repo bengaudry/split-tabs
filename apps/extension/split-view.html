@@ -1,0 +1,28 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <meta charset="UTF-8" />
+    <style>
+      body {
+        margin: 0;
+        padding: 0;
+        display: flex;
+        height: 100vh;
+      }
+      #left-pane,
+      #right-pane {
+        flex: 1;
+        height: 100%;
+        border: none;
+      }
+      #left-pane {
+        border-right: 1px solid #ccc;
+      }
+    </style>
+  </head>
+  <body>
+    <div id="left-pane"></div>
+    <div id="right-pane"></div>
+    <script src="split-view.js"></script>
+  </body>
+</html>
