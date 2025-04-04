@@ -7,5 +7,22 @@
   </head>
   <body>
     <h1>Hello</h1>
+    <iframe src="" frameborder="0" id="left-view"></iframe>
+    <iframe src="" frameborder="0" id="right-view"></iframe>
+
+    <script>
+      // Iframes refs
+      const leftViewRef = document.getElementById("left-view");
+      const rightViewRef = document.getElementById("right-view");
+
+      // Get views uris
+      const params = new URLSearchParams(document.location.search);
+      const leftViewUri = params.get("left-view-uri");
+      const rightViewUri = params.get("right-view-uri");
+
+      // Set iframes src to views uris
+      leftViewRef.setAttribute("src", leftViewUri);
+      rightViewRef.setAttribute("src", rightViewUri);
+    </script>
   </body>
 </html>
