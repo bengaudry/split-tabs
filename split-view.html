@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html>
+  <head>
+    <title>Split View</title>
+    <meta charset="UTF-8" />
+    <script src="split-view.js"></script>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <div id="split-container">
+      <div class="split-pane">
+        <input type="text" class="uri-input" id="left-pane-uri-input" />
+        <div class="iframe-container">
+          <p class="no-view-opened-msg">No view opened</p>
+          <iframe id="left-pane"></iframe>
+        </div>
+      </div>
+      <div class="split-pane">
+        <input type="text" class="uri-input" id="right-pane-uri-input" />
+        <div class="iframe-container">
+          <p class="no-view-opened-msg">No view opened</p>
+          <iframe id="right-pane"></iframe>
+        </div>
+      </div>
+    </div>
+  </body>
+</html>
