@@ -7,6 +7,13 @@
 
   --left-pane-view-percentage: 50;
   --right-pane-view-percentage: 50;
+
+  --left-pane-background-color: var(--main-background-color);
+  --left-pane-text-color: var(--primary-text-color);
+  --right-pane-background-color: var(--main-background-color);
+  --right-pane-text-color: var(--primary-text-color);
+
+  --resize-bar-width: 8px;
 }
 
 button {
@@ -34,19 +41,25 @@ body {
   display: flex;
   flex-direction: row;
   width: 100vw;
-  height: 100vh;
+  height: calc(100vh-2*8px);
+  padding: 8px;
 }
 
 #left-pane {
   flex: var(--left-pane-view-percentage);
+  background-color: rgb(var(--left-pane-background-color));
+  color: rgb(var(--left-pane-text-color));
 }
 
 #right-pane {
   flex: var(--right-pane-view-percentage);
+  background-color: rgb(var(--right-pane-background-color));
+  color: rgb(var(--right-pane-text-color));
 }
+
 #resize-draggable {
   height: 100%;
-  width: 4px;
+  width: var(--resize-bar-width);
   cursor: ew-resize;
 }
 
@@ -55,6 +68,9 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid rgba(var(--border-color), 0.5);
 }
 
 .iframe-container {
@@ -87,6 +103,7 @@ iframe {
   justify-content: center;
   position: relative;
   width: 100%;
+  border-bottom: 1px solid rgba(var(--border-color), 0.5);
 }
 
 .toolbar > .toolbar-expandable {
@@ -106,7 +123,7 @@ iframe {
   align-items: flex-start;
   justify-content: flex-start;
 
-  transition: backdrop-filter .2s;
+  transition: backdrop-filter 0.2s;
 }
 
 .toolbar[data-expanded="true"] > .toolbar-expandable {
@@ -140,6 +157,7 @@ iframe {
   gap: 12px;
   font-size: 14px;
   padding: 12px 24px;
+  background-color: rgb(var(--main-background-color));
   color: rgb(var(--primary-text-color));
 }
 
@@ -172,7 +190,7 @@ iframe {
   border-radius: 4px;
   width: 40%;
   padding: 2px 8px;
-  color: rgba(var(--primary-text-color), .7);
+  color: inherit;
   font-size: 12px;
   background-color: transparent;
 }

@@ -15,6 +15,26 @@ const hexToRgb = (hex) => {
   return `${r}, ${g}, ${b}`;
 };
 
+function invertRgbValues(rgb) {
+  // turns "255, 255, 255" into "0, 0, 0"
+  const tab = rgb.replaceAll(" ", "").split(",");
+  const r = tab[0];
+  const g = tab[1];
+  const b = tab[2];
+  return `${255 - r}, ${255 - g}, ${255 - b}`;
+}
+
+function getRgbValuesFromBackgroundColor(bg) {
+  console.log(bg, typeof bg);
+  if (bg.startsWith("rgb")) {
+    return bg.replaceAll("rgb", "").replaceAll("(", "").replaceAll(")", ""); // rgb(a, b, c) => a, b, c
+  }
+  if (bg.startsWith("rgba")) {
+    return bg.replaceAll("rgba", "").replaceAll("(", "").replaceAll(")", ""); // rgba(a, b, c) => a, b, c
+  }
+  return hexToRgb(bg);
+}
+
 /** Changes the value of a css variable */
 function changeCssVariableValue(variableName, value) {
   const root = document.querySelector(":root");
@@ -26,6 +46,14 @@ function filterIncorrectUris(uris) {
     (tab) =>
       !tab.url.startsWith("moz-extension://") && !tab.url.startsWith("about:")
   );
+}
+
+function getUrlBase(url) {
+  return url
+    .replace("https://", "")
+    .replace("http://", "")
+    .replace("file://", "")
+    .replace("www.", "");
 }
 
 let leftUrl = "";
@@ -63,11 +91,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (leftUrl === url) return;
       leftPaneIframe.src = url;
       leftPaneUriInput.value = url;
-      leftPaneShortenedUriBtn.textContent = urlObj.origin
-        .replace("https://", "")
-        .replace("http://", "")
-        .replace("file://", "")
-        .replace("www.", "");
+      leftPaneShortenedUriBtn.textContent = getUrlBase(urlObj.origin);
       leftPaneHistory.push(url);
       leftUrl = url;
     }
@@ -76,11 +100,7 @@ document.addEventListener("DOMContentLoaded", () => {
       if (rightUrl === url) return;
       rightPaneIframe.src = url;
       rightPaneUriInput.value = url;
-      rightPaneShortenedUriBtn.textContent = urlObj.origin
-        .replace("https://", "")
-        .replace("http://", "")
-        .replace("file://", "")
-        .replace("www.", "");
+      rightPaneShortenedUriBtn.textContent = getUrlBase(urlObj.origin);
       rightPaneHistory.push(url);
       rightUrl = url;
     }
@@ -108,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "--secondary-text-color",
         hexToRgb(message.secondaryTextColor)
       );
-      console.log(message.inputBorder, hexToRgb(message.inputBorder));
       changeCssVariableValue("--border-color", hexToRgb(message.inputBorder));
     }
   });
@@ -183,15 +202,12 @@ document.addEventListener("DOMContentLoaded", () => {
             toolbarLinksContainer.innerHTML += el;
             const link = document.getElementById(`toolbar-link-${i}`);
             link.addEventListener("click", (e) => {
-              console.log(e)
               loadUrl(side, tab.url);
             });
           }
         }
       })
       .catch(console.error);
-
-    // console.log(msg);
     togglePaneToolbar(side);
   };
 
@@ -237,15 +253,12 @@ document.addEventListener("DOMContentLoaded", () => {
 
   resizeDraggable.addEventListener("mousedown", (e) => {
     isUserResizingViews = true;
-    console.info(e);
   });
   resizeDraggable.addEventListener("mouseup", (e) => {
     isUserResizingViews = false;
-    console.info(e);
   });
 
   document.addEventListener("mousemove", (e) => {
-    console.log(e.buttons);
     if (isUserResizingViews && e.buttons == 1) {
       const leftPercent = Math.round((e.pageX * 100) / window.innerWidth);
       const rightPercent = 100 - leftPercent;
@@ -259,28 +272,82 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
+  leftPaneIframe.addEventListener("load", (e) => {
+    try {
+      // Send a message to the iframe to request its URL
+      e.target.contentWindow.postMessage({ type: "getUrl" }, "*");
+    } catch (error) {
+      console.error("Could not access iframe content:", error);
+    }
+  });
+
+  rightPaneIframe.addEventListener("load", (e) => {
+    try {
+      // Send a message to the iframe to request its URL
+      e.target.contentWindow.postMessage({ type: "getUrl" }, "*");
+    } catch (error) {
+      console.error("Could not access iframe content:", error);
+    }
+  });
+
+  // Listen for messages from the iframes
+  window.addEventListener("message", (event) => {
+    console.log(event);
+    console.log(rightPaneIframe.src, event.origin);
+    const isLeftPaneUri = getUrlBase(leftPaneIframe.src).startsWith(
+      getUrlBase(event.origin)
+    );
+    const isRightPaneUri = getUrlBase(rightPaneIframe.src).startsWith(
+      getUrlBase(event.origin)
+    );
+    // Verify the message is from one of our iframes
+    if (isLeftPaneUri || isRightPaneUri) {
+      if (event.data && event.data.type === "url") {
+        const rgbVal = getRgbValuesFromBackgroundColor(
+          event.data.backgroundColor
+        );
+
+        if (isLeftPaneUri) {
+          changeCssVariableValue("--left-pane-background-color", rgbVal);
+          changeCssVariableValue("--left-pane-text-color", invertRgbValues(rgbVal));
+        }
+        if (isRightPaneUri) {
+          changeCssVariableValue("--right-pane-background-color", rgbVal);
+          changeCssVariableValue("--right-pane-text-color", invertRgbValues(rgbVal));
+        }
+      }
+    }
+  });
+
   // Add click event listeners to iframes
   function setupIframeNavigation(iframe, side) {
-    iframe.addEventListener('load', () => {
+    iframe.addEventListener("load", () => {
       try {
         // Get the iframe's window
         const iframeWindow = iframe.contentWindow;
-        
+
         // Add message event listener to handle navigation
-        window.addEventListener('message', (e) => {
+        window.addEventListener("message", (e) => {
           // Check if the message is from our iframe
-          if (e.source === iframeWindow && e.data && e.data.type === 'navigation') {
+          if (
+            e.source === iframeWindow &&
+            e.data &&
+            e.data.type === "navigation"
+          ) {
             loadUrl(side, e.data.url);
           }
         });
 
         // Inject navigation handler into the iframe
-        iframeWindow.postMessage({
-          type: 'setupNavigation',
-          side: side
-        }, '*');
+        iframeWindow.postMessage(
+          {
+            type: "setupNavigation",
+            side: side,
+          },
+          "*"
+        );
       } catch (error) {
-        console.log('Could not access iframe content:', error);
+        console.log("Could not access iframe content:", error);
       }
     });
   }

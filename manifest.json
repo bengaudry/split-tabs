@@ -22,5 +22,12 @@
   "background": {
     "scripts": ["background.js"]
   },
+  "content_scripts": [
+    {
+      "matches": ["<all_urls>"],
+      "js": ["content-script.js"],
+      "all_frames": true
+    }
+  ],
   "web_accessible_resources": ["split-view.html", "split-view.js"]
 }
