@@ -42,7 +42,7 @@ body {
   flex-direction: row;
   width: 100vw;
   height: calc(100vh-2*8px);
-  padding: 8px;
+  padding: 8px 6px;
 }
 
 #left-pane {
