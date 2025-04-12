@@ -45,7 +45,7 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
 });
 
 // Handle the browser action click
-browser.browserAction.onClicked.addListener(async () => {
+browser.pageAction.onClicked.addListener(async () => {
   console.log("clicked");
 
   // Get the current tab's URL

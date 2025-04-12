@@ -31,12 +31,18 @@ function filterIncorrectUris(uris) {
 let leftUrl = "";
 let rightUrl = "";
 
+const leftPaneHistory = [];
+const rightPaneHistory = [];
+
 document.addEventListener("DOMContentLoaded", () => {
-  const leftPane = document.getElementById("left-pane-iframe");
-  const rightPane = document.getElementById("right-pane-iframe");
+  const leftPaneIframe = document.getElementById("left-pane-iframe");
+  const rightPaneIframe = document.getElementById("right-pane-iframe");
 
   const leftPaneUriInput = document.getElementById("left-pane-uri-input");
   const rightPaneUriInput = document.getElementById("right-pane-uri-input");
+
+  const leftPreviousPageBtn = document.getElementById("left-previous-page-btn");
+  const leftNextPageBtn = document.getElementById("left-previous-page-btn");
 
   const leftPaneShortenedUriBtn = document.getElementById(
     "left-pane-shortened-uri-btn"
@@ -55,25 +61,27 @@ document.addEventListener("DOMContentLoaded", () => {
     if (side === "left") {
       // avoid refreshing when url is same
       if (leftUrl === url) return;
-      leftPane.src = url;
+      leftPaneIframe.src = url;
       leftPaneUriInput.value = url;
       leftPaneShortenedUriBtn.textContent = urlObj.origin
         .replace("https://", "")
         .replace("http://", "")
         .replace("file://", "")
         .replace("www.", "");
+      leftPaneHistory.push(url);
       leftUrl = url;
     }
     if (side === "right") {
       // avoid refreshing when url is same
       if (rightUrl === url) return;
-      rightPane.src = url;
+      rightPaneIframe.src = url;
       rightPaneUriInput.value = url;
       rightPaneShortenedUriBtn.textContent = urlObj.origin
         .replace("https://", "")
         .replace("http://", "")
         .replace("file://", "")
         .replace("www.", "");
+      rightPaneHistory.push(url);
       rightUrl = url;
     }
   }
@@ -167,20 +175,17 @@ document.addEventListener("DOMContentLoaded", () => {
 
           for (let i = 0; i < tabs.length; i++) {
             const tab = tabs[i];
-            const el = `<li class="toolbar-tab-link" data-url="${tab.url}">
-                      <a target="_self" id="toolbar-link-${i}" href="${tab.url}">
-                        <img src="${tab.favIconUrl}" alt="" />
-                        <span>${tab.title}</span>
-                      </a>
-                    </li>`;
+            const el = `<button id="toolbar-link-${i}" class="toolbar-tab-link">
+                          <img src="${tab.favIconUrl}" alt="" />
+                          <span>${tab.title}</span>
+                        </button>`;
 
             toolbarLinksContainer.innerHTML += el;
-            document
-              .getElementById(`toolbar-link-${i}`)
-              .addEventListener("click", (e) => {
-                e.preventDefault();
-                loadUrl(side, tab.url);
-              });
+            const link = document.getElementById(`toolbar-link-${i}`);
+            link.addEventListener("click", (e) => {
+              console.log(e)
+              loadUrl(side, tab.url);
+            });
           }
         }
       })
@@ -228,28 +233,59 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Handling resizing
   let isUserResizingViews = false;
-  document
-    .getElementById("resize-draggable")
-    .addEventListener("mousedown", (e) => {
-      isUserResizingViews = true;
-      console.info(e);
-    });
-  document
-    .getElementById("resize-draggable")
-    .addEventListener("mouseup", (e) => {
-      isUserResizingViews = false;
-      console.info(e);
-    });
+  const resizeDraggable = document.getElementById("resize-draggable");
+
+  resizeDraggable.addEventListener("mousedown", (e) => {
+    isUserResizingViews = true;
+    console.info(e);
+  });
+  resizeDraggable.addEventListener("mouseup", (e) => {
+    isUserResizingViews = false;
+    console.info(e);
+  });
 
   document.addEventListener("mousemove", (e) => {
-    if (isUserResizingViews) {
-      console.log(e.pageX / window.innerWidth);
+    console.log(e.buttons);
+    if (isUserResizingViews && e.buttons == 1) {
       const leftPercent = Math.round((e.pageX * 100) / window.innerWidth);
       const rightPercent = 100 - leftPercent;
-      if (leftPercent >= MIN_VIEW_PERCENTAGE && rightPercent >= MIN_VIEW_PERCENTAGE) {
+      if (
+        leftPercent >= MIN_VIEW_PERCENTAGE &&
+        rightPercent >= MIN_VIEW_PERCENTAGE
+      ) {
         changeCssVariableValue("--left-pane-view-percentage", leftPercent);
         changeCssVariableValue("--right-pane-view-percentage", rightPercent);
       }
     }
   });
+
+  // Add click event listeners to iframes
+  function setupIframeNavigation(iframe, side) {
+    iframe.addEventListener('load', () => {
+      try {
+        // Get the iframe's window
+        const iframeWindow = iframe.contentWindow;
+        
+        // Add message event listener to handle navigation
+        window.addEventListener('message', (e) => {
+          // Check if the message is from our iframe
+          if (e.source === iframeWindow && e.data && e.data.type === 'navigation') {
+            loadUrl(side, e.data.url);
+          }
+        });
+
+        // Inject navigation handler into the iframe
+        iframeWindow.postMessage({
+          type: 'setupNavigation',
+          side: side
+        }, '*');
+      } catch (error) {
+        console.log('Could not access iframe content:', error);
+      }
+    });
+  }
+
+  // Setup navigation for both iframes
+  // setupIframeNavigation(leftPaneIframe, "left");
+  // setupIframeNavigation(rightPaneIframe, "right");
 });

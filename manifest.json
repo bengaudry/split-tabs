@@ -11,10 +11,13 @@
     "<all_urls>",
     "theme"
   ],
-  "browser_action": {
+  "page_action": {
+    "browser_style": true,
     "default_icon": {
       "48": "icons/icon-48.png"
-    }
+    },
+    "pinned": true,
+    "show_matches": ["http://*/*", "https://*/*", "file://*/*"]
   },
   "background": {
     "scripts": ["background.js"]
