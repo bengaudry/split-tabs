@@ -1,4 +1,5 @@
 // Remove X-Frame-Options and modify Content-Security-Policy headers
+// because some pages prevent being renderered into iframes
 browser.webRequest.onHeadersReceived.addListener(
   function (details) {
     let responseHeaders = details.responseHeaders;
@@ -18,6 +19,30 @@ browser.webRequest.onHeadersReceived.addListener(
   { urls: ["<all_urls>"] },
   ["blocking", "responseHeaders"]
 );
+
+browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  if (message.type === "FETCH_TABS") {
+    // Query all tabs in the current window
+    browser.tabs
+      .query({ currentWindow: true })
+      .then((tabs) => {
+        console.log("Current tabs:", tabs);
+        // Send the tabs data back to the specific tab that requested it
+        sendResponse({
+          type: "TABS_DATA",
+          tabs: tabs,
+        });
+      })
+      .catch((error) => {
+        console.error("Error fetching tabs:", error);
+        browser.tabs.sendMessage(sender.tab.id, {
+          type: "TABS_DATA",
+          error: error.message,
+        });
+      });
+    return true; // Indicate we will send response asynchronously
+  }
+});
 
 // Handle the browser action click
 browser.browserAction.onClicked.addListener(async () => {
@@ -39,6 +64,10 @@ browser.browserAction.onClicked.addListener(async () => {
   const theme = await browser.theme.getCurrent();
   const backgroundColor = theme.colors.frame;
   const textColor = theme.colors.tab_text;
+  const inputBorder = theme.colors.toolbar_field_border;
+  const secondaryTextColor = theme.colors.toolbar_field_highlight;
+
+  console.log("toolbar_field_border : ", inputBorder)
 
   console.log(theme);
 
@@ -46,26 +75,26 @@ browser.browserAction.onClicked.addListener(async () => {
   // await new Promise((resolve) => setTimeout(resolve, 500));
 
   // Wait for the tab to be fully loaded
-  browser.tabs.onUpdated.addListener(function listener(
-    tabId,
-    changeInfo,
-    updatedTab
-  ) {
+  browser.tabs.onUpdated.addListener(function listener (tabId, changeInfo, updatedTab) {
     if (tabId === tab.id && changeInfo.status === "complete") {
       // Remove the listener to avoid multiple calls
       browser.tabs.onUpdated.removeListener(listener);
+
+      tab.faviconUrl = activeTabs[0]?.faviconUrl;
 
       // Send the LOAD_URLS message to the split-view page
       browser.tabs.sendMessage(tab.id, {
         type: "LOAD_URLS",
         leftUrl: currentUrl,
-        rightUrl: currentUrl,
+        rightUrl: "https://google.com",
       });
 
       browser.tabs.sendMessage(tab.id, {
         type: "BROWSER_COLORS",
-        backgroundColor: backgroundColor,
-        textColor: textColor,
+        backgroundColor,
+        textColor,
+        inputBorder,
+        secondaryTextColor
       });
     }
   });

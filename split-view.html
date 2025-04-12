@@ -6,20 +6,50 @@
     <script src="split-view.js"></script>
     <link rel="stylesheet" href="styles.css" />
   </head>
+
   <body>
     <div id="split-container">
-      <div class="split-pane">
-        <input type="text" class="uri-input" id="left-pane-uri-input" />
+      <div id="left-pane" class="split-pane">
+        <div id="left-pane-toolbar" class="toolbar" data-expanded="false">
+          <button
+            class="shortened-uri-btn"
+            id="left-pane-shortened-uri-btn"
+          ></button>
+
+          <button class="toolbar-expandable">
+            <div class="toolbar-expandable-content">
+              <input type="text" class="uri-input" id="left-pane-uri-input" />
+              <ul class="toolbar-links-container"></ul>
+            </div>
+          </button>
+        </div>
+
         <div class="iframe-container">
           <p class="no-view-opened-msg">No view opened</p>
-          <iframe id="left-pane"></iframe>
+          <iframe id="left-pane-iframe"></iframe>
         </div>
       </div>
-      <div class="split-pane">
-        <input type="text" class="uri-input" id="right-pane-uri-input" />
+
+      <div id="resize-draggable"></div>
+
+      <div id="right-pane" class="split-pane">
+        <div id="right-pane-toolbar" class="toolbar" data-expanded="false">
+          <button
+            class="shortened-uri-btn"
+            id="right-pane-shortened-uri-btn"
+          ></button>
+
+          <button class="toolbar-expandable">
+            <div class="toolbar-expandable-content">
+              <input type="text" class="uri-input" id="right-pane-uri-input" />
+              <ul class="toolbar-links-container"></ul>
+            </div>
+          </button>
+        </div>
+
         <div class="iframe-container">
           <p class="no-view-opened-msg">No view opened</p>
-          <iframe id="right-pane"></iframe>
+          <iframe id="right-pane-iframe"></iframe>
         </div>
       </div>
     </div>
