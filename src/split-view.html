@@ -5,16 +5,30 @@
     <meta charset="UTF-8" />
     <script src="split-view.js"></script>
     <link rel="stylesheet" href="styles.css" />
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css"
+    />
   </head>
 
   <body>
     <div id="split-container">
       <div id="left-pane" class="split-pane">
         <div id="left-pane-toolbar" class="toolbar" data-expanded="false">
-          <button
-            class="shortened-uri-btn"
-            id="left-pane-shortened-uri-btn"
-          ></button>
+          <div class="toolbar-content">
+            <div class="left">
+              <button id="left-pane-refresh-btn" class="action-btn">
+                <i class="fi fi-rr-rotate-right"></i>
+              </button>
+            </div>
+            <div class="center">
+              <button
+                class="shortened-uri-btn"
+                id="left-pane-shortened-uri-btn"
+              ></button>
+            </div>
+            <div class="right"></div>
+          </div>
 
           <button class="toolbar-expandable">
             <div class="toolbar-expandable-content">
@@ -26,10 +40,7 @@
 
         <div class="iframe-container">
           <p class="no-view-opened-msg">No view opened</p>
-          <iframe
-            id="left-pane-iframe"
-            target="_self"
-          ></iframe>
+          <iframe id="left-pane-iframe" target="_self"></iframe>
         </div>
       </div>
 
@@ -37,10 +48,20 @@
 
       <div id="right-pane" class="split-pane">
         <div id="right-pane-toolbar" class="toolbar" data-expanded="false">
-          <button
-            class="shortened-uri-btn"
-            id="right-pane-shortened-uri-btn"
-          ></button>
+          <div class="toolbar-content">
+            <div class="left">
+              <button id="right-pane-refresh-btn" class="action-btn">
+                <i class="fi fi-rr-rotate-right"></i>
+              </button>
+            </div>
+            <div class="center">
+              <button
+                class="shortened-uri-btn"
+                id="right-pane-shortened-uri-btn"
+              ></button>
+            </div>
+            <div class="right"></div>
+          </div>
 
           <button class="toolbar-expandable">
             <div class="toolbar-expandable-content">
@@ -52,10 +73,7 @@
 
         <div class="iframe-container">
           <p class="no-view-opened-msg">No view opened</p>
-          <iframe
-            id="right-pane-iframe"
-            target="_self"
-          ></iframe>
+          <iframe id="right-pane-iframe" target="_self"></iframe>
         </div>
       </div>
     </div>

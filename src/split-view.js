@@ -134,8 +134,12 @@ document.addEventListener("DOMContentLoaded", () => {
     "right-pane-shortened-uri-btn"
   );
 
+  // refresh buttons refs
+  const leftPaneRefreshBtn = document.getElementById("left-pane-refresh-btn");
+  const rightPaneRefreshBtn = document.getElementById("right-pane-refresh-btn");
+
   /** Function to load a URL in an iframe */
-  function loadUrl(side, url) {
+  function loadUrl(side, url, isRefreshing) {
     if (url === null) return;
     if (
       !url.startsWith("http://") &&
@@ -147,7 +151,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const urlObj = new URL(url);
     if ("left" === side) {
       // avoid refreshing when url is same
-      if (leftUrl === url) return;
+      if (leftUrl === url && !isRefreshing) return;
       leftPaneIframe.src = url;
       leftPaneUriInput.value = url;
       leftPaneShortenedUriBtn.textContent = getUrlBase(urlObj.origin);
@@ -156,7 +160,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
     if ("right" === side) {
       // avoid refreshing when url is same
-      if (rightUrl === url) return;
+      if (rightUrl === url && !isRefreshing) return;
       rightPaneIframe.src = url;
       rightPaneUriInput.value = url;
       rightPaneShortenedUriBtn.textContent = getUrlBase(urlObj.origin);
@@ -269,6 +273,13 @@ document.addEventListener("DOMContentLoaded", () => {
       .catch(console.error);
     togglePaneToolbar(side);
   };
+
+  leftPaneRefreshBtn.addEventListener("click", () => {
+    loadUrl("left", leftUrl, true);
+  })
+  rightPaneRefreshBtn.addEventListener("click", () => {
+    loadUrl("right", rightUrl, true);
+  })
 
   // Add links to toolbar when toggle is pressed
   leftPaneShortenedUriBtn.addEventListener("click", () =>
