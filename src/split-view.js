@@ -16,6 +16,8 @@ const hexToRgb = (hex) => {
   return `${r}, ${g}, ${b}, 1`;
 };
 
+/** Returns the inverted rgb values of a color without changing alpha channel
+ *  ("0, 0, 0, a" -> "255, 255, 255, a") */
 function invertRgbValues(rgb) {
   // turns "255, 255, 255" into "0, 0, 0"
   const tab = rgb.replaceAll(" ", "").split(",");
@@ -26,8 +28,11 @@ function invertRgbValues(rgb) {
   return `${255 - r}, ${255 - g}, ${255 - b}, ${a}`;
 }
 
+/** Transforms a color that comes from a background-color css property to
+ *  rgb values in a string (black -> "0, 0, 0, 0") */
 function getRgbValuesFromBackgroundColor(bg) {
   if (bg === null || bg === undefined) return `0, 0, 0, 0`;
+
   bg = bg.replaceAll(" ", "");
   if (bg.startsWith("rgba")) {
     return bg.replaceAll("rgba", "").replaceAll("(", "").replaceAll(")", ""); // rgba(a, b, c, d) => a, b, c, d
@@ -46,6 +51,7 @@ function changeCssVariableValue(variableName, value) {
   root.style.setProperty(variableName, value);
 }
 
+/** Returns a tab of uris that are allowed to be opened in the split view */
 function filterIncorrectUris(uris) {
   return uris.filter(
     (tab) =>
@@ -53,6 +59,7 @@ function filterIncorrectUris(uris) {
   );
 }
 
+/** Returns the base of the url ("https://www.example.com" -> "example.com") */
 function getUrlBase(url) {
   return url
     .replace("https://", "")
@@ -61,6 +68,7 @@ function getUrlBase(url) {
     .replace("www.", "");
 }
 
+// GLOBAL VARIABLES //
 let leftUrl = "";
 let rightUrl = "";
 
@@ -70,16 +78,55 @@ const rightPaneHistory = [];
 let leftPaneIcon = null;
 let rightPaneIcon = null;
 
+/** Creates the composite favicon for the split view tab */
+function createCompositeFavicon() {
+  if (!leftPaneIcon || !rightPaneIcon) return;
+
+  const canvas = document.createElement("canvas");
+  canvas.width = 32;
+  canvas.height = 32;
+  const ctx = canvas.getContext("2d");
+
+  // Load both images
+  const leftImg = new Image();
+  const rightImg = new Image();
+
+  leftImg.crossOrigin = "anonymous";
+  rightImg.crossOrigin = "anonymous";
+
+  leftImg.onload = () => {
+    rightImg.onload = () => {
+      // Draw left icon in top left (20x20)
+      ctx.drawImage(leftImg, 0, 0, 20, 20);
+      // Draw right icon in bottom right (20x20)
+      ctx.drawImage(rightImg, 12, 12, 20, 20);
+
+      // Convert canvas to favicon
+      const link = document.createElement("link");
+      link.rel = "icon";
+      link.href = canvas.toDataURL("image/png");
+      document.head.appendChild(link);
+
+      console.log(link);
+    };
+  };
+
+  rightImg.src = rightPaneIcon;
+  leftImg.src = leftPaneIcon;
+}
+
+// Wait for the split view tab to be fully loaded to avoid issues
+// accessing elements and events
 document.addEventListener("DOMContentLoaded", () => {
+  // iframe refs
   const leftPaneIframe = document.getElementById("left-pane-iframe");
   const rightPaneIframe = document.getElementById("right-pane-iframe");
 
+  // uri input refs
   const leftPaneUriInput = document.getElementById("left-pane-uri-input");
   const rightPaneUriInput = document.getElementById("right-pane-uri-input");
 
-  const leftPreviousPageBtn = document.getElementById("left-previous-page-btn");
-  const leftNextPageBtn = document.getElementById("left-previous-page-btn");
-
+  // toolbar toggles refs
   const leftPaneShortenedUriBtn = document.getElementById(
     "left-pane-shortened-uri-btn"
   );
@@ -87,14 +134,18 @@ document.addEventListener("DOMContentLoaded", () => {
     "right-pane-shortened-uri-btn"
   );
 
-  // Function to load a URL in an iframe
+  /** Function to load a URL in an iframe */
   function loadUrl(side, url) {
     if (url === null) return;
-    if (!url.startsWith("http://") && !url.startsWith("https://") && !url.startsWith("file://")) {
+    if (
+      !url.startsWith("http://") &&
+      !url.startsWith("https://") &&
+      !url.startsWith("file://")
+    ) {
       url = "https://" + url;
     }
     const urlObj = new URL(url);
-    if (side === "left") {
+    if ("left" === side) {
       // avoid refreshing when url is same
       if (leftUrl === url) return;
       leftPaneIframe.src = url;
@@ -103,7 +154,7 @@ document.addEventListener("DOMContentLoaded", () => {
       leftPaneHistory.push(url);
       leftUrl = url;
     }
-    if (side === "right") {
+    if ("right" === side) {
       // avoid refreshing when url is same
       if (rightUrl === url) return;
       rightPaneIframe.src = url;
@@ -136,7 +187,6 @@ document.addEventListener("DOMContentLoaded", () => {
         "--secondary-text-color",
         getRgbValuesFromBackgroundColor(message.secondaryTextColor)
       );
-      //changeCssVariableValue("--border-color", hexToRgb(message.inputBorder));
     }
   });
 
@@ -178,7 +228,8 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  // On open toolbars
+  /** Fetches browser opened tabs and creates links to them
+   *  inside the toolbar */
   const populateToolbarLinkContainer = (side) => {
     browser.runtime
       .sendMessage({ type: "FETCH_TABS" })
@@ -219,6 +270,7 @@ document.addEventListener("DOMContentLoaded", () => {
     togglePaneToolbar(side);
   };
 
+  // Add links to toolbar when toggle is pressed
   leftPaneShortenedUriBtn.addEventListener("click", () =>
     populateToolbarLinkContainer("left")
   );
@@ -247,7 +299,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   );
 
-  // Close pane(s) when pressing Esc
+  // Close panes when pressing Esc
   document.addEventListener("keyup", (e) => {
     if (e.code === "Escape") {
       closePaneToolbar("left");
@@ -268,6 +320,7 @@ document.addEventListener("DOMContentLoaded", () => {
 
   document.addEventListener("mousemove", (e) => {
     if (isUserResizingViews && e.buttons == 1) {
+      // check if the user is pressing the mouse btn
       const leftPercent = Math.round((e.pageX * 100) / window.innerWidth);
       const rightPercent = 100 - leftPercent;
       if (
@@ -297,46 +350,6 @@ document.addEventListener("DOMContentLoaded", () => {
       console.error("Could not access iframe content:", error);
     }
   });
-
-  // Function to create composite favicon
-  function createCompositeFavicon() {
-    console.info("Left :", leftPaneIcon);
-    console.info("Right :", rightPaneIcon);
-    if (!leftPaneIcon || !rightPaneIcon) return;
-
-    const canvas = document.createElement("canvas");
-    canvas.width = 32;
-    canvas.height = 32;
-    const ctx = canvas.getContext("2d");
-
-    // Load both images
-    const leftImg = new Image();
-    const rightImg = new Image();
-
-    leftImg.crossOrigin = "anonymous";
-    rightImg.crossOrigin = "anonymous";
-
-    leftImg.onload = () => {
-      rightImg.onload = () => {
-        // Draw left icon in top left (16x16)
-        ctx.drawImage(leftImg, 0, 0, 20, 20);
-
-        // Draw right icon in bottom right (16x16)
-        ctx.drawImage(rightImg, 12, 12, 20, 20);
-
-        // Convert canvas to favicon
-        const link = document.createElement("link");
-        link.rel = "icon";
-        link.href = canvas.toDataURL("image/png");
-        document.head.appendChild(link);
-
-        console.log(link);
-      };
-    };
-
-    rightImg.src = rightPaneIcon;
-    leftImg.src = leftPaneIcon;
-  }
 
   // Listen for messages from the iframes
   window.addEventListener("message", (event) => {

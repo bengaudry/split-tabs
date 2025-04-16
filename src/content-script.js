@@ -8,7 +8,7 @@ window.addEventListener('message', (event) => {
     
     // Get the favicon URL
     const favicon = document.querySelector("link[rel*='icon']")?.href || 
-                   document.querySelector("link[rel='shortcut icon']")?.href;
+                    document.querySelector("link[rel='shortcut icon']")?.href;
     
     // Send the URL and background color back to the parent window
     window.parent.postMessage({

@@ -44,6 +44,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 });
 
+let tab = null;
+
 // Handle the browser action click
 browser.pageAction.onClicked.addListener(async () => {
   console.log("clicked");
@@ -56,8 +58,9 @@ browser.pageAction.onClicked.addListener(async () => {
   const currentUrl = activeTabs[0].url;
 
   // Create a new tab with our split view
-  const tab = await browser.tabs.create({
+  tab = await browser.tabs.create({
     url: browser.runtime.getURL("split-view.html"),
+    discarded: false
   });
 
   // Get the current theme
@@ -66,13 +69,6 @@ browser.pageAction.onClicked.addListener(async () => {
   const textColor = theme.colors.tab_text;
   const inputBorder = theme.colors.toolbar_field_border;
   const secondaryTextColor = theme.colors.toolbar_field_highlight;
-
-  console.log("toolbar_field_border : ", inputBorder)
-
-  console.log(theme);
-
-  // wait for the tab to load
-  // await new Promise((resolve) => setTimeout(resolve, 500));
 
   // Wait for the tab to be fully loaded
   browser.tabs.onUpdated.addListener(function listener (tabId, changeInfo, updatedTab) {
