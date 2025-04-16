@@ -1,7 +1,7 @@
 {
   "manifest_version": 2,
   "name": "Split View Add-on",
-  "version": "1.0",
+  "version": "1.0.1",
   "description": "Adds a button to open a new tab in a split view.",
   "permissions": [
     "tabs",
@@ -11,6 +11,10 @@
     "<all_urls>",
     "theme"
   ],
+  "icons": {
+    "32": "../icons/icon-32.png",
+    "48": "../icons/icon-48.png"
+  },
   "page_action": {
     "browser_style": true,
     "default_icon": {
