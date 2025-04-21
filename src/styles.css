@@ -55,10 +55,10 @@ body {
   background-color: rgb(var(--right-pane-background-color));
 }
 
-#left-pane.shortened-uri-btn {
+#left-pane > .shortened-uri-btn {
   color: rgb(var(--left-pane-text-color));
 }
-#right-pane.shortened-uri-btn {
+#right-pane > .shortened-uri-btn {
   color: rgb(var(--right-pane-text-color));
 }
 
@@ -116,6 +116,7 @@ iframe {
   display: grid;
   grid-template-columns: 2fr 3fr 2fr;
   gap: 4px;
+  color: rgb(var(--primary-text-color));
 }
 
 .action-btn {

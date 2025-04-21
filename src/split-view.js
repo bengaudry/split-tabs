@@ -210,26 +210,39 @@ document.addEventListener("DOMContentLoaded", () => {
     );
   }
 
+  /** Make a query with the search engine or open a url in the split-view
+   *  when the search bar receives validation (Enter key or blur) */
+  function handleSearchBarEndInput(side, query) {
+    if (
+      query.startsWith("http://") ||
+      query.startsWith("https://") ||
+      query.startsWith("file://")
+    ) {
+      loadUrl(side, query);
+    } else {
+      const googleUrl = new URL("https://www.google.com/search");
+      googleUrl.searchParams.set("q", query);
+      loadUrl(side, googleUrl.toString());
+    }
+
+    closePaneToolbar(side);
+  }
+
   /* ====== EVENT HANDLING ====== */
 
   // Change panes uris on input blurs
   leftPaneUriInput.addEventListener("blur", (e) => {
-    loadUrl("left", e.target.value);
+    handleSearchBarEndInput("left", e.target.value);
   });
   rightPaneUriInput.addEventListener("blur", (e) => {
-    loadUrl("right", e.target.value);
+    handleSearchBarEndInput("right", e.target.value);
   });
+
   leftPaneUriInput.addEventListener("keyup", (e) => {
-    if (e.code === "Enter") {
-      loadUrl("left", e.target.value);
-      closePaneToolbar("left");
-    }
+    if (e.code === "Enter") handleSearchBarEndInput("left", e.target.value);
   });
   rightPaneUriInput.addEventListener("keyup", (e) => {
-    if (e.code === "Enter") {
-      loadUrl("right", e.target.value);
-      closePaneToolbar("right");
-    }
+    if (e.code === "Enter") handleSearchBarEndInput("right", e.target.value);
   });
 
   /** Fetches browser opened tabs and creates links to them
@@ -276,10 +289,10 @@ document.addEventListener("DOMContentLoaded", () => {
 
   leftPaneRefreshBtn.addEventListener("click", () => {
     loadUrl("left", leftUrl, true);
-  })
+  });
   rightPaneRefreshBtn.addEventListener("click", () => {
     loadUrl("right", rightUrl, true);
-  })
+  });
 
   // Add links to toolbar when toggle is pressed
   leftPaneShortenedUriBtn.addEventListener("click", () =>
