@@ -57,7 +57,7 @@ browser.pageAction.onClicked.addListener(async () => {
   });
   const currentUrl = activeTabs[0].url;
 
-  // Create a new tab with our split view
+  // Creates a new tab containing the split view
   tab = await browser.tabs.create({
     url: browser.runtime.getURL("split-view.html"),
     discarded: false
@@ -75,9 +75,7 @@ browser.pageAction.onClicked.addListener(async () => {
     if (tabId === tab.id && changeInfo.status === "complete") {
       // Remove the listener to avoid multiple calls
       browser.tabs.onUpdated.removeListener(listener);
-
-      tab.faviconUrl = activeTabs[0]?.faviconUrl;
-
+            
       // Send the LOAD_URLS message to the split-view page
       browser.tabs.sendMessage(tab.id, {
         type: "LOAD_URLS",

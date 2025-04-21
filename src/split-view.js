@@ -2,10 +2,10 @@
 const MIN_VIEW_PERCENTAGE = 30;
 
 /** Converts a hexadecimal color code to a rgb string */
-const hexToRgb = (hex) => {
+const hexToRgba = (hex) => {
   if (!hex) return "";
-  if (hex === "white") return "255, 255, 255";
-  if (hex === "black") return "0, 0, 0";
+  if (hex === "white") return "255, 255, 255, 1";
+  if (hex === "black") return "0, 0, 0, 1";
   if (hex === "transparent") return "0, 0, 0, 0";
 
   const r = parseInt(hex.slice(1, 3), 16);
@@ -42,7 +42,7 @@ function getRgbValuesFromBackgroundColor(bg) {
       .replaceAll("(", "")
       .replaceAll(")", "")},1`; // rgb(a, b, c) => a, b, c, 1
   }
-  return hexToRgb(bg);
+  return hexToRgba(bg);
 }
 
 /** Changes the value of a css variable */

@@ -48,12 +48,17 @@ body {
 #left-pane {
   flex: var(--left-pane-view-percentage);
   background-color: rgb(var(--left-pane-background-color));
-  color: rgb(var(--left-pane-text-color));
 }
 
 #right-pane {
   flex: var(--right-pane-view-percentage);
   background-color: rgb(var(--right-pane-background-color));
+}
+
+#left-pane.shortened-uri-btn {
+  color: rgb(var(--left-pane-text-color));
+}
+#right-pane.shortened-uri-btn {
   color: rgb(var(--right-pane-text-color));
 }
 
