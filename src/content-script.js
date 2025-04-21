@@ -10,16 +10,8 @@ window.addEventListener("message", (event) => {
     // Get the computed background color
     const bodyStyle = window.getComputedStyle(document.body);
 
-    console.info("w:", window.innerWidth - 1);
     const topElement = document.elementFromPoint(window.innerWidth / 2, 2);
-    console.log(topElement);
     const topElementStyle = window.getComputedStyle(topElement);
-
-    console.log(
-      topElementStyle.backgroundColor,
-      topElementStyle.background,
-      bodyStyle.backgroundColor
-    );
 
     const choosePreferredBgColor = () => {
       const topBg = topElementStyle?.backgroundColor?.toLowerCase();

@@ -106,8 +106,6 @@ function createCompositeFavicon() {
       link.rel = "icon";
       link.href = canvas.toDataURL("image/png");
       document.head.appendChild(link);
-
-      console.log(link);
     };
   };
 
@@ -167,6 +165,8 @@ document.addEventListener("DOMContentLoaded", () => {
       rightPaneHistory.push(url);
       rightUrl = url;
     }
+
+    browser.runtime.sendMessage({ type: "UPDATE_TABS", leftUrl, rightUrl });
   }
 
   // Listen for messages from the background script
@@ -383,6 +383,7 @@ document.addEventListener("DOMContentLoaded", () => {
     const isRightPaneUri = getUrlBase(rightPaneIframe.src).startsWith(
       getUrlBase(event.origin)
     );
+
     // Verify the message is from one of our iframes
     if (isLeftPaneUri || isRightPaneUri) {
       if (event.data && event.data.type === "url") {
@@ -402,7 +403,6 @@ document.addEventListener("DOMContentLoaded", () => {
           }
         }
         if (isRightPaneUri) {
-          console.info("here");
           changeCssVariableValue("--right-pane-background-color", rgbVal);
           changeCssVariableValue(
             "--right-pane-text-color",
