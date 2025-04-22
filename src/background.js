@@ -149,3 +149,27 @@ browser.tabs.onUpdated.addListener(
     }
   }
 );
+
+/* Create context menu */
+browser.contextMenus.create({
+  id: "split-tabs-context-menu",
+  type: "separator",
+  title: "Split tabs",
+  contexts: ["all"],
+});
+
+browser.contextMenus.create({
+  id: "split-tabs-context-submenu-reverse-tabs",
+  title: "Reverse tabs",
+  contexts: ["all"],
+});
+
+browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
+  if (tab?.id === activeTab?.id) {
+    browser.tabs.sendMessage(tab.id, {
+      type: "LOAD_URLS",
+      leftUrl: rightUrl,
+      rightUrl: leftUrl,
+    });
+  }
+});
