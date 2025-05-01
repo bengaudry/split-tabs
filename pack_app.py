@@ -80,3 +80,6 @@ if isPackagingForPublish:
         os.system("git commit -m \"Version " + newVersion + "\"")
         os.system("git push origin master")
         print("Changes pushed to github")
+
+    print("\nSend a new version here : https://addons.mozilla.org/fr/developers/addon/split-tabs/versions/submit/")
+    
