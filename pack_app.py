@@ -33,6 +33,10 @@ else:
     print("Creating build directory")
     os.mkdir(buildDir)
     
+if (os.path.exists(os.path.join(baseDir, "extension.zip"))):
+    print("Cleaning up old extension.zip")
+    os.remove(os.path.join(baseDir, "extension.zip"))
+    
 # Create the icons directory in the build directory
 os.mkdir(os.path.join(buildDir, "icons"))
     

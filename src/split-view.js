@@ -247,11 +247,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
   leftPaneIframe.addEventListener("load", (e) => {
     // Send a message to the iframe to request its URL
-    console.log(this.contentWindow.location);
+    window.parent.postMessage({ type: "getUrl" }, "*");
   });
   rightPaneIframe.addEventListener("load", (e) => {
     // Send a message to the iframe to request its URL
-    console.log(this.contentWindow.location);
+    window.parent.postMessage({ type: "getUrl" }, "*");
   });
   // Listen for messages from the iframes
 
@@ -402,22 +402,39 @@ document.addEventListener("DOMContentLoaded", () => {
         );
 
         if (isLeftPaneUri) {
+          // Handing url
+          browser.runtime.sendMessage({ type: "UPDATE_TABS", leftUrl: event.data.url });
+          leftPaneUriInput.value = event.data.url;
+          leftPaneShortenedUriBtn.textContent = getUrlBase(event.data.url);
+
+          // Handling colors
           changeCssVariableValue("--left-pane-background-color", rgbVal);
           changeCssVariableValue(
             "--left-pane-text-color",
             invertRgbValues(rgbVal)
           );
+          
+          // Handling icon
           if (event.data.icon) {
             leftPaneIcon = event.data.icon;
             createCompositeFavicon();
           }
         }
+
         if (isRightPaneUri) {
+          // Handing url
+          browser.runtime.sendMessage({ type: "UPDATE_TABS", rightUrl: event.data.url });
+          rightPaneUriInput.value = event.data.url;
+          rightPaneShortenedUriBtn.textContent = getUrlBase(event.data.url);
+
+          // Handling colors
           changeCssVariableValue("--right-pane-background-color", rgbVal);
           changeCssVariableValue(
             "--right-pane-text-color",
             invertRgbValues(rgbVal)
           );
+
+          // Handling icon
           if (event.data.icon) {
             rightPaneIcon = event.data.icon;
             createCompositeFavicon();

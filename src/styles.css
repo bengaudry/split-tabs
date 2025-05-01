@@ -148,6 +148,11 @@ iframe {
   justify-content: flex-end;
 }
 
+.toolbar-content > .right {
+  display: flex;
+  justify-content: flex-start;
+}
+
 .toolbar > .toolbar-expandable {
   display: flex;
   width: 100%;

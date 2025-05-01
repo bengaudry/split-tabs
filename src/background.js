@@ -46,8 +46,8 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   }
 
   if (message.type === "UPDATE_TABS") {
-    leftUrl = message.leftUrl;
-    rightUrl = message.rightUrl;
+    if (message.leftUrl) leftUrl = message.leftUrl;
+    if (message.rightUrl) rightUrl = message.rightUrl;
   }
 });
 
