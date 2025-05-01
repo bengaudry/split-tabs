@@ -13,13 +13,13 @@
     "contextMenus"
   ],
   "icons": {
-    "32": "../icons/colored-icon-32.png",
-    "48": "../icons/colored-icon-48.png"
+    "32": "../icons/icon-32.png",
+    "48": "../icons/icon-48.png"
   },
   "page_action": {
     "browser_style": true,
     "default_icon": {
-      "48": "icons/colored-icon-48.png"
+      "48": "icons/icon-48.png"
     },
     "pinned": true,
     "show_matches": ["http://*/*", "https://*/*", "file://*/*"]

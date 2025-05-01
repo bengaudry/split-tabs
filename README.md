@@ -16,12 +16,23 @@ git clone https://github.com/<your_username>/firefox-split-view
 Add some modifications and then, build the extension using :
 
 ```sh
-./pack_app.bat
+python pack_app.py
 ```
 
 Then in firefox, go to [Firefox debugging page]("about:debugging#/runtime/this-firefox") and click load complementary module.
 
 Select the extension.zip that you created before and there you go.
+
+
+## Generate a publishable version
+
+Just run this command : 
+
+```sh
+python pack_app.py -p
+```
+
+And it will generate a _extension.zip_ archive that can be uploaded to mozilla addons.
 
 
 ## Versions handling
