@@ -23,6 +23,8 @@ browser.webRequest.onHeadersReceived.addListener(
 let leftUrl = "https://google.com";
 let rightUrl = "https://google.com";
 
+let tab = null;
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
   if (message.type === "FETCH_TABS") {
     // Query all tabs in the current window
@@ -49,9 +51,17 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     if (message.leftUrl) leftUrl = message.leftUrl;
     if (message.rightUrl) rightUrl = message.rightUrl;
   }
+
+  if (message.type === "CLOSE_SPLIT") {
+    browser.tabs.create({
+      url: message.keep === "left" ? leftUrl : rightUrl,
+      active: true,
+    })
+    browser.tabs.remove(tab.id);
+    tab = null;
+  }
 });
 
-let tab = null;
 
 // Handle the browser action click
 browser.pageAction.onClicked.addListener(async () => {

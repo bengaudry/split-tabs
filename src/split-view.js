@@ -42,6 +42,12 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftPaneRefreshBtn = document.getElementById("left-pane-refresh-btn");
   const rightPaneRefreshBtn = document.getElementById("right-pane-refresh-btn");
 
+  // close buttons refs
+  const leftPaneCloseBtn = document.getElementById("left-pane-close-split-btn");
+  const rightPaneCloseBtn = document.getElementById(
+    "right-pane-close-split-btn"
+  );
+
   function updateTabs(updatedLeftUrl, updatedRightUrl) {
     browser.runtime.sendMessage({
       type: "UPDATE_TABS",
@@ -249,6 +255,15 @@ document.addEventListener("DOMContentLoaded", () => {
       closePaneToolbar("left");
       closePaneToolbar("right");
     }
+  });
+
+
+  // Handling closing split view
+  leftPaneCloseBtn.addEventListener("click", () => {
+    browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "right" })
+  });
+  rightPaneCloseBtn.addEventListener("click", () => {
+    browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "left" })
   });
 
   // Handling resizing
