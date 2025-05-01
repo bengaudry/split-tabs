@@ -55,10 +55,10 @@ body {
   background-color: rgb(var(--right-pane-background-color));
 }
 
-#left-pane > .shortened-uri-btn {
+#left-pane > .shortened-url-btn {
   color: rgb(var(--left-pane-text-color));
 }
-#right-pane > .shortened-uri-btn {
+#right-pane > .shortened-url-btn {
   color: rgb(var(--right-pane-text-color));
 }
 
@@ -230,7 +230,7 @@ iframe {
   height: 18px;
 }
 
-.uri-input {
+.url-input {
   width: 100%;
   border: 0;
   outline: none;
@@ -240,7 +240,7 @@ iframe {
   border-bottom: 1px solid rgb(var(--border-color));
 }
 
-.shortened-uri-btn {
+.shortened-url-btn {
   border: 1px solid rgb(var(--border-color));
   margin: 2px auto;
   border-radius: 4px;
@@ -253,6 +253,6 @@ iframe {
   background-color: transparent;
 }
 
-.shortened-uri-btn:hover {
+.shortened-url-btn:hover {
   background-color: rgba(204, 204, 204, 0.125);
 }
