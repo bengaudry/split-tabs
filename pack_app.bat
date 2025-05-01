@@ -1,4 +1,5 @@
 @echo off
+echo $1
 del extension.zip
 cd src
 xcopy /E /I ..\icons icons
