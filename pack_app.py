@@ -1,5 +1,6 @@
 import os
 import sys
+import json
 import shutil
 
 if len(sys.argv) != 1 and len(sys.argv) != 2:
@@ -15,6 +16,20 @@ buildDir = os.path.join(baseDir, "build")
 isPackagingForPublish = sys.argv[1] == "-p" if len(sys.argv) == 2 else False
             
 print(">> Packaging for publish <<\n" if isPackagingForPublish else ">> Packaging for development <<\n")
+    
+# Ask new version number if packaging for publish
+if isPackagingForPublish:
+    manifestFile = os.path.join(srcDir, "manifest.json")
+    with open(manifestFile, "r") as f:
+        manifest = f.read()
+        manifest = json.loads(manifest)
+
+    print("> Current version of the extension: " + manifest["version"])
+    newVersion = input("> Enter new version number: ")
+    manifest["version"] = newVersion
+    with open(manifestFile, "w") as f:
+        f.write(json.dumps(manifest, indent=4))
+    print("")
     
 # Check if the build directory exists, if it does, clean it up
 # and if it doesn't, create it
@@ -56,3 +71,12 @@ for file in filesToBeIncluded:
 # Compress into a zip file
 shutil.make_archive(os.path.join(baseDir, "extension"), 'zip', os.path.join(baseDir, "build"))
 print("\nPackaging complete")
+
+if isPackagingForPublish:
+    print("\nPush changes to github ?")
+    push = input("> (y/n): ")
+    if push == "y":
+        os.system("git add .")
+        os.system("git commit -m \"Version " + newVersion + "\"")
+        os.system("git push origin master")
+        print("Changes pushed to github")
