@@ -1,117 +1,23 @@
-// CONSTANTS
+import {
+  changeCssVariableValue,
+  getRgbValuesFromBackgroundColor,
+  invertRgbValues,
+} from "./lib/colors";
+import { getUrlBase, filterIncorrectUrls, addProtocolToUrl } from "./lib/urls";
+import { createCompositeFavicon } from "./lib/favicon";
+
+// ===== CONSTANTS ===== //
 const MIN_VIEW_PERCENTAGE = 30;
 
-/** Converts a hexadecimal color code to a rgb string */
-const hexToRgba = (hex) => {
-  if (!hex) return "";
-  if (hex === "white") return "255, 255, 255, 1";
-  if (hex === "black") return "0, 0, 0, 1";
-  if (hex === "transparent") return "0, 0, 0, 0";
-
-  const r = parseInt(hex.slice(1, 3), 16);
-  const g = parseInt(hex.slice(3, 5), 16);
-  const b = parseInt(hex.slice(5, 7), 16);
-
-  // return {r, g, b}
-  return `${r}, ${g}, ${b}, 1`;
-};
-
-/** Returns the inverted rgb values of a color without changing alpha channel
- *  ("0, 0, 0, a" -> "255, 255, 255, a") */
-function invertRgbValues(rgb) {
-  // turns "255, 255, 255" into "0, 0, 0"
-  const tab = rgb.replaceAll(" ", "").split(",");
-  const r = tab[0];
-  const g = tab[1];
-  const b = tab[2];
-  const a = tab[3] || 1;
-  return `${255 - r}, ${255 - g}, ${255 - b}, ${a}`;
-}
-
-/** Transforms a color that comes from a background-color css property to
- *  rgb values in a string (black -> "0, 0, 0, 0") */
-function getRgbValuesFromBackgroundColor(bg) {
-  if (bg === null || bg === undefined) return `0, 0, 0, 0`;
-
-  bg = bg.replaceAll(" ", "");
-  if (bg.startsWith("rgba")) {
-    return bg.replaceAll("rgba", "").replaceAll("(", "").replaceAll(")", ""); // rgba(a, b, c, d) => a, b, c, d
-  } else if (bg.startsWith("rgb")) {
-    return `${bg
-      .replaceAll("rgb", "")
-      .replaceAll("(", "")
-      .replaceAll(")", "")},1`; // rgb(a, b, c) => a, b, c, 1
-  }
-  return hexToRgba(bg);
-}
-
-/** Changes the value of a css variable */
-function changeCssVariableValue(variableName, value) {
-  const root = document.querySelector(":root");
-  root.style.setProperty(variableName, value);
-}
-
-/** Returns a tab of uris that are allowed to be opened in the split view */
-function filterIncorrectUris(uris) {
-  return uris.filter(
-    (tab) =>
-      !tab.url.startsWith("moz-extension://") && !tab.url.startsWith("about:")
-  );
-}
-
-/** Returns the base of the url ("https://www.example.com" -> "example.com") */
-function getUrlBase(url) {
-  return url
-    .replace("https://", "")
-    .replace("http://", "")
-    .replace("file://", "")
-    .replace("www.", "");
-}
-
-// GLOBAL VARIABLES //
-let leftUrl = "";
-let rightUrl = "";
+// ===== GLOBAL VARIABLES ===== //
+let g_leftUrl = "";
+let g_rightUrl = "";
 
 const leftPaneHistory = [];
 const rightPaneHistory = [];
 
 let leftPaneIcon = null;
 let rightPaneIcon = null;
-
-/** Creates the composite favicon for the split view tab */
-function createCompositeFavicon() {
-  if (!leftPaneIcon || !rightPaneIcon) return;
-
-  const canvas = document.createElement("canvas");
-  canvas.width = 32;
-  canvas.height = 32;
-  const ctx = canvas.getContext("2d");
-
-  // Load both images
-  const leftImg = new Image();
-  const rightImg = new Image();
-
-  leftImg.crossOrigin = "anonymous";
-  rightImg.crossOrigin = "anonymous";
-
-  leftImg.onload = () => {
-    rightImg.onload = () => {
-      // Draw left icon in top left (20x20)
-      ctx.drawImage(leftImg, 0, 0, 20, 20);
-      // Draw right icon in bottom right (20x20)
-      ctx.drawImage(rightImg, 12, 12, 20, 20);
-
-      // Convert canvas to favicon
-      const link = document.createElement("link");
-      link.rel = "icon";
-      link.href = canvas.toDataURL("image/png");
-      document.head.appendChild(link);
-    };
-  };
-
-  rightImg.src = rightPaneIcon;
-  leftImg.src = leftPaneIcon;
-}
 
 // Wait for the split view tab to be fully loaded to avoid issues
 // accessing elements and events
@@ -120,53 +26,67 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftPaneIframe = document.getElementById("left-pane-iframe");
   const rightPaneIframe = document.getElementById("right-pane-iframe");
 
-  // uri input refs
-  const leftPaneUriInput = document.getElementById("left-pane-uri-input");
-  const rightPaneUriInput = document.getElementById("right-pane-uri-input");
+  // url input refs
+  const leftPaneUrlInput = document.getElementById("left-pane-url-input");
+  const rightPaneUrlInput = document.getElementById("right-pane-url-input");
 
   // toolbar toggles refs
-  const leftPaneShortenedUriBtn = document.getElementById(
-    "left-pane-shortened-uri-btn"
+  const leftPaneShortenedUrlBtn = document.getElementById(
+    "left-pane-shortened-url-btn"
   );
-  const rightPaneShortenedUriBtn = document.getElementById(
-    "right-pane-shortened-uri-btn"
+  const rightPaneShortenedUrlBtn = document.getElementById(
+    "right-pane-shortened-url-btn"
   );
 
   // refresh buttons refs
   const leftPaneRefreshBtn = document.getElementById("left-pane-refresh-btn");
   const rightPaneRefreshBtn = document.getElementById("right-pane-refresh-btn");
 
+  function updateTabs(updatedLeftUrl, updatedRightUrl) {
+    browser.runtime.sendMessage({
+      type: "UPDATE_TABS",
+      updatedLeftUrl,
+      updatedRightUrl,
+    });
+
+    if (updatedLeftUrl) {
+      const updatedLeftUrlObj = new URL(updatedLeftUrl);
+      leftPaneUrlInput.value = updatedLeftUrl;
+      leftPaneShortenedUrlBtn.textContent = getUrlBase(
+        updatedLeftUrlObj.origin
+      );
+    }
+
+    if (updatedRightUrl) {
+      const updatedRightUrlObj = new URL(updatedRightUrl);
+      rightPaneUrlInput.value = updatedRightUrl;
+      rightPaneShortenedUrlBtn.textContent = getUrlBase(
+        updatedRightUrlObj.origin
+      );
+    }
+  }
+
   /** Function to load a URL in an iframe */
   function loadUrl(side, url, isRefreshing) {
     if (url === null) return;
-    if (
-      !url.startsWith("http://") &&
-      !url.startsWith("https://") &&
-      !url.startsWith("file://")
-    ) {
-      url = "https://" + url;
-    }
+    url = addProtocolToUrl(url);
     const urlObj = new URL(url);
     if ("left" === side) {
       // avoid refreshing when url is same
-      if (leftUrl === url && !isRefreshing) return;
+      if (g_leftUrl === url && !isRefreshing) return;
       leftPaneIframe.src = url;
-      leftPaneUriInput.value = url;
-      leftPaneShortenedUriBtn.textContent = getUrlBase(urlObj.origin);
       leftPaneHistory.push(url);
-      leftUrl = url;
+      g_leftUrl = url;
     }
     if ("right" === side) {
       // avoid refreshing when url is same
-      if (rightUrl === url && !isRefreshing) return;
+      if (g_rightUrl === url && !isRefreshing) return;
       rightPaneIframe.src = url;
-      rightPaneUriInput.value = url;
-      rightPaneShortenedUriBtn.textContent = getUrlBase(urlObj.origin);
       rightPaneHistory.push(url);
-      rightUrl = url;
+      g_rightUrl = url;
     }
 
-    browser.runtime.sendMessage({ type: "UPDATE_TABS", leftUrl, rightUrl });
+    updateTabs(g_leftUrl, g_rightUrl);
   }
 
   // Listen for messages from the background script
@@ -230,30 +150,20 @@ document.addEventListener("DOMContentLoaded", () => {
 
   /* ====== EVENT HANDLING ====== */
 
-  // Change panes uris on input blurs
-  leftPaneUriInput.addEventListener("blur", (e) => {
+  // Change panes urls on input blurs or Enter key press
+  leftPaneUrlInput.addEventListener("blur", (e) => {
     handleSearchBarEndInput("left", e.target.value);
   });
-  rightPaneUriInput.addEventListener("blur", (e) => {
+  rightPaneUrlInput.addEventListener("blur", (e) => {
     handleSearchBarEndInput("right", e.target.value);
   });
 
-  leftPaneUriInput.addEventListener("keyup", (e) => {
+  leftPaneUrlInput.addEventListener("keyup", (e) => {
     if (e.code === "Enter") handleSearchBarEndInput("left", e.target.value);
   });
-  rightPaneUriInput.addEventListener("keyup", (e) => {
+  rightPaneUrlInput.addEventListener("keyup", (e) => {
     if (e.code === "Enter") handleSearchBarEndInput("right", e.target.value);
   });
-
-  leftPaneIframe.addEventListener("load", (e) => {
-    // Send a message to the iframe to request its URL
-    window.parent.postMessage({ type: "getUrl" }, "*");
-  });
-  rightPaneIframe.addEventListener("load", (e) => {
-    // Send a message to the iframe to request its URL
-    window.parent.postMessage({ type: "getUrl" }, "*");
-  });
-  // Listen for messages from the iframes
 
   /** Fetches browser opened tabs and creates links to them
    *  inside the toolbar */
@@ -267,7 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
             .querySelector(".toolbar-links-container");
           toolbarLinksContainer.innerHTML = ""; // Clear existing links
 
-          const tabs = filterIncorrectUris(response.tabs).sort(
+          const tabs = filterIncorrectUrls(response.tabs).sort(
             (a, b) => a.lastAccessed - b.lastAccessed
           );
 
@@ -298,17 +208,17 @@ document.addEventListener("DOMContentLoaded", () => {
   };
 
   leftPaneRefreshBtn.addEventListener("click", () => {
-    loadUrl("left", leftUrl, true);
+    loadUrl("left", g_leftUrl, true);
   });
   rightPaneRefreshBtn.addEventListener("click", () => {
-    loadUrl("right", rightUrl, true);
+    loadUrl("right", g_rightUrl, true);
   });
 
   // Add links to toolbar when toggle is pressed
-  leftPaneShortenedUriBtn.addEventListener("click", () =>
+  leftPaneShortenedUrlBtn.addEventListener("click", () =>
     populateToolbarLinkContainer("left")
   );
-  rightPaneShortenedUriBtn.addEventListener("click", () =>
+  rightPaneShortenedUrlBtn.addEventListener("click", () =>
     populateToolbarLinkContainer("right")
   );
 
@@ -367,45 +277,36 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  leftPaneIframe.addEventListener("load", (e) => {
+  const askUrls = () => {
     try {
       // Send a message to the iframe to request its URL
-      e.target.contentWindow.postMessage({ type: "getUrl" }, "*");
+      window.parent.postMessage({ type: "getUrl" }, "*");
     } catch (error) {
       console.error("Could not access iframe content:", error);
     }
-  });
+  };
 
-  rightPaneIframe.addEventListener("load", (e) => {
-    try {
-      // Send a message to the iframe to request its URL
-      e.target.contentWindow.postMessage({ type: "getUrl" }, "*");
-    } catch (error) {
-      console.error("Could not access iframe content:", error);
-    }
-  });
+  leftPaneIframe.addEventListener("load", askUrls);
+  rightPaneIframe.addEventListener("load", askUrls);
 
   // Listen for messages from the iframes
   window.addEventListener("message", (event) => {
-    const isLeftPaneUri = getUrlBase(leftPaneIframe.src).startsWith(
+    const isLeftPaneUrl = getUrlBase(leftPaneIframe.src).startsWith(
       getUrlBase(event.origin)
     );
-    const isRightPaneUri = getUrlBase(rightPaneIframe.src).startsWith(
+    const isRightPaneUrl = getUrlBase(rightPaneIframe.src).startsWith(
       getUrlBase(event.origin)
     );
 
     // Verify the message is from one of our iframes
-    if (isLeftPaneUri || isRightPaneUri) {
+    if (isLeftPaneUrl || isRightPaneUrl) {
       if (event.data && event.data.type === "url") {
         const rgbVal = getRgbValuesFromBackgroundColor(
           event.data.backgroundColor
         );
 
-        if (isLeftPaneUri) {
-          // Handing url
-          browser.runtime.sendMessage({ type: "UPDATE_TABS", leftUrl: event.data.url });
-          leftPaneUriInput.value = event.data.url;
-          leftPaneShortenedUriBtn.textContent = getUrlBase(event.data.url);
+        if (isLeftPaneUrl) {
+          updateTabs(event.data.url, g_rightUrl);
 
           // Handling colors
           changeCssVariableValue("--left-pane-background-color", rgbVal);
@@ -413,19 +314,17 @@ document.addEventListener("DOMContentLoaded", () => {
             "--left-pane-text-color",
             invertRgbValues(rgbVal)
           );
-          
+
           // Handling icon
           if (event.data.icon) {
             leftPaneIcon = event.data.icon;
-            createCompositeFavicon();
+            createCompositeFavicon(leftPaneIcon, rightPaneIcon);
           }
         }
 
-        if (isRightPaneUri) {
+        if (isRightPaneUrl) {
           // Handing url
-          browser.runtime.sendMessage({ type: "UPDATE_TABS", rightUrl: event.data.url });
-          rightPaneUriInput.value = event.data.url;
-          rightPaneShortenedUriBtn.textContent = getUrlBase(event.data.url);
+          updateTabs(g_leftUrl, event.data.url);
 
           // Handling colors
           changeCssVariableValue("--right-pane-background-color", rgbVal);
@@ -437,7 +336,7 @@ document.addEventListener("DOMContentLoaded", () => {
           // Handling icon
           if (event.data.icon) {
             rightPaneIcon = event.data.icon;
-            createCompositeFavicon();
+            createCompositeFavicon(leftPaneIcon, rightPaneIcon);
           }
         }
       }
