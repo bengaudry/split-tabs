@@ -60,6 +60,8 @@ else:
     shutil.copyfile(os.path.join(iconsDir, "wip-icon-32.png"), os.path.join(buildDir, "icons", "icon-32.png"))
     shutil.copyfile(os.path.join(iconsDir, "wip-icon-48.png"), os.path.join(buildDir, "icons", "icon-48.png"))
     
+# Run webpack to build the extension
+print("> Running webpack")
 os.system("npx webpack")    
 
 # Copy the src directory to the build directory
