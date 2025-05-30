@@ -1,6 +1,6 @@
 :root {
   --page-default-background-color: 255, 255, 255;
-  --main-background-color: 255, 255, 255;
+  --main-background-color: var(--page-default-background-color);
   --primary-text-color: 0, 0, 0;
   --secondary-text-color: 128, 128, 128;
   --border-color: 128, 128, 128;
@@ -14,6 +14,15 @@
   --right-pane-text-color: var(--primary-text-color);
 
   --resize-bar-width: 8px;
+}
+
+@media (prefers-color-scheme: dark) {
+  :root {
+    --page-default-background-color: 28, 27, 34;
+    --primary-text-color: 255, 255, 255;
+    --secondary-text-color: 128, 128, 128;
+    --border-color: 128, 128, 128;
+  }
 }
 
 button {

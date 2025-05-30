@@ -1,3 +1,5 @@
+console.info("background.js > Loaded");
+
 // Remove X-Frame-Options and modify Content-Security-Policy headers
 // because some pages prevent being renderered into iframes
 browser.webRequest.onHeadersReceived.addListener(
@@ -56,65 +58,74 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     browser.tabs.create({
       url: message.keep === "left" ? leftUrl : rightUrl,
       active: true,
-    })
+    });
     browser.tabs.remove(tab.id);
     tab = null;
   }
 });
 
-
 // Handle the browser action click
 browser.pageAction.onClicked.addListener(async () => {
-  // Get the current tab's URL
-  const activeTabs = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  const currentUrl = activeTabs[0].url;
+  try {
+    console.info("background.js > Trigger pressed");
 
-  // Creates a new tab containing the split view
-  tab = await browser.tabs.create({
-    url: browser.runtime.getURL("split-view.html"),
-    discarded: false,
-  });
+    // Get the current tab's URL
+    const activeTabs = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const currentUrl = activeTabs[0].url;
 
-  // Get the current theme
-  const theme = await browser.theme.getCurrent();
-  const backgroundColor = theme.colors.frame;
-  const textColor = theme.colors.tab_text ?? theme.colors.toolbar_text;
-  const inputBorder = theme.colors.toolbar_field_border;
-  const secondaryTextColor = theme.colors.toolbar_field_highlight;
+    // Creates a new tab containing the split view
+    tab = await browser.tabs.create({
+      url: browser.runtime.getURL("split-view.html"),
+      discarded: false,
+    });
 
-  // Wait for the tab to be fully loaded, and send informations
-  browser.tabs.onUpdated.addListener(function listener(
-    tabId,
-    changeInfo,
-    updatedTab
-  ) {
-    if (tabId === tab.id && changeInfo.status === "complete") {
-      // Remove the listener to avoid multiple calls
-      browser.tabs.onUpdated.removeListener(listener);
+    // Get the current theme
+    const theme = await browser.theme.getCurrent();
 
-      leftUrl = currentUrl;
-      rightUrl = "https://google.com";
+    const backgroundColor = theme.colors?.frame;
+    const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_text;
+    const inputBorder = theme.colors?.toolbar_field_border;
+    const secondaryTextColor = theme.colors?.toolbar_field_highlight;
 
-      // Send the LOAD_URLS event to the split-view page
-      browser.tabs.sendMessage(tab.id, {
-        type: "LOAD_URLS",
-        leftUrl,
-        rightUrl,
-      });
+    // Wait for the tab to be fully loaded, and send informations
+    browser.tabs.onUpdated.addListener(function listener(
+      tabId,
+      changeInfo,
+      updatedTab
+    ) {
+      if (tabId === tab.id && changeInfo.status === "complete") {
+        // Remove the listener to avoid multiple calls
+        browser.tabs.onUpdated.removeListener(listener);
 
-      // Send the BROWSER_COLORS data to the split-view page
-      browser.tabs.sendMessage(tab.id, {
-        type: "BROWSER_COLORS",
-        backgroundColor,
-        textColor,
-        inputBorder,
-        secondaryTextColor,
-      });
-    }
-  });
+        leftUrl = currentUrl;
+        rightUrl = "https://google.com";
+
+        console.info("background.js > Sending LOAD_URLS");
+        // Send the LOAD_URLS event to the split-view page
+        browser.tabs.sendMessage(tab.id, {
+          type: "LOAD_URLS",
+          leftUrl,
+          rightUrl,
+        });
+
+        console.info("background.js > Sending BROWSER_COLORS");
+        // Send the BROWSER_COLORS data to the split-view page
+        browser.tabs.sendMessage(tab.id, {
+          type: "BROWSER_COLORS",
+          backgroundColor,
+          textColor,
+          inputBorder,
+          secondaryTextColor,
+        });
+      }
+    });
+  } catch (err) {
+    console.error("background.js > Error while initializing :");
+    console.error(err);
+  }
 });
 
 browser.tabs.onUpdated.addListener(

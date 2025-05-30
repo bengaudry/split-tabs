@@ -76,7 +76,6 @@ document.addEventListener("DOMContentLoaded", () => {
   function loadUrl(side, url, isRefreshing) {
     if (url === null) return;
     url = addProtocolToUrl(url);
-    const urlObj = new URL(url);
     if ("left" === side) {
       // avoid refreshing when url is same
       if (g_leftUrl === url && !isRefreshing) return;

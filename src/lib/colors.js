@@ -1,6 +1,6 @@
 /** Converts a hexadecimal color code to a rgb string */
 export function hexToRgba (hex) {
-  if (!hex) return "";
+  if (!hex) return null;
   if (hex === "white") return "255, 255, 255, 1";
   if (hex === "black") return "0, 0, 0, 1";
   if (hex === "transparent") return "0, 0, 0, 0";
@@ -28,7 +28,7 @@ export function invertRgbValues(rgb) {
 /** Transforms a color that comes from a background-color css property to
  *  rgb values in a string (black -> "0, 0, 0, 0") */
 export function getRgbValuesFromBackgroundColor(bg) {
-  if (bg === null || bg === undefined) return `0, 0, 0, 0`;
+  if (bg === null || bg === undefined) return null;
 
   bg = bg.replaceAll(" ", "");
   if (bg.startsWith("rgba")) {
@@ -44,6 +44,8 @@ export function getRgbValuesFromBackgroundColor(bg) {
 
 /** Changes the value of a css variable */
 export function changeCssVariableValue(variableName, value) {
+  if (value === undefined || value === null) return;
+  console.log("Changing " + variableName + " to " + value)
   const root = document.querySelector(":root");
   root.style.setProperty(variableName, value);
 }
