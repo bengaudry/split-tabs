@@ -1,4 +1,7 @@
-/** Converts a hexadecimal color code to a rgb string */
+/** 
+ * Converts a hexadecimal color code to a rgb string 
+ * @param {string} hex 
+ */
 export function hexToRgba (hex) {
   if (!hex) return null;
   if (hex === "white") return "255, 255, 255, 1";
@@ -14,7 +17,9 @@ export function hexToRgba (hex) {
 };
 
 /** Returns the inverted rgb values of a color without changing alpha channel
- *  ("0, 0, 0, a" -> "255, 255, 255, a") */
+ *  ("0, 0, 0, a" -> "255, 255, 255, a") 
+ * @param {string} rgb 
+ */
 export function invertRgbValues(rgb) {
   // turns "255, 255, 255" into "0, 0, 0"
   const tab = rgb.replaceAll(" ", "").split(",");
@@ -26,7 +31,9 @@ export function invertRgbValues(rgb) {
 }
 
 /** Transforms a color that comes from a background-color css property to
- *  rgb values in a string (black -> "0, 0, 0, 0") */
+ *  rgb values in a string (black -> "0, 0, 0, 0")
+ * @param {string} bg 
+ */
 export function getRgbValuesFromBackgroundColor(bg) {
   if (bg === null || bg === undefined) return null;
 
@@ -42,10 +49,12 @@ export function getRgbValuesFromBackgroundColor(bg) {
   return hexToRgba(bg);
 }
 
-/** Changes the value of a css variable */
+/** Changes the value of a css variable
+ * @param {string} variableName 
+ * @param {string} value 
+ */
 export function changeCssVariableValue(variableName, value) {
   if (value === undefined || value === null) return;
-  console.log("Changing " + variableName + " to " + value)
   const root = document.querySelector(":root");
   root.style.setProperty(variableName, value);
 }
