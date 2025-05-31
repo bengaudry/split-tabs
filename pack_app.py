@@ -69,11 +69,21 @@ shutil.copyfile(os.path.join(iconsDir, "BottomPaneIcon.svg"), os.path.join(build
 print("> Running webpack")
 os.system("npx webpack")    
 
-# Copy the src directory to the build directory
+# Copy the src directory and the subfolders content to the build directory root
 print("> Copying src directory")
-filesToBeIncluded = ["background.js", "content-script.js", "manifest.json", "split-view.html", "popup.html", "popup.js", "styles.css"]
-for file in filesToBeIncluded:
+src_root_files = ["background.js", "manifest.json"]
+for file in src_root_files:
     shutil.copyfile(os.path.join(srcDir, file), os.path.join(buildDir, file))
+
+split_view_directory = os.path.join(srcDir, "split-view")
+split_view_files = ["content-script.js", "split-view.html", "styles.css"]
+for file in split_view_files:
+    shutil.copyfile(os.path.join(split_view_directory, file), os.path.join(buildDir, file))
+
+popup_directory = os.path.join(srcDir, "popup")
+popup_files = ["popup.html", "popup.js"]
+for file in popup_files:
+    shutil.copyfile(os.path.join(popup_directory, file), os.path.join(buildDir, file))
 
 # Compress into a zip file
 shutil.make_archive(os.path.join(baseDir, "extension"), 'zip', os.path.join(baseDir, "build"))
