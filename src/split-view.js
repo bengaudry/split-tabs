@@ -21,16 +21,29 @@ const rightPaneHistory = [];
 let leftPaneIcon = null;
 let rightPaneIcon = null;
 
+/**
+ * Changes the orientation to `newOrientation` if provided, or toggles the
+ * orientation if `newOrientation` param is undefined
+ * @param {"horizontal" | "vertical" | undefined} newOrientation
+ * @returns {"horizontal" | "vertical"} the new orientation
+ */
 function changeOrientation(newOrientation) {
-  if (newOrientation === undefined) { // toggle orientation
-    if (orientation === "horizontal") orientation = "vertical";
+  if (newOrientation === undefined) {
+    // toggle orientation
+    if ("horizontal" === orientation) orientation = "vertical";
     else orientation = "horizontal";
-  } else { // set orientation with defined value
+  } else {
+    // set orientation with defined value
     orientation = newOrientation;
   }
-  changeCssVariableValue("--view-orientation", orientation === "vertical" ? "column" : "row")
-  document.body?.classList.toggle("horizontal", orientation === "horizontal");
-  document.body?.classList.toggle("vertical", orientation === "vertical");
+  changeCssVariableValue(
+    "--view-orientation",
+    "vertical" === orientation ? "column" : "row"
+  );
+  document.body?.classList.toggle("horizontal", "horizontal" === orientation);
+  document.body?.classList.toggle("vertical", "vertical" === orientation);
+
+  return orientation;
 }
 
 // Wait for the split view tab to be fully loaded to avoid issues
@@ -62,6 +75,11 @@ document.addEventListener("DOMContentLoaded", () => {
     "right-pane-close-split-btn"
   );
 
+  /**
+   * Update both tabs if the url is not undefined
+   * @param {string | undefined} updatedLeftUrl 
+   * @param {string | undefined} updatedRightUrl 
+   */
   function updateTabs(updatedLeftUrl, updatedRightUrl) {
     browser.runtime.sendMessage({
       type: "UPDATE_TABS",
@@ -72,21 +90,22 @@ document.addEventListener("DOMContentLoaded", () => {
     if (updatedLeftUrl) {
       const updatedLeftUrlObj = new URL(updatedLeftUrl);
       leftPaneUrlInput.value = updatedLeftUrl;
-      leftPaneShortenedUrlBtn.textContent = getUrlBase(
-        updatedLeftUrlObj.origin
-      );
+      leftPaneShortenedUrlBtn.textContent = updatedLeftUrlObj.hostname
     }
 
     if (updatedRightUrl) {
       const updatedRightUrlObj = new URL(updatedRightUrl);
       rightPaneUrlInput.value = updatedRightUrl;
-      rightPaneShortenedUrlBtn.textContent = getUrlBase(
-        updatedRightUrlObj.origin
-      );
+      rightPaneShortenedUrlBtn.textContent = updatedRightUrlObj.hostname
     }
   }
 
-  /** Function to load a URL in an iframe */
+  /**
+   * Function to load a URL in an iframe
+   * @param {"left" | "right"} side
+   * @param {string} url
+   * @param {boolean} isRefreshing
+   */
   function loadUrl(side, url, isRefreshing) {
     if (url === null) return;
     url = addProtocolToUrl(url);
@@ -131,44 +150,51 @@ document.addEventListener("DOMContentLoaded", () => {
         getRgbValuesFromBackgroundColor(message.secondaryTextColor)
       );
     }
-    
+
+    // Change the orientation when context menu pressed
     if (message.type === "SET_ORIENTATION") {
       changeOrientation(message.orientation);
     }
   });
 
-
   /* ===== PANES STATE HANDLING ===== */
+  /**
+   * Closes the search bar at the provided side
+   * @param {"left" | "right"} side
+   */
   function closePaneToolbar(side) {
     const relativeToolbar = document.getElementById(`${side}-pane-toolbar`);
-    relativeToolbar.setAttribute("data-expanded", "false");
+    relativeToolbar?.setAttribute("data-expanded", "false");
   }
 
+  /**
+   * Toggles the search bar at the provided side
+   * @param {"left" | "right"} side
+   */
   function togglePaneToolbar(side) {
     const relativeToolbar = document.getElementById(`${side}-pane-toolbar`);
     const isToolbarExpanded =
-      relativeToolbar.getAttribute("data-expanded") === "true";
-    relativeToolbar.setAttribute(
+      relativeToolbar?.getAttribute("data-expanded") === "true";
+    relativeToolbar?.setAttribute(
       "data-expanded",
       isToolbarExpanded ? "false" : "true"
     );
   }
 
-  /** Make a query with the search engine or open a url in the split-view
-   *  when the search bar receives validation (Enter key or blur) */
+  /**
+   * Make a query with the search engine or open a url in the split-view
+   * when the search bar receives validation (Enter key or blur)
+   * @param {"left" | "right"} side
+   * @param {string} query
+   */
   function handleSearchBarEndInput(side, query) {
-    if (
-      query.startsWith("http://") ||
-      query.startsWith("https://") ||
-      query.startsWith("file://")
-    ) {
+    if (isUrlLike(query)) {
       loadUrl(side, query);
     } else {
       const googleUrl = new URL("https://www.google.com/search");
       googleUrl.searchParams.set("q", query);
       loadUrl(side, googleUrl.toString());
     }
-
     closePaneToolbar(side);
   }
 
@@ -190,46 +216,52 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /** Fetches browser opened tabs and creates links to them
-   *  inside the toolbar */
-  const populateToolbarLinkContainer = (side) => {
-    browser.runtime
-      .sendMessage({ type: "FETCH_TABS" })
-      .then((response) => {
-        if (response.type === "TABS_DATA") {
-          const toolbarLinksContainer = document
-            .getElementById(`${side}-pane-toolbar`)
-            .querySelector(".toolbar-links-container");
-          toolbarLinksContainer.innerHTML = ""; // Clear existing links
+   *  inside the toolbar
+   * @param {"left" | "right"} side
+   */
+  async function populateToolbarLinkContainer(side) {
+    try {
+      const response = await browser.runtime.sendMessage({
+        type: "FETCH_TABS",
+      });
 
-          const tabs = filterIncorrectUrls(response.tabs).sort(
-            (a, b) => a.lastAccessed - b.lastAccessed
-          );
+      if (response.type !== "TABS_DATA") return;
 
-          for (let i = 1; i <= tabs.length; i++) {
-            const tab = tabs[i - 1];
+      const toolbarLinksContainer = document
+        .getElementById(`${side}-pane-toolbar`)
+        .querySelector(".toolbar-links-container");
+      toolbarLinksContainer.innerHTML = ""; // Clear existing links
 
-            const button = document.createElement("button");
-            button.id = `toolbar-link-${i}`;
-            button.className = "toolbar-tab-link";
+      const tabs = filterIncorrectUrls(response.tabs).sort(
+        (a, b) => a.lastAccessed - b.lastAccessed
+      );
 
-            const img = document.createElement("img");
-            img.src = tab.favIconUrl;
-            const txtSpan = document.createElement("span");
-            txtSpan.textContent = tab.title;
+      for (let i = 1; i <= tabs.length; i++) {
+        const tab = tabs[i - 1];
 
-            button.appendChild(img);
-            button.appendChild(txtSpan);
+        const button = document.createElement("button");
+        button.id = `toolbar-link-${i}`;
+        button.className = "toolbar-tab-link";
 
-            button.addEventListener("click", (e) => {
-              loadUrl(side, tab.url);
-            });
-            toolbarLinksContainer.appendChild(button);
-          }
-        }
-      })
-      .catch(console.error);
-    togglePaneToolbar(side);
-  };
+        const img = document.createElement("img");
+        img.src = tab.favIconUrl;
+        const txtSpan = document.createElement("span");
+        txtSpan.textContent = tab.title;
+
+        button.appendChild(img);
+        button.appendChild(txtSpan);
+
+        button.addEventListener("click", (e) => {
+          loadUrl(side, tab.url);
+        });
+        toolbarLinksContainer.appendChild(button);
+      }
+    } catch (err) {
+      console.error(err);
+    } finally {
+      togglePaneToolbar(side);
+    }
+  }
 
   leftPaneRefreshBtn.addEventListener("click", () => {
     loadUrl("left", g_leftUrl, true);
@@ -299,14 +331,24 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("mousemove", (e) => {
     if (isUserResizingViews && e.buttons == 1) {
       // check if the user is pressing the mouse btn
-      const leftPercent = Math.round(orientation === "horizontal" ? (e.pageX * 100) / window.innerWidth : (e.pageY * 100) / window.innerHeight);
+      const leftPercent = Math.round(
+        orientation === "horizontal"
+          ? (e.pageX * 100) / window.innerWidth
+          : (e.pageY * 100) / window.innerHeight
+      );
       const rightPercent = 100 - leftPercent;
       if (
         leftPercent >= MIN_VIEW_PERCENTAGE &&
         rightPercent >= MIN_VIEW_PERCENTAGE
       ) {
-        changeCssVariableValue("--left-pane-view-percentage", `${leftPercent}%`);
-        changeCssVariableValue("--right-pane-view-percentage", `${rightPercent}%`);
+        changeCssVariableValue(
+          "--left-pane-view-percentage",
+          `${leftPercent}%`
+        );
+        changeCssVariableValue(
+          "--right-pane-view-percentage",
+          `${rightPercent}%`
+        );
       }
     }
   });

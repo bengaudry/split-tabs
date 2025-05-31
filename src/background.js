@@ -22,39 +22,54 @@ browser.webRequest.onHeadersReceived.addListener(
   ["blocking", "responseHeaders"]
 );
 
+// ===== GLOBAL VARIABLES ===== //
 let leftUrl = "https://google.com";
 let rightUrl = "https://google.com";
 
 let tab = null;
 
+async function fetchTabs(sender, sendResponse) {
+  try {
+    const tabs = await browser.tabs.query({ currentWindow: true });
+    sendResponse({
+      type: "TABS_DATA",
+      tabs: tabs,
+    });
+  } catch (e) {
+    console.error("background.js > Error while fetching tabs");
+    console.error(e);
+    browser.tabs.sendMessage(sender.tab.id, {
+      type: "TABS_DATA",
+      error: error.message,
+    });
+  }
+}
+
 browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  // Initialize extension
+  if (message.type === "INIT_EXT") {
+    console.info("background.js > Initializing extension");
+    console.info(message.side);
+    handleInitializeExtension(message.side);
+  }
+
+  // Fetch opened tabs on browser to make suggestions to user
   if (message.type === "FETCH_TABS") {
+    console.info("background.js > Fetching current tab");
     // Query all tabs in the current window
-    browser.tabs
-      .query({ currentWindow: true })
-      .then((tabs) => {
-        // Send the tabs data back to the specific tab that requested it
-        sendResponse({
-          type: "TABS_DATA",
-          tabs: tabs,
-        });
-      })
-      .catch((error) => {
-        console.error("Error fetching tabs:", error);
-        browser.tabs.sendMessage(sender.tab.id, {
-          type: "TABS_DATA",
-          error: error.message,
-        });
-      });
+    fetchTabs(sender, sendResponse);
     return true; // Indicate we will send response asynchronously
   }
 
+  // Update global variables when changing url in split view
   if (message.type === "UPDATE_TABS") {
     if (message.leftUrl) leftUrl = message.leftUrl;
     if (message.rightUrl) rightUrl = message.rightUrl;
   }
 
+  // Close one of the tabs in the split
   if (message.type === "CLOSE_SPLIT") {
+    console.info("background.js > Closing split view");
     browser.tabs.create({
       url: message.keep === "left" ? leftUrl : rightUrl,
       active: true,
@@ -62,24 +77,21 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     browser.tabs.remove(tab.id);
     tab = null;
   }
-
-  if (message.type === "INIT_EXT") {
-    console.info("background.js > Initializing extension");
-    console.info(message.side);
-    handleInitializeExtension(message.side);
-  }
 });
+
+const getCurrentTabUrl = async () => {
+  const activeTabs = await browser.tabs.query({
+    active: true,
+    currentWindow: true,
+  });
+  const currentUrl = activeTabs[0].url;
+  return currentUrl;
+};
 
 const handleInitializeExtension = async (side) => {
   try {
-    console.info("background.js > Trigger pressed");
-
     // Get the current tab's URL
-    const activeTabs = await browser.tabs.query({
-      active: true,
-      currentWindow: true,
-    });
-    const currentUrl = activeTabs[0].url;
+    const currentUrl = await getCurrentTabUrl()
 
     // Creates a new tab containing the split view
     tab = await browser.tabs.create({
@@ -139,33 +151,29 @@ const handleInitializeExtension = async (side) => {
       }
     });
   } catch (err) {
-    console.error("background.js > Error while initializing :");
+    console.error("background.js > Error while initializing extension :");
     console.error(err);
   }
 };
-
-// Handle the browser action click
-browser.pageAction.onClicked.addListener(async () => {});
 
 browser.tabs.onUpdated.addListener(
   async (updatedTabId, changeInfo, newTabState) => {
     if (updatedTabId !== tab?.id) return;
 
     if (changeInfo.status === "loading") {
-      // Get the current theme
-      const theme = await browser.theme.getCurrent();
-      const backgroundColor = theme.colors.frame;
-      const textColor = theme.colors.tab_text ?? theme.colors.toolbar_text;
-      const inputBorder = theme.colors.toolbar_field_border;
-      const secondaryTextColor = theme.colors.toolbar_field_highlight;
-
       // Wait for the tab to be fully loaded, and send informations
-      browser.tabs.onUpdated.addListener(function listener(
+      browser.tabs.onUpdated.addListener(async function listener(
         tabId,
         changeInfo,
         updatedTab
       ) {
         if (tabId === tab.id && changeInfo.status === "complete") {
+          // Get the current theme
+          const theme = await browser.theme.getCurrent();
+          const backgroundColor = theme.colors.frame;
+          const textColor = theme.colors.tab_text ?? theme.colors.toolbar_text;
+          const inputBorder = theme.colors.toolbar_field_border;
+          const secondaryTextColor = theme.colors.toolbar_field_highlight;
           // Remove the listener to avoid multiple calls
           browser.tabs.onUpdated.removeListener(listener);
 
@@ -189,6 +197,7 @@ browser.tabs.onUpdated.addListener(
     }
   }
 );
+// ===== CONTEXT MENU ===== //
 
 /* Create context menu */
 browser.contextMenus.create({
@@ -210,6 +219,7 @@ browser.contextMenus.create({
   contexts: ["all"],
 });
 
+// Handle context menu actions
 browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
   console.info(info);
   if (tab?.id === activeTab?.id) {

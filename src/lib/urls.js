@@ -1,4 +1,8 @@
-/** Returns a tab of urls that are allowed to be opened in the split view */
+/** 
+ * Returns an array of urls that are allowed to be opened in the split view 
+ * @param {string[]} urls 
+ * @returns {string[]}
+ */
 export function filterIncorrectUrls(urls) {
   return urls.filter(
     (tab) =>
@@ -6,7 +10,11 @@ export function filterIncorrectUrls(urls) {
   );
 }
 
-/** Returns the base of the url ("https://www.example.com" -> "example.com") */
+/** 
+ * Returns the base of the url ("https://www.example.com" -> "example.com") 
+ * @param {string} url 
+ * @returns {string}
+ */
 export function getUrlBase(url) {
   return url
     .replace("https://", "")
@@ -15,14 +23,25 @@ export function getUrlBase(url) {
     .replace("www.", "");
 }
 
+/**
+ * Returns true if the url starts with a known protocol
+ * @param {string} url 
+ * @returns {boolean}
+ */
+export function isUrlLike(url) {
+  return url.startsWith("http://") ||
+    url.startsWith("https://") ||
+    url.startsWith("file://")
+}
+
+/**
+ * Adds a protocol to a url if it is not url like
+ * @param {string} url - A url with or without protocol
+ * @returns 
+ */
 export function addProtocolToUrl(url) {
-  if (
-    !url.startsWith("http://") &&
-    !url.startsWith("https://") &&
-    !url.startsWith("file://")
-  ) {
+  if (!isUrlLike(url)) {
     return "https://" + url;
   }
-
   return url;
 }
