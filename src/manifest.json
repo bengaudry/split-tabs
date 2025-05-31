@@ -1,40 +1,53 @@
 {
-  "manifest_version": 2,
-  "name": "Split Tabs",
-  "version": "1.4.2",
-  "description": "Opens two tabs into a split view that can be resized.",
-  "permissions": [
-    "tabs",
-    "activeTab",
-    "webRequest",
-    "webRequestBlocking",
-    "<all_urls>",
-    "theme",
-    "contextMenus",
-    "scripting"
-  ],
-  "icons": {
-    "32": "../icons/icon-32.png",
-    "48": "../icons/icon-48.png"
-  },
-  "page_action": {
-    "browser_style": true,
-    "default_icon": {
-      "48": "icons/icon-48.png"
+    "manifest_version": 2,
+    "name": "Split Tabs",
+    "version": "1.5.0",
+    "description": "Opens two tabs into a split view that can be resized.",
+    "permissions": [
+        "tabs",
+        "activeTab",
+        "webRequest",
+        "webRequestBlocking",
+        "<all_urls>",
+        "theme",
+        "contextMenus",
+        "scripting"
+    ],
+    "icons": {
+        "32": "../icons/icon-32.png",
+        "48": "../icons/icon-48.png"
     },
-    "pinned": true,
-    "show_matches": ["http://*/*", "https://*/*", "file://*/*"],
-    "default_popup": "popup.html"
-  },
-  "background": {
-    "scripts": ["background.js"]
-  },
-  "content_scripts": [
-    {
-      "matches": ["<all_urls>"],
-      "js": ["content-script.js"],
-      "all_frames": true
-    }
-  ],
-  "web_accessible_resources": ["split-view.html", "split-view.js"]
+    "page_action": {
+        "browser_style": true,
+        "default_icon": {
+            "48": "icons/icon-48.png"
+        },
+        "pinned": true,
+        "show_matches": [
+            "http://*/*",
+            "https://*/*",
+            "file://*/*"
+        ],
+        "default_popup": "popup.html"
+    },
+    "background": {
+        "scripts": [
+            "background.js"
+        ]
+    },
+    "content_scripts": [
+        {
+            "matches": [
+                "<all_urls>"
+            ],
+            "js": [
+                "content-script.js"
+            ],
+            "all_frames": true
+        }
+    ],
+    "web_accessible_resources": [
+        "split-view.html",
+        "split-view.js"
+    ]
 }
