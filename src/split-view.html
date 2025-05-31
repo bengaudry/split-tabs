@@ -11,7 +11,8 @@
     />
   </head>
 
-  <body>
+  <body class="horizontal">
+    <div id="resize-draggable"></div>
     <div id="split-container">
       <div id="left-pane" class="split-pane">
         <div id="left-pane-toolbar" class="toolbar" data-expanded="false">
@@ -23,8 +24,8 @@
             </div>
             <div class="center">
               <button
-              class="shortened-url-btn"
-              id="left-pane-shortened-url-btn"
+                class="shortened-url-btn"
+                id="left-pane-shortened-url-btn"
               ></button>
             </div>
             <div class="right">
@@ -36,7 +37,12 @@
 
           <button class="toolbar-expandable">
             <div class="toolbar-expandable-content">
-              <input type="text" class="url-input" id="left-pane-url-input" />
+              <input
+                type="text"
+                class="url-input"
+                id="left-pane-url-input"
+                placeholder="Enter a url, or a search for anything on Google..."
+              />
               <ul class="toolbar-links-container"></ul>
             </div>
           </button>
@@ -47,8 +53,6 @@
           <iframe id="left-pane-iframe" target="_self"></iframe>
         </div>
       </div>
-
-      <div id="resize-draggable"></div>
 
       <div id="right-pane" class="split-pane">
         <div id="right-pane-toolbar" class="toolbar" data-expanded="false">
@@ -73,7 +77,12 @@
 
           <button class="toolbar-expandable">
             <div class="toolbar-expandable-content">
-              <input type="text" class="url-input" id="right-pane-url-input" />
+              <input
+                type="text"
+                class="url-input"
+                id="right-pane-url-input"
+                placeholder="Enter a url, or a search for anything on Google..."
+              />
               <ul class="toolbar-links-container"></ul>
             </div>
           </button>

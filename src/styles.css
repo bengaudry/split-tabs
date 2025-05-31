@@ -3,10 +3,10 @@
   --main-background-color: var(--page-default-background-color);
   --primary-text-color: 0, 0, 0;
   --secondary-text-color: 128, 128, 128;
-  --border-color: 128, 128, 128;
-
-  --left-pane-view-percentage: 50;
-  --right-pane-view-percentage: 50;
+  --border-color: 200, 200, 200;
+  
+  --left-pane-view-percentage: 50%;
+  --right-pane-view-percentage: 50%;
 
   --left-pane-background-color: var(--main-background-color);
   --left-pane-text-color: var(--primary-text-color);
@@ -14,6 +14,8 @@
   --right-pane-text-color: var(--primary-text-color);
 
   --resize-bar-width: 8px;
+
+  --view-orientation: row;
 }
 
 @media (prefers-color-scheme: dark) {
@@ -21,7 +23,7 @@
     --page-default-background-color: 28, 27, 34;
     --primary-text-color: 255, 255, 255;
     --secondary-text-color: 128, 128, 128;
-    --border-color: 128, 128, 128;
+    --border-color: 75, 75, 75;
   }
 }
 
@@ -48,19 +50,40 @@ body {
 
 #split-container {
   display: flex;
-  flex-direction: row;
   width: 100vw;
-  height: calc(100vh - 2 * 8px);
-  padding: 8px 6px;
+  height: 100vh;
+  /* height: calc(100vh - 2 * 8px); */
+  /* gap: var(--resize-bar-width); */
+  /* padding: 8px 6px; */
+}
+
+body.vertical > #split-container {
+  flex-direction: column;
+}
+body.horizontal > #split-container {
+  flex-direction: row;
+}
+
+body.vertical > #split-container > #left-pane {
+  border-bottom: 2px solid rgb(var(--border-color));
+}
+body.horizontal > #split-container > #left-pane {
+  border-right: 2px solid rgb(var(--border-color));
+}
+body.vertical > #split-container > #right-pane {
+  border-top: 2px solid rgb(var(--border-color));
+}
+body.horizontal > #split-container > #right-pane {
+  border-left: 2px solid rgb(var(--border-color));
 }
 
 #left-pane {
-  flex: var(--left-pane-view-percentage);
+  flex-basis: var(--left-pane-view-percentage);
   background-color: rgb(var(--left-pane-background-color));
 }
 
 #right-pane {
-  flex: var(--right-pane-view-percentage);
+  flex-basis: var(--right-pane-view-percentage);
   background-color: rgb(var(--right-pane-background-color));
 }
 
@@ -72,9 +95,24 @@ body {
 }
 
 #resize-draggable {
+  z-index: 30;
+  position: fixed;
+}
+
+body.horizontal > #resize-draggable {
   height: 100%;
+  left: var(--left-pane-view-percentage);
+  transform: translateX(-50%);
   width: var(--resize-bar-width);
   cursor: ew-resize;
+}
+
+body.vertical > #resize-draggable {
+  width: 100%;
+  top: var(--left-pane-view-percentage);
+  transform: translateY(-50%);
+  height: var(--resize-bar-width);
+  cursor: ns-resize;
 }
 
 .split-pane {
@@ -82,10 +120,10 @@ body {
   width: 100%;
   display: flex;
   flex-direction: column;
-  border-radius: 6px;
+  /* border-radius: 6px; */
   overflow: hidden;
   position: relative;
-  border: 1px solid rgba(var(--border-color), 0.5);
+  /* border: 1px solid rgba(var(--border-color), 0.5); */
 }
 
 .iframe-container {

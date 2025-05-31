@@ -59,6 +59,11 @@ if isPackagingForPublish:
 else:
     shutil.copyfile(os.path.join(iconsDir, "wip-icon-32.png"), os.path.join(buildDir, "icons", "icon-32.png"))
     shutil.copyfile(os.path.join(iconsDir, "wip-icon-48.png"), os.path.join(buildDir, "icons", "icon-48.png"))
+
+shutil.copyfile(os.path.join(iconsDir, "LeftPaneIcon.svg"), os.path.join(buildDir, "icons", "LeftPaneIcon.svg"))
+shutil.copyfile(os.path.join(iconsDir, "RightPaneIcon.svg"), os.path.join(buildDir, "icons", "RightPaneIcon.svg"))
+shutil.copyfile(os.path.join(iconsDir, "TopPaneIcon.svg"), os.path.join(buildDir, "icons", "TopPaneIcon.svg"))
+shutil.copyfile(os.path.join(iconsDir, "BottomPaneIcon.svg"), os.path.join(buildDir, "icons", "BottomPaneIcon.svg"))
     
 # Run webpack to build the extension
 print("> Running webpack")
@@ -66,7 +71,7 @@ os.system("npx webpack")
 
 # Copy the src directory to the build directory
 print("> Copying src directory")
-filesToBeIncluded = ["background.js", "content-script.js", "manifest.json", "split-view.html", "styles.css"]
+filesToBeIncluded = ["background.js", "content-script.js", "manifest.json", "split-view.html", "popup.html", "popup.js", "styles.css"]
 for file in filesToBeIncluded:
     shutil.copyfile(os.path.join(srcDir, file), os.path.join(buildDir, file))
 

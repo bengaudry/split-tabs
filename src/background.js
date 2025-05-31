@@ -62,10 +62,15 @@ browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
     browser.tabs.remove(tab.id);
     tab = null;
   }
+
+  if (message.type === "INIT_EXT") {
+    console.info("background.js > Initializing extension");
+    console.info(message.side);
+    handleInitializeExtension(message.side);
+  }
 });
 
-// Handle the browser action click
-browser.pageAction.onClicked.addListener(async () => {
+const handleInitializeExtension = async (side) => {
   try {
     console.info("background.js > Trigger pressed");
 
@@ -100,8 +105,19 @@ browser.pageAction.onClicked.addListener(async () => {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
 
-        leftUrl = currentUrl;
-        rightUrl = "https://google.com";
+        leftUrl =
+          side === "left" || side === "top" ? currentUrl : "https://google.com";
+        rightUrl =
+          side === "right" || side === "bottom"
+            ? currentUrl
+            : "https://google.com";
+
+        console.info("background.js > Sending SET_ORIENTATION");
+        browser.tabs.sendMessage(tab.id, {
+          type: "SET_ORIENTATION",
+          orientation:
+            side === "top" || side === "bottom" ? "vertical" : "horizontal",
+        });
 
         console.info("background.js > Sending LOAD_URLS");
         // Send the LOAD_URLS event to the split-view page
@@ -126,7 +142,10 @@ browser.pageAction.onClicked.addListener(async () => {
     console.error("background.js > Error while initializing :");
     console.error(err);
   }
-});
+};
+
+// Handle the browser action click
+browser.pageAction.onClicked.addListener(async () => {});
 
 browser.tabs.onUpdated.addListener(
   async (updatedTabId, changeInfo, newTabState) => {

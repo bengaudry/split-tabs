@@ -10,6 +10,8 @@ import { createCompositeFavicon } from "./lib/favicon";
 const MIN_VIEW_PERCENTAGE = 30;
 
 // ===== GLOBAL VARIABLES ===== //
+let orientation = "horizontal";
+
 let g_leftUrl = "";
 let g_rightUrl = "";
 
@@ -18,6 +20,18 @@ const rightPaneHistory = [];
 
 let leftPaneIcon = null;
 let rightPaneIcon = null;
+
+function changeOrientation(newOrientation) {
+  if (newOrientation === undefined) { // toggle orientation
+    if (orientation === "horizontal") orientation = "vertical";
+    else orientation = "horizontal";
+  } else { // set orientation with defined value
+    orientation = newOrientation;
+  }
+  changeCssVariableValue("--view-orientation", orientation === "vertical" ? "column" : "row")
+  document.body?.classList.toggle("horizontal", orientation === "horizontal");
+  document.body?.classList.toggle("vertical", orientation === "vertical");
+}
 
 // Wait for the split view tab to be fully loaded to avoid issues
 // accessing elements and events
@@ -117,7 +131,12 @@ document.addEventListener("DOMContentLoaded", () => {
         getRgbValuesFromBackgroundColor(message.secondaryTextColor)
       );
     }
+    
+    if (message.type === "SET_ORIENTATION") {
+      changeOrientation(message.orientation);
+    }
   });
+
 
   /* ===== PANES STATE HANDLING ===== */
   function closePaneToolbar(side) {
@@ -256,37 +275,38 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-
   // Handling closing split view
   leftPaneCloseBtn.addEventListener("click", () => {
-    browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "right" })
+    browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "right" });
   });
   rightPaneCloseBtn.addEventListener("click", () => {
-    browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "left" })
+    browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "left" });
   });
 
   // Handling resizing
   let isUserResizingViews = false;
   const resizeDraggable = document.getElementById("resize-draggable");
 
-  resizeDraggable.addEventListener("mousedown", (e) => {
+  resizeDraggable.addEventListener("mousedown", () => {
+    console.info("split-view.js > mousedown");
     isUserResizingViews = true;
   });
-  resizeDraggable.addEventListener("mouseup", (e) => {
+  resizeDraggable.addEventListener("mouseup", () => {
+    console.info("split-view.js > mouseup");
     isUserResizingViews = false;
   });
 
   document.addEventListener("mousemove", (e) => {
     if (isUserResizingViews && e.buttons == 1) {
       // check if the user is pressing the mouse btn
-      const leftPercent = Math.round((e.pageX * 100) / window.innerWidth);
+      const leftPercent = Math.round(orientation === "horizontal" ? (e.pageX * 100) / window.innerWidth : (e.pageY * 100) / window.innerHeight);
       const rightPercent = 100 - leftPercent;
       if (
         leftPercent >= MIN_VIEW_PERCENTAGE &&
         rightPercent >= MIN_VIEW_PERCENTAGE
       ) {
-        changeCssVariableValue("--left-pane-view-percentage", leftPercent);
-        changeCssVariableValue("--right-pane-view-percentage", rightPercent);
+        changeCssVariableValue("--left-pane-view-percentage", `${leftPercent}%`);
+        changeCssVariableValue("--right-pane-view-percentage", `${rightPercent}%`);
       }
     }
   });

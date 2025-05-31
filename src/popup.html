@@ -1,0 +1,77 @@
+<!DOCTYPE html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <style>
+      :root {
+        --body-bg-color: #f0f0f0;
+        --border-color: #bababa;
+        --hover-btn-bg: #00000010;
+        --text-color: #000000;
+        @media (prefers-color-scheme: dark) {
+          --body-bg-color: #121212;
+          --border-color: #454545;
+          --hover-btn-bg: #ffffff10;
+          --text-color: #ffffff;
+        }
+      }
+      body {
+        line-height: 1.5;
+        -webkit-font-smoothing: antialiased;
+        background-color: var(--body-bg-color);
+      }
+      * {
+        box-sizing: border-box;
+        border: none;
+        margin: 0;
+        padding: 0;
+        color: var(--text-color);
+      }
+      .btn-container {
+        display: flex;
+        flex-direction: column;
+      }
+      .action-btn {
+        display: flex;
+        flex-direction: row;
+        align-items: center;
+        gap: 8px;
+        padding: 8px 24px;
+        background-color: transparent;
+        transition: background-color 150ms;
+      }
+      .action-btn > img {
+        width: 16px;
+        height: 16px;
+      }
+      .action-btn:hover {
+        background-color: var(--hover-btn-bg);
+      }
+      .action-btn:not(:last-child) {
+        border-bottom: 1px solid var(--border-color);
+      }
+    </style>
+  </head>
+  <body>
+    <div class="btn-container">
+      <button class="action-btn" id="left-trigger">
+        <img src="./icons/LeftPaneIcon.svg" />
+        <span>Left split</span>
+      </button>
+      <button class="action-btn" id="right-trigger">
+        <img src="./icons/RightPaneIcon.svg" />
+        <span>Right split</span>
+      </button>
+      <button class="action-btn" id="top-trigger">
+        <img src="./icons/TopPaneIcon.svg" />
+        <span>Top split</span>
+      </button>
+      <button class="action-btn" id="bottom-trigger">
+        <img src="./icons/BottomPaneIcon.svg" />
+        <span>Bottom split</span>
+      </button>
+    </div>
+    <script src="popup.js"></script>
+  </body>
+</html>
