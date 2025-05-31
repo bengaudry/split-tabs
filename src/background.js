@@ -204,12 +204,30 @@ browser.contextMenus.create({
   contexts: ["all"],
 });
 
+browser.contextMenus.create({
+  id: "split-tabs-context-submenu-toggle-orientation",
+  title: "Toggle orientation",
+  contexts: ["all"],
+});
+
 browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
+  console.info(info);
   if (tab?.id === activeTab?.id) {
-    browser.tabs.sendMessage(tab.id, {
-      type: "LOAD_URLS",
-      leftUrl: rightUrl,
-      rightUrl: leftUrl,
-    });
+    switch (info.menuItemId) {
+      case "split-tabs-context-submenu-reverse-tabs":
+        browser.tabs.sendMessage(tab.id, {
+          type: "LOAD_URLS",
+          leftUrl: rightUrl,
+          rightUrl: leftUrl,
+        });
+        break;
+
+      case "split-tabs-context-submenu-toggle-orientation":
+        browser.tabs.sendMessage(tab.id, {
+          type: "SET_ORIENTATION",
+          orientation: undefined,
+        });
+        break;
+    }
   }
 });
