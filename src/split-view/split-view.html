@@ -13,6 +13,25 @@
 
   <body class="horizontal">
     <div id="resize-draggable"></div>
+
+    <div id="searchbar-wrapper" data-expanded="false">
+      <button id="searchbar-close-trigger"></button>
+      <div class="searchbar-content">
+        <div class="searchbar">
+          <input
+            type="text"
+            class="url-input"
+            id="searchbar-url-input"
+            placeholder="Enter a url, or a search for anything on Google..."
+          />
+          <button type="submit" id="searchbar-submit-btn">
+            <i class="fi fi-rr-search"></i>
+          </button>
+        </div>
+        <ul class="toolbar-links-container"></ul>
+      </div>
+    </div>
+
     <div id="split-container">
       <div id="left-pane" class="split-pane">
         <div id="left-pane-toolbar" class="toolbar" data-expanded="false">

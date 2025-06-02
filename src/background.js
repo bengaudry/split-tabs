@@ -27,8 +27,8 @@ browser.webRequest.onHeadersReceived.addListener(
 );
 
 // ===== GLOBAL VARIABLES ===== //
-let leftUrl = "https://google.com";
-let rightUrl = "https://google.com";
+let leftUrl = null;
+let rightUrl = null;
 
 let tab = null;
 
@@ -103,14 +103,10 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       break;
 
     case "GET_SETTING":
-      const settingValue = localStorage.getItem(
-        "split-tabs-" + message.key + "-setting"
-      );
-
       return {
         type: "SETTING_VALUE",
         key: message.key,
-        value: settingValue ?? defaultSettings[message.key] ?? null,
+        value: getSettingValue(message.key),
       };
 
     default:
@@ -118,25 +114,36 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 });
 
-const getCurrentTabUrl = async () => {
-  const activeTabs = await browser.tabs.query({
-    active: true,
-    currentWindow: true,
-  });
-  const currentUrl = activeTabs[0].url;
-  return currentUrl;
+/**
+ * Returns the setting value for a given setting key
+ * @param {keyof defaultSettings} key
+ * @returns {string | null}
+ */
+const getSettingValue = (key) => {
+  const settingValue = localStorage.getItem("split-tabs-" + key + "-setting");
+  return settingValue ?? defaultSettings[key] ?? null;
 };
 
 const handleInitializeExtension = async (side) => {
   try {
     // Get the current tab's URL
-    const currentUrl = await getCurrentTabUrl();
+    const activeTabs = await browser.tabs.query({
+      active: true,
+      currentWindow: true,
+    });
+    const activeTab = activeTabs[0];
+    const currentUrl = activeTab.url;
 
     // Creates a new tab containing the split view
     tab = await browser.tabs.create({
       url: browser.runtime.getURL("split-view.html"),
       discarded: false,
     });
+
+    if (Boolean(getSettingValue("close-tab-before-opening")) === true) {
+      console.log("Active tab", activeTab);
+      browser.tabs.remove(activeTab.id);
+    }
 
     // Get the current theme
     const theme = await browser.theme.getCurrent();
@@ -156,12 +163,8 @@ const handleInitializeExtension = async (side) => {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
 
-        leftUrl =
-          side === "left" || side === "top" ? currentUrl : "https://google.com";
-        rightUrl =
-          side === "right" || side === "bottom"
-            ? currentUrl
-            : "https://google.com";
+        leftUrl = side === "left" || side === "top" ? currentUrl : null;
+        rightUrl = side === "right" || side === "bottom" ? currentUrl : null;
 
         console.info("background.js > Sending SET_ORIENTATION");
         browser.tabs.sendMessage(tab.id, {
