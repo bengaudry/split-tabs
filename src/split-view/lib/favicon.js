@@ -1,5 +1,5 @@
 /** Creates the composite favicon for the split view tab */
-function createCompositeFavicon(leftPaneIcon, rightPaneIcon) {
+export function createCompositeFavicon(leftPaneIcon, rightPaneIcon) {
   if (!leftPaneIcon || !rightPaneIcon) return;
 
   const canvas = document.createElement("canvas");
@@ -14,7 +14,9 @@ function createCompositeFavicon(leftPaneIcon, rightPaneIcon) {
   leftImg.crossOrigin = "anonymous";
   rightImg.crossOrigin = "anonymous";
 
+  leftImg.src = leftPaneIcon;
   leftImg.onload = () => {
+    rightImg.src = rightPaneIcon;
     rightImg.onload = () => {
       // Draw left icon in top left (20x20)
       ctx.drawImage(leftImg, 0, 0, 20, 20);
@@ -28,7 +30,4 @@ function createCompositeFavicon(leftPaneIcon, rightPaneIcon) {
       document.head.appendChild(link);
     };
   };
-
-  rightImg.src = rightPaneIcon;
-  leftImg.src = leftPaneIcon;
 }

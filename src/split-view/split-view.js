@@ -60,10 +60,6 @@ document.addEventListener("DOMContentLoaded", () => {
   const leftPaneIframe = document.getElementById("left-pane-iframe");
   const rightPaneIframe = document.getElementById("right-pane-iframe");
 
-  // url input refs
-  const leftPaneUrlInput = document.getElementById("left-pane-url-input");
-  const rightPaneUrlInput = document.getElementById("right-pane-url-input");
-
   // toolbar toggles refs
   const leftPaneShortenedUrlBtn = document.getElementById(
     "left-pane-shortened-url-btn"
@@ -99,13 +95,11 @@ document.addEventListener("DOMContentLoaded", () => {
 
     if (updatedLeftUrl) {
       const updatedLeftUrlObj = new URL(updatedLeftUrl);
-      leftPaneUrlInput.value = updatedLeftUrl;
       leftPaneShortenedUrlBtn.textContent = updatedLeftUrlObj.hostname;
     }
 
     if (updatedRightUrl) {
       const updatedRightUrlObj = new URL(updatedRightUrl);
-      rightPaneUrlInput.value = updatedRightUrl;
       rightPaneShortenedUrlBtn.textContent = updatedRightUrlObj.hostname;
     }
   }
@@ -117,7 +111,7 @@ document.addEventListener("DOMContentLoaded", () => {
    * @param {boolean} isRefreshing
    */
   function loadUrl(side, url, isRefreshing) {
-    console.info("Loading url", url, "in side", side)
+    console.info("split-view.js > Loading url", url, "in side", side);
     if (url === null) return;
     url = addProtocolToUrl(url);
 
@@ -128,6 +122,7 @@ document.addEventListener("DOMContentLoaded", () => {
       leftPaneHistory.push(url);
       g_leftUrl = url;
     }
+
     if ("right" === side) {
       // avoid refreshing when url is same
       if (g_rightUrl === url && !isRefreshing) return;
@@ -148,7 +143,8 @@ document.addEventListener("DOMContentLoaded", () => {
         loadUrl("left", message.leftUrl);
       } else {
         activeSide = "left";
-        populateToolbarLinkContainer()
+        populateToolbarLinkContainer();
+        openSearchbar();
       }
 
       if (message.rightUrl !== null) {
@@ -156,6 +152,7 @@ document.addEventListener("DOMContentLoaded", () => {
       } else {
         activeSide = "right";
         populateToolbarLinkContainer();
+        openSearchbar();
       }
     }
 
@@ -181,24 +178,13 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  /* ===== PANES STATE HANDLING ===== */
-  /**
-   * Closes the search bar at the provided side
-   */
-  function closeSearchbar() {
-    searchbarWrapper?.setAttribute("data-expanded", "false");
+  /* ===== SEARCHBAR VISIBILITY HANDLING ===== */
+  function openSearchbar() {
+    searchbarWrapper?.setAttribute("data-expanded", "true");
   }
 
-  /**
-   * Toggles the search bar at the provided side
-   */
-  function toggleSearchbarVisibility() {
-    const isToolbarExpanded =
-      searchbarWrapper?.getAttribute("data-expanded") === "true";
-    searchbarWrapper?.setAttribute(
-      "data-expanded",
-      isToolbarExpanded ? "false" : "true"
-    );
+  function closeSearchbar() {
+    searchbarWrapper?.setAttribute("data-expanded", "false");
   }
 
   /**
@@ -208,7 +194,8 @@ document.addEventListener("DOMContentLoaded", () => {
    * @param {string} query
    */
   function handleSearchBarEndInput(side, query) {
-    console.info("handling searchbar end input")
+    console.info("handling searchbar end input");
+    if (query === "") return; // avoid setting a new tab if the user has just discarded the searchbar
     if (isUrlLike(query)) {
       loadUrl(side, query);
     } else {
@@ -217,19 +204,7 @@ document.addEventListener("DOMContentLoaded", () => {
       loadUrl(side, googleUrl.toString());
     }
     if (searchbarInput) searchbarInput.value = "";
-    closeSearchbar();
   }
-
-  /* ====== EVENT HANDLING ====== */
-
-  // Change panes urls on input blurs or Enter key press
-  searchbarInput?.addEventListener("blur", (e) => {
-    handleSearchBarEndInput(activeSide, e.target.value);
-  });
-
-  searchbarInput?.addEventListener("keyup", (e) => {
-    if (e.code === "Enter") handleSearchBarEndInput(activeSide, e.target.value);
-  });
 
   /** Fetches browser opened tabs and creates links to them
    *  inside the toolbar
@@ -243,7 +218,6 @@ document.addEventListener("DOMContentLoaded", () => {
       if (response.type !== "TABS_DATA") return;
 
       const toolbarLinksContainer = document
-        //.getElementById(`${side}-pane-toolbar`)
         .getElementById("searchbar-wrapper")
         .querySelector(".toolbar-links-container");
       toolbarLinksContainer.innerHTML = ""; // Clear existing links
@@ -268,18 +242,50 @@ document.addEventListener("DOMContentLoaded", () => {
         button.appendChild(txtSpan);
 
         button.addEventListener("click", () => {
-          console.info("Pressed toolbar-link-"+i);
           loadUrl(activeSide, tab.url);
         });
         toolbarLinksContainer.appendChild(button);
       }
     } catch (err) {
       console.error(err);
-    } finally {
-      toggleSearchbarVisibility();
     }
   }
 
+  /* ====== EVENT HANDLING ====== */
+
+  // == SEARCHBAR == //
+  // Open searchbar when left or right trigger is clicked
+  leftPaneShortenedUrlBtn?.addEventListener("click", () => {
+    activeSide = "left";
+    populateToolbarLinkContainer();
+    openSearchbar();
+  });
+
+  rightPaneShortenedUrlBtn?.addEventListener("click", () => {
+    activeSide = "right";
+    populateToolbarLinkContainer();
+    openSearchbar();
+  });
+
+  // Change panes urls on input blurs or Enter key press
+  searchbarInput?.addEventListener("blur", (e) => {
+    handleSearchBarEndInput(activeSide, e.target.value);
+  });
+  searchbarInput?.addEventListener("keyup", (e) => {
+    if (e.code === "Enter") handleSearchBarEndInput(activeSide, e.target.value);
+  });
+
+  // Close searchbar on pressing escape or clicking away
+  document
+    .getElementById("searchbar-close-trigger")
+    ?.addEventListener("click", closeSearchbar);
+
+  // Close panes when pressing Esc
+  document.addEventListener("keyup", (e) => {
+    if (e.code === "Escape") closeSearchbar();
+  });
+
+  // == REFRESH SIDE == //
   leftPaneRefreshBtn.addEventListener("click", () => {
     loadUrl("left", g_leftUrl, true);
   });
@@ -287,26 +293,7 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUrl("right", g_rightUrl, true);
   });
 
-  document
-    .getElementById("searchbar-close-trigger")
-    ?.addEventListener("click", closeSearchbar);
-
-  // Add links to toolbar when toggle is pressed
-  leftPaneShortenedUrlBtn?.addEventListener("click", () => {
-    activeSide = "left";
-    populateToolbarLinkContainer();
-  });
-
-  rightPaneShortenedUrlBtn?.addEventListener("click", () => {
-    activeSide = "right";
-    populateToolbarLinkContainer();
-  });
-
-  // Close panes when pressing Esc
-  document.addEventListener("keyup", (e) => {
-    if (e.code === "Escape") closeSearchbar();
-  });
-
+  // == CLOSE SPLIT == //
   // Handling closing split view
   leftPaneCloseBtn.addEventListener("click", () => {
     browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "right" });
@@ -315,14 +302,14 @@ document.addEventListener("DOMContentLoaded", () => {
     browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "left" });
   });
 
-  // Handling resizing
+  /* ====== RESIZING ===== */
   let isUserResizingViews = false;
   const resizeDraggable = document.getElementById("resize-draggable");
 
-  resizeDraggable.addEventListener("mousedown", () => {
+  resizeDraggable?.addEventListener("mousedown", () => {
     isUserResizingViews = true;
   });
-  resizeDraggable.addEventListener("mouseup", () => {
+  resizeDraggable?.addEventListener("mouseup", () => {
     isUserResizingViews = false;
   });
 
@@ -351,30 +338,37 @@ document.addEventListener("DOMContentLoaded", () => {
     }
   });
 
-  const askUrls = () => {
-    try {
-      // Send a message to the iframe to request its URL
-      window.parent.postMessage({ type: "getUrl" }, "*");
-    } catch (error) {
-      console.error("Could not access iframe content:", error);
-    }
-  };
+  /* HANDLING IFRAMES */
+  // Function to ask the iframes for their URLs and icons
+  // and update the tabs accordingly
 
-  leftPaneIframe.addEventListener("load", askUrls);
-  rightPaneIframe.addEventListener("load", askUrls);
+  leftPaneIframe?.addEventListener("load", () => {
+    if (!leftPaneIframe?.src) return;
+    leftPaneIframe?.contentWindow?.postMessage(
+      { type: "IFRAME_DATA" },
+      leftPaneIframe.src
+    );
+  });
+  rightPaneIframe?.addEventListener("load", () => {
+    if (!rightPaneIframe?.src) return;
+    rightPaneIframe?.contentWindow?.postMessage(
+      { type: "IFRAME_DATA" },
+      rightPaneIframe.src
+    );
+  });
 
   // Listen for messages from the iframes
   window.addEventListener("message", (event) => {
-    const isLeftPaneUrl = getUrlBase(leftPaneIframe.src).startsWith(
+    const isLeftPaneUrl = getUrlBase(leftPaneIframe?.src).startsWith(
       getUrlBase(event.origin)
     );
-    const isRightPaneUrl = getUrlBase(rightPaneIframe.src).startsWith(
+    const isRightPaneUrl = getUrlBase(rightPaneIframe?.src).startsWith(
       getUrlBase(event.origin)
     );
 
     // Verify the message is from one of our iframes
     if (isLeftPaneUrl || isRightPaneUrl) {
-      if (event.data && event.data.type === "url") {
+      if (event.data && event.data.type === "iframe-data") {
         const rgbVal = getRgbValuesFromBackgroundColor(
           event.data.backgroundColor
         );
