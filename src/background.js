@@ -1,5 +1,9 @@
 console.info("background.js > Loaded");
 
+const defaultSettings = {
+  "close-tab-before-opening": true,
+};
+
 // Remove X-Frame-Options and modify Content-Security-Policy headers
 // because some pages prevent being renderered into iframes
 browser.webRequest.onHeadersReceived.addListener(
@@ -35,6 +39,7 @@ async function fetchTabs(sender, sendResponse) {
       type: "TABS_DATA",
       tabs: tabs,
     });
+    return tabs;
   } catch (e) {
     console.error("background.js > Error while fetching tabs");
     console.error(e);
@@ -42,6 +47,7 @@ async function fetchTabs(sender, sendResponse) {
       type: "TABS_DATA",
       error: error.message,
     });
+    return null;
   }
 }
 
@@ -58,8 +64,11 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     case "FETCH_TABS":
       console.info("background.js > Fetching current tab");
       // Query all tabs in the current window
-      fetchTabs(sender, sendResponse);
-      return true; // Indicate we will send response asynchronously
+      const tabs = await fetchTabs(sender, sendResponse);
+      return {
+        type: "TABS_DATA",
+        tabs: tabs,
+      };
 
     // Update global variables when changing url in split view
     case "UPDATE_TABS":
@@ -97,13 +106,12 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       const settingValue = localStorage.getItem(
         "split-tabs-" + message.key + "-setting"
       );
-      console.info("background.js >", settingValue);
-      sendResponse({
+
+      return {
         type: "SETTING_VALUE",
         key: message.key,
-        value: Boolean(settingValue),
-      });
-      return true; // Indicate we will send response asynchronously
+        value: settingValue ?? defaultSettings[message.key] ?? null,
+      };
 
     default:
       break;

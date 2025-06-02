@@ -225,6 +225,8 @@ document.addEventListener("DOMContentLoaded", () => {
         type: "FETCH_TABS",
       });
 
+      console.log("response", response)
+
       if (response.type !== "TABS_DATA") return;
 
       const toolbarLinksContainer = document
