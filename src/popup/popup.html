@@ -3,14 +3,21 @@
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <link
+      rel="stylesheet"
+      href="https://cdn-uicons.flaticon.com/2.6.0/uicons-regular-rounded/css/uicons-regular-rounded.css"
+    />
     <style>
       :root {
         --body-bg-color: #f0f0f0;
         --border-color: #bababa;
         --hover-btn-bg: #00000010;
         --text-color: #000000;
-        @media (prefers-color-scheme: dark) {
+      }
+      @media (prefers-color-scheme: dark) {
+        :root {
           --body-bg-color: #121212;
+          --secondary-text-color: 128, 128, 128;
           --border-color: #454545;
           --hover-btn-bg: #ffffff10;
           --text-color: #ffffff;
@@ -40,6 +47,7 @@
         padding: 8px 24px;
         background-color: transparent;
         transition: background-color 150ms;
+        border-bottom: 1px solid var(--border-color);
       }
       .trigger > img {
         width: 14px;
@@ -48,8 +56,25 @@
       .trigger:hover {
         background-color: var(--hover-btn-bg);
       }
-      .trigger:not(:last-child) {
-        border-bottom: 1px solid var(--border-color);
+      .actions {
+        display: flex;
+        align-items: center;
+        justify-content: flex-end;
+        padding: 4px 8px;
+      }
+      .action-btn {
+        background-color: transparent;
+        color: var(--secondary-text-color);
+        border-radius: 4px;
+        font-size: 14px;
+        aspect-ratio: 1/1;
+        transition: background-color, scale, ease-in-out, 150ms;
+      }
+      .action-btn:hover {
+        background-color: rgba(var(--border-color), 0.2);
+      }
+      .action-btn:active {
+        scale: 0.8;
       }
     </style>
   </head>
@@ -73,8 +98,8 @@
       </button>
     </div>
     <div class="actions">
-      <button id="action-settings">
-        <img src="./icons/settings.svg" alt="Settings" />
+      <button class="action-btn" id="action-settings">
+        <i class="fi fi-rr-settings"></i>
       </button>
     </div>
     <script src="popup.js"></script>

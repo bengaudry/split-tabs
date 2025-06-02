@@ -91,7 +91,7 @@ for file in settings_files:
     shutil.copyfile(os.path.join(settings_directory, file), os.path.join(buildDir, file))
 
 # Compress into a zip file
-shutil.make_archive(os.path.join(baseDir, "extension"), 'zip', os.path.join(baseDir, "build"))
+shutil.make_archive(os.path.join(baseDir, newVersion if isPackagingForPublish else "extension"), 'zip', os.path.join(baseDir, "build"))
 print("\nPackaging complete")
 
 if isPackagingForPublish:
