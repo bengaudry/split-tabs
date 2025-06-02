@@ -28,11 +28,11 @@
         padding: 0;
         color: var(--text-color);
       }
-      .btn-container {
+      .triggers-container {
         display: flex;
         flex-direction: column;
       }
-      .action-btn {
+      .trigger {
         display: flex;
         flex-direction: row;
         align-items: center;
@@ -41,35 +41,40 @@
         background-color: transparent;
         transition: background-color 150ms;
       }
-      .action-btn > img {
+      .trigger > img {
         width: 14px;
         height: 14px;
       }
-      .action-btn:hover {
+      .trigger:hover {
         background-color: var(--hover-btn-bg);
       }
-      .action-btn:not(:last-child) {
+      .trigger:not(:last-child) {
         border-bottom: 1px solid var(--border-color);
       }
     </style>
   </head>
   <body>
-    <div class="btn-container">
-      <button class="action-btn" id="left-trigger">
+    <div class="triggers-container">
+      <button class="trigger" id="left-trigger">
         <img src="./icons/LeftPaneIcon.svg" />
         <span>Left split</span>
       </button>
-      <button class="action-btn" id="right-trigger">
+      <button class="trigger" id="right-trigger">
         <img src="./icons/RightPaneIcon.svg" />
         <span>Right split</span>
       </button>
-      <button class="action-btn" id="top-trigger">
+      <button class="trigger" id="top-trigger">
         <img src="./icons/TopPaneIcon.svg" />
         <span>Top split</span>
       </button>
-      <button class="action-btn" id="bottom-trigger">
+      <button class="trigger" id="bottom-trigger">
         <img src="./icons/BottomPaneIcon.svg" />
         <span>Bottom split</span>
+      </button>
+    </div>
+    <div class="actions">
+      <button id="action-settings">
+        <img src="./icons/settings.svg" alt="Settings" />
       </button>
     </div>
     <script src="popup.js"></script>

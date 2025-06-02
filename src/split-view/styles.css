@@ -4,7 +4,7 @@
   --primary-text-color: 0, 0, 0;
   --secondary-text-color: 128, 128, 128;
   --border-color: 200, 200, 200;
-  
+
   --left-pane-view-percentage: 50%;
   --right-pane-view-percentage: 50%;
 
@@ -160,7 +160,6 @@ iframe {
 
 .toolbar-content {
   width: 100%;
-  max-width: 450px;
   display: grid;
   grid-template-columns: 2fr 3fr 2fr;
   gap: 4px;
@@ -177,7 +176,7 @@ iframe {
 }
 
 .action-btn:hover {
-  background-color: rgba(var(--border-color), .2);
+  background-color: rgba(var(--border-color), 0.2);
 }
 
 .action-btn:active {

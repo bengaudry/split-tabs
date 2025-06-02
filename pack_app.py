@@ -85,6 +85,11 @@ popup_files = ["popup.html", "popup.js"]
 for file in popup_files:
     shutil.copyfile(os.path.join(popup_directory, file), os.path.join(buildDir, file))
 
+settings_directory = os.path.join(srcDir, "settings")
+settings_files = ["settings.html", "settings.js"]
+for file in settings_files:
+    shutil.copyfile(os.path.join(settings_directory, file), os.path.join(buildDir, file))
+
 # Compress into a zip file
 shutil.make_archive(os.path.join(baseDir, "extension"), 'zip', os.path.join(baseDir, "build"))
 print("\nPackaging complete")

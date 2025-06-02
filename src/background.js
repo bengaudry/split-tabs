@@ -45,37 +45,68 @@ async function fetchTabs(sender, sendResponse) {
   }
 }
 
-browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   // Initialize extension
-  if (message.type === "INIT_EXT") {
-    console.info("background.js > Initializing extension");
-    console.info(message.side);
-    handleInitializeExtension(message.side);
-  }
+  switch (message.type) {
+    case "INIT_EXT":
+      console.info("background.js > Initializing extension");
+      console.info(message.side);
+      handleInitializeExtension(message.side);
+      break;
 
-  // Fetch opened tabs on browser to make suggestions to user
-  if (message.type === "FETCH_TABS") {
-    console.info("background.js > Fetching current tab");
-    // Query all tabs in the current window
-    fetchTabs(sender, sendResponse);
-    return true; // Indicate we will send response asynchronously
-  }
+    // Fetch opened tabs on browser to make suggestions to user
+    case "FETCH_TABS":
+      console.info("background.js > Fetching current tab");
+      // Query all tabs in the current window
+      fetchTabs(sender, sendResponse);
+      return true; // Indicate we will send response asynchronously
 
-  // Update global variables when changing url in split view
-  if (message.type === "UPDATE_TABS") {
-    if (message.leftUrl) leftUrl = message.leftUrl;
-    if (message.rightUrl) rightUrl = message.rightUrl;
-  }
+    // Update global variables when changing url in split view
+    case "UPDATE_TABS":
+      if (message.leftUrl) leftUrl = message.leftUrl;
+      if (message.rightUrl) rightUrl = message.rightUrl;
+      break;
 
-  // Close one of the tabs in the split
-  if (message.type === "CLOSE_SPLIT") {
-    console.info("background.js > Closing split view");
-    browser.tabs.create({
-      url: message.keep === "left" ? leftUrl : rightUrl,
-      active: true,
-    });
-    browser.tabs.remove(tab.id);
-    tab = null;
+    // Close one of the tabs in the split
+    case "CLOSE_SPLIT":
+      console.info("background.js > Closing split view");
+      browser.tabs.create({
+        url: message.keep === "left" ? leftUrl : rightUrl,
+        active: true,
+      });
+      browser.tabs.remove(tab.id);
+      tab = null;
+      break;
+
+    case "OPEN_SETTINGS":
+      await browser.tabs.create({
+        url: browser.runtime.getURL("settings.html"),
+        discarded: false,
+      });
+      break;
+
+    case "EDIT_SETTINGS":
+      console.info("background.js > Editing setting " + message.key);
+      localStorage.setItem(
+        "split-tabs-" + message.key + "-setting",
+        message.value
+      );
+      break;
+
+    case "GET_SETTING":
+      const settingValue = localStorage.getItem(
+        "split-tabs-" + message.key + "-setting"
+      );
+      console.info("background.js >", settingValue);
+      sendResponse({
+        type: "SETTING_VALUE",
+        key: message.key,
+        value: Boolean(settingValue),
+      });
+      return true; // Indicate we will send response asynchronously
+
+    default:
+      break;
   }
 });
 
@@ -91,7 +122,7 @@ const getCurrentTabUrl = async () => {
 const handleInitializeExtension = async (side) => {
   try {
     // Get the current tab's URL
-    const currentUrl = await getCurrentTabUrl()
+    const currentUrl = await getCurrentTabUrl();
 
     // Creates a new tab containing the split view
     tab = await browser.tabs.create({

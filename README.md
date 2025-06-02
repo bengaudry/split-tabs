@@ -42,3 +42,14 @@ The format is _x.y.z_,
 - x is the major version (currently 1)
 - y is the minor version (incremented for new features)
 - z if the number of fixes for the minor version
+
+## Events explanation
+
+- background.js
+    - *INIT_EXT*: Initialize extension, args={side: "left" | "right" | "top" | "bottom"}
+    - *FETCH_TABS*: No args required, sends a *TABS_DATA* event in response
+    - *UPDATE_TABS*: Has to be called whenever the urls change in the split view to update global variables in background args={leftUrl, rightUrl}
+    - *CLOSE_SPLIT*: Close the split view and opens the keep url in a new tab args={keep: "left" | "right"}
+    - *OPEN_SETTINGS*: Opens the settings page, no args required
+    - *EDIT_SETTINGS*: Edit the extension setting at key with value args={key, value}
+    - *GET_SETTING*: Returns the value of the setting at key in a *SETTING_VALUE* event args={key} 
