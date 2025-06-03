@@ -81,12 +81,33 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchbarWrapper = document.getElementById("searchbar-wrapper");
   const searchbarInput = document.getElementById("searchbar-url-input");
 
+  /** Sends a message to the iframe to get the url, the icon and the colors of the tab */
+  const requestIframeData = (side) => {
+    console.info("split-view.js > Requesting iframe data for side", side);
+    if (side === "left") {
+      if (!leftPaneIframe?.src) return;
+      leftPaneIframe?.contentWindow?.postMessage(
+        { type: "IFRAME_DATA" },
+        leftPaneIframe.src
+      );
+    } else if (side === "right") {
+      if (!rightPaneIframe?.src) return;
+      rightPaneIframe?.contentWindow?.postMessage(
+        { type: "IFRAME_DATA" },
+        rightPaneIframe.src
+      );
+    }
+  };
+
   /**
    * Update both tabs if the url is not undefined
    * @param {string | undefined} updatedLeftUrl
    * @param {string | undefined} updatedRightUrl
    */
   function updateTabs(updatedLeftUrl, updatedRightUrl) {
+    g_leftUrl = updatedLeftUrl || g_leftUrl;
+    g_rightUrl = updatedRightUrl || g_rightUrl;
+
     browser.runtime.sendMessage({
       type: "UPDATE_TABS",
       updatedLeftUrl,
@@ -132,6 +153,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     updateTabs(g_leftUrl, g_rightUrl);
+    requestIframeData(side);
     closeSearchbar();
   }
 
@@ -179,8 +201,17 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* ===== SEARCHBAR VISIBILITY HANDLING ===== */
-  function openSearchbar() {
+  /**
+   * Open the searchbar and set the default URL if provided
+   * @param {string | undefined} defaultUrl
+   */
+  function openSearchbar(defaultUrl) {
     searchbarWrapper?.setAttribute("data-expanded", "true");
+    if (searchbarInput) {
+      searchbarInput.value = defaultUrl || "";
+      searchbarInput.focus();
+      searchbarInput.select();
+    }
   }
 
   function closeSearchbar() {
@@ -194,7 +225,6 @@ document.addEventListener("DOMContentLoaded", () => {
    * @param {string} query
    */
   function handleSearchBarEndInput(side, query) {
-    console.info("handling searchbar end input");
     if (query === "") return; // avoid setting a new tab if the user has just discarded the searchbar
     if (isUrlLike(query)) {
       loadUrl(side, query);
@@ -258,13 +288,13 @@ document.addEventListener("DOMContentLoaded", () => {
   leftPaneShortenedUrlBtn?.addEventListener("click", () => {
     activeSide = "left";
     populateToolbarLinkContainer();
-    openSearchbar();
+    openSearchbar(g_leftUrl);
   });
 
   rightPaneShortenedUrlBtn?.addEventListener("click", () => {
     activeSide = "right";
     populateToolbarLinkContainer();
-    openSearchbar();
+    openSearchbar(g_rightUrl);
   });
 
   // Change panes urls on input blurs or Enter key press
@@ -343,18 +373,10 @@ document.addEventListener("DOMContentLoaded", () => {
   // and update the tabs accordingly
 
   leftPaneIframe?.addEventListener("load", () => {
-    if (!leftPaneIframe?.src) return;
-    leftPaneIframe?.contentWindow?.postMessage(
-      { type: "IFRAME_DATA" },
-      leftPaneIframe.src
-    );
+    requestIframeData("left");
   });
   rightPaneIframe?.addEventListener("load", () => {
-    if (!rightPaneIframe?.src) return;
-    rightPaneIframe?.contentWindow?.postMessage(
-      { type: "IFRAME_DATA" },
-      rightPaneIframe.src
-    );
+    requestIframeData("right");
   });
 
   // Listen for messages from the iframes

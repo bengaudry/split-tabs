@@ -260,7 +260,7 @@ iframe {
   max-width: 550px;
   background: rgb(var(--main-background-color));
   overflow-x: hidden;
-  box-shadow: 0 20px 30px 30px rgba(var(--shadow-color), 0.4);
+  box-shadow: 0 8px 16px 8px rgba(var(--shadow-color), 0.4);
   margin-bottom: 30vh; /* Moves upwards the box */
   z-index: 50;
 
