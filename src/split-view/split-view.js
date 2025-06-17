@@ -5,7 +5,7 @@ import {
 } from "./lib/colors";
 import {
   getUrlBase,
-  filterIncorrectUrls,
+  filterIncorrectTabs,
   addProtocolToUrl,
   isUrlLike,
 } from "./lib/urls";
@@ -252,7 +252,7 @@ document.addEventListener("DOMContentLoaded", () => {
         .querySelector(".toolbar-links-container");
       toolbarLinksContainer.innerHTML = ""; // Clear existing links
 
-      const tabs = filterIncorrectUrls(response.tabs).sort(
+      const tabs = filterIncorrectTabs(response.tabs).sort(
         (a, b) => a.lastAccessed - b.lastAccessed
       );
 

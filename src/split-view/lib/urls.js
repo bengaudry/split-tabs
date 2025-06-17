@@ -1,13 +1,33 @@
+export const FORBIDDEN_HOSTNAMES = [
+  "accounts-static.cdn.mozilla.net",
+  "accounts.firefox.com",
+  "addons.cdn.mozilla.net",
+  "addons.mozilla.org",
+  "api.accounts.firefox.com",
+  "content.cdn.mozilla.net",
+  "discovery.addons.mozilla.org",
+  "install.mozilla.org",
+  "oauth.accounts.firefox.com",
+  "profile.accounts.firefox.com",
+  "support.mozilla.org",
+  "sync.services.mozilla.com",
+];
+
 /**
  * Returns an array of urls that are allowed to be opened in the split view
- * @param {string[]} urls
+ * @param {Array<Tab>} tabs
  * @returns {string[]}
  */
-export function filterIncorrectUrls(urls) {
-  return urls.filter(
-    (tab) =>
-      !tab.url.startsWith("moz-extension://") && !tab.url.startsWith("about:")
-  );
+export function filterIncorrectTabs(tabs) {
+  return tabs.filter((tab) => {
+    if (tab.url.startsWith("moz-extension:")) return false;
+    if (tab.url.startsWith("about:")) return false;
+    if (tab.url.startsWith("file:")) return false;
+    const urlObj = new URL(tab.url);
+    if (isUrlLike(tab.url) && FORBIDDEN_HOSTNAMES.includes(urlObj.hostname))
+      return false;
+    return true;
+  });
 }
 
 /**
