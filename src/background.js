@@ -37,9 +37,7 @@ const createContextMenu = () => {
       switch (info.menuItemId) {
         case "split-tabs-context-submenu-reverse-tabs":
           browser.tabs.sendMessage(tab.id, {
-            type: "LOAD_URLS",
-            leftUrl: rightUrl,
-            rightUrl: leftUrl,
+            type: "REVERSE_TABS",
           });
           break;
 
@@ -286,10 +284,6 @@ browser.tabs.onUpdated.addListener(
             rightUrl,
           });
 
-          let tmp = leftUrl
-          leftUrl = rightUrl
-          rightUrl = tmp
-          
           // Send the BROWSER_COLORS data to the split-view page
           browser.tabs.sendMessage(tab.id, {
             type: "BROWSER_COLORS",

@@ -110,8 +110,8 @@ document.addEventListener("DOMContentLoaded", () => {
 
     browser.runtime.sendMessage({
       type: "UPDATE_TABS",
-      updatedLeftUrl,
-      updatedRightUrl,
+      updatedLeftUrl: g_leftUrl,
+      updatedRightUrl: g_rightUrl,
     });
 
     if (updatedLeftUrl) {
@@ -157,11 +157,18 @@ document.addEventListener("DOMContentLoaded", () => {
     closeSearchbar();
   }
 
+  function reverseTabs() {
+    let oldLeftUrl = g_leftUrl;
+    loadUrl("left", g_rightUrl, false);
+    loadUrl("right", oldLeftUrl, false);
+  }
+
   // Listen for messages from the background script
-  browser.runtime.onMessage.addListener((message, sender, sendResponse) => {
+  browser.runtime.onMessage.addListener((message) => {
     // Initial url load
-    if (message.type === "LOAD_URLS") {
+    if ("LOAD_URLS" === message.type) {
       if (message.leftUrl !== null) {
+        console.info("Loading left url");
         loadUrl("left", message.leftUrl);
       } else {
         activeSide = "left";
@@ -170,6 +177,7 @@ document.addEventListener("DOMContentLoaded", () => {
       }
 
       if (message.rightUrl !== null) {
+        console.info("Loading right url");
         loadUrl("right", message.rightUrl);
       } else {
         activeSide = "right";
@@ -178,8 +186,13 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
 
+    // Move left tab to the right and right tab to the left
+    if ("REVERSE_TABS" === message.type) {
+      reverseTabs();
+    }
+
     // Set the background color if provided
-    if (message.type === "BROWSER_COLORS") {
+    if ("BROWSER_COLORS" === message.type) {
       changeCssVariableValue(
         "--main-background-color",
         getRgbValuesFromBackgroundColor(message.backgroundColor)
@@ -195,7 +208,7 @@ document.addEventListener("DOMContentLoaded", () => {
     }
 
     // Change the orientation when context menu pressed
-    if (message.type === "SET_ORIENTATION") {
+    if ("SET_ORIENTATION" === message.type) {
       changeOrientation(message.orientation);
     }
   });
