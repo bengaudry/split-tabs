@@ -4,6 +4,56 @@ const defaultSettings = {
   "close-tab-before-opening": true,
 };
 
+/**
+ * Creates the context menu available on right-click
+ */
+const createContextMenu = () => {
+  browser.contextMenus.create({
+    id: "split-tabs-context-menu",
+    type: "separator",
+    title: "Split tabs",
+    contexts: ["all"],
+  });
+
+  browser.contextMenus.create({
+    id: "split-tabs-context-submenu-reverse-tabs",
+    title: "Reverse tabs",
+    contexts: ["all"],
+  });
+
+  browser.contextMenus.create({
+    id: "split-tabs-context-submenu-toggle-orientation",
+    title: "Toggle orientation",
+    contexts: ["all"],
+  });
+
+  // Handle context menu actions
+  browser.contextMenus.onClicked.addListener(function listener(
+    info,
+    activeTab
+  ) {
+    console.info(info);
+    if (tab?.id === activeTab?.id) {
+      switch (info.menuItemId) {
+        case "split-tabs-context-submenu-reverse-tabs":
+          browser.tabs.sendMessage(tab.id, {
+            type: "LOAD_URLS",
+            leftUrl: rightUrl,
+            rightUrl: leftUrl,
+          });
+          break;
+
+        case "split-tabs-context-submenu-toggle-orientation":
+          browser.tabs.sendMessage(tab.id, {
+            type: "SET_ORIENTATION",
+            orientation: undefined,
+          });
+          break;
+      }
+    }
+  });
+};
+
 // Remove X-Frame-Options and modify Content-Security-Policy headers
 // because some pages prevent being renderered into iframes
 browser.webRequest.onHeadersReceived.addListener(
@@ -95,7 +145,15 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       break;
 
     case "EDIT_SETTINGS":
-      console.info("background.js > Editing setting " + message.key);
+      console.info(
+        "background.js > Editing setting " +
+          message.key +
+          " with value : " +
+          message.value +
+          " (" +
+          typeof message.value +
+          ")"
+      );
       localStorage.setItem(
         "split-tabs-" + message.key + "-setting",
         message.value
@@ -140,7 +198,7 @@ const handleInitializeExtension = async (side) => {
       discarded: false,
     });
 
-    if (Boolean(getSettingValue("close-tab-before-opening")) === true) {
+    if (getSettingValue("close-tab-before-opening") === "true") {
       console.log("Active tab", activeTab);
       browser.tabs.remove(activeTab.id);
     }
@@ -192,6 +250,8 @@ const handleInitializeExtension = async (side) => {
         });
       }
     });
+
+    createContextMenu();
   } catch (err) {
     console.error("background.js > Error while initializing extension :");
     console.error(err);
@@ -226,6 +286,10 @@ browser.tabs.onUpdated.addListener(
             rightUrl,
           });
 
+          let tmp = leftUrl
+          leftUrl = rightUrl
+          rightUrl = tmp
+          
           // Send the BROWSER_COLORS data to the split-view page
           browser.tabs.sendMessage(tab.id, {
             type: "BROWSER_COLORS",
@@ -239,47 +303,3 @@ browser.tabs.onUpdated.addListener(
     }
   }
 );
-// ===== CONTEXT MENU ===== //
-
-/* Create context menu */
-browser.contextMenus.create({
-  id: "split-tabs-context-menu",
-  type: "separator",
-  title: "Split tabs",
-  contexts: ["all"],
-});
-
-browser.contextMenus.create({
-  id: "split-tabs-context-submenu-reverse-tabs",
-  title: "Reverse tabs",
-  contexts: ["all"],
-});
-
-browser.contextMenus.create({
-  id: "split-tabs-context-submenu-toggle-orientation",
-  title: "Toggle orientation",
-  contexts: ["all"],
-});
-
-// Handle context menu actions
-browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
-  console.info(info);
-  if (tab?.id === activeTab?.id) {
-    switch (info.menuItemId) {
-      case "split-tabs-context-submenu-reverse-tabs":
-        browser.tabs.sendMessage(tab.id, {
-          type: "LOAD_URLS",
-          leftUrl: rightUrl,
-          rightUrl: leftUrl,
-        });
-        break;
-
-      case "split-tabs-context-submenu-toggle-orientation":
-        browser.tabs.sendMessage(tab.id, {
-          type: "SET_ORIENTATION",
-          orientation: undefined,
-        });
-        break;
-    }
-  }
-});

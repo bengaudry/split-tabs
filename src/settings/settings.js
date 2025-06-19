@@ -26,7 +26,7 @@ document.addEventListener("DOMContentLoaded", async () => {
 
     if (response.type !== "SETTING_VALUE") continue;
     if (settingInput.type === "checkbox") {
-      settingInput.checked = Boolean(response.value);
+      settingInput.checked = response.value === "false" ? false : true;
     } else {
       settingInput.value = response.value;
     }
