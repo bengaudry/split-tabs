@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Split Tabs",
-    "version": "1.8.2",
+    "version": "1.9.0",
     "description": "Opens two tabs into a split view that can be resized.",
     "permissions": [
         "tabs",
