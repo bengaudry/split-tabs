@@ -3,13 +3,13 @@ import {
   getRgbValuesFromBackgroundColor,
   invertRgbValues,
 } from "./lib/colors";
+import { createCompositeFavicon } from "./lib/favicon";
 import {
-  getUrlBase,
-  filterIncorrectTabs,
   addProtocolToUrl,
+  filterIncorrectTabs,
+  getUrlBase,
   isUrlLike,
 } from "./lib/urls";
-import { createCompositeFavicon } from "./lib/favicon";
 
 // ===== CONSTANTS ===== //
 const MIN_VIEW_PERCENTAGE = 30;
@@ -445,4 +445,43 @@ document.addEventListener("DOMContentLoaded", () => {
       }
     }
   });
+
+  /* Extension rating */
+  const ratingPopup = document.getElementById("rating-suggestion-box");
+  const showRatingPopup = () => {
+    ratingPopup.setAttribute("data-visible", "true");
+    localStorage.setItem("has-rating-popup-been-shown-last-time", "true");
+  };
+  const hideRatingPopup = () => {
+    ratingPopup.setAttribute("data-visible", "false");
+  };
+
+  const shownLastTime = localStorage.getItem(
+    "has-rating-popup-been-shown-last-time"
+  );
+  console.log("shown ", shownLastTime, typeof shownLastTime);
+  if (shownLastTime === "false") showRatingPopup();
+  if (shownLastTime === "true") {
+    localStorage.setItem("has-rating-popup-been-shown-last-time", "false");
+  }
+  if (shownLastTime === null) {
+    localStorage.setItem("has-rating-popup-been-shown-last-time", "false");
+  }
+
+  document
+    .getElementById("cancel-rate-extension-btn")
+    ?.addEventListener("click", () => {
+      hideRatingPopup();
+    });
+
+  document
+    .getElementById("rate-extension-btn")
+    ?.addEventListener("click", () => {
+      browser.runtime
+        .sendMessage({
+          type: "OPEN_EXTERNAL_URL",
+          url: "https://addons.mozilla.org/fr/firefox/addon/split-tabs/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search",
+        })
+        .finally(() => hideRatingPopup);
+    });
 });

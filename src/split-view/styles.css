@@ -343,3 +343,53 @@ iframe {
   width: 18px;
   height: 18px;
 }
+
+/* CTA's */
+.cta {
+  --bg-opacity: 1;
+  border-radius: 4px;
+  padding: 6px 12px;
+  font-weight: 500;
+  background-color: rgba(var(--secondary-text-color), var(--bg-opacity));
+  color: rgb(var(--primary-text-color));
+  transition: background-color 150ms;
+}
+
+.cta-primary {
+  background-color: rgb(66, 68, 210, var(--bg-opacity));
+}
+
+.cta:hover {
+  --bg-opacity: 0.7;
+}
+
+/* Extension rating popup */
+#rating-suggestion-box {
+  position: fixed;
+  bottom: 6px;
+  right: 6px;
+  padding: 8px 16px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  background: rgb(var(--main-background-color));
+  border: 1px solid rgb(var(--border-color));
+  color: rgb(var(--primary-text-color));
+  border-radius: 12px;
+  z-index: 3;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(200%);
+  transition: transform, opacity, 200ms ease-out;
+}
+
+#rating-suggestion-box[data-visible="true"] {
+  pointer-events: all;
+  opacity: 1;
+  transform: translateY(0);
+}
+
+.rating-title {
+  font-weight: 600;
+  font-size: 1.2rem;
+}

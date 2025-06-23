@@ -101,6 +101,7 @@ async function fetchTabs(sender, sendResponse) {
 
 browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   // Initialize extension
+  console.info("[background.js] > received " + message.type);
   switch (message.type) {
     case "INIT_EXT":
       console.info("background.js > Initializing extension");
@@ -164,6 +165,13 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         key: message.key,
         value: getSettingValue(message.key),
       };
+
+    case "OPEN_EXTERNAL_URL":
+      await browser.tabs.create({
+        url: message.url,
+        discarded: false,
+      });
+      break;
 
     default:
       break;

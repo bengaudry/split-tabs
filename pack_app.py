@@ -2,10 +2,16 @@ import os
 import sys
 import json
 import shutil
+import subprocess as sp
 
 if len(sys.argv) != 1 and len(sys.argv) != 2:
     print("Usage: python pack_app.py [-p: publish]")
     sys.exit(1)
+    
+
+def open_in_firefox(url):
+    sp.run(["C:\\Program Files\\Mozilla Firefox\\firefox.exe", "-url", url])
+
 
 # Get the directories needed for packaging    
 baseDir = os.path.dirname(os.path.abspath(__file__))
@@ -95,6 +101,9 @@ if isPackagingForPublish:
     shutil.make_archive(os.path.join(baseDir, "packages", newVersion), 'zip', os.path.join(baseDir, "build"))
 else:
     shutil.make_archive(os.path.join(baseDir, "extension"), 'zip', os.path.join(baseDir, "build"))
+    open_in_firefox("about:debugging#/runtime/this-firefox")
+
+        
 print("\nPackaging complete")
 
 if isPackagingForPublish:
@@ -106,5 +115,5 @@ if isPackagingForPublish:
         os.system("git push origin master")
         print("Changes pushed to github")
 
-    print("\nSend a new version here : https://addons.mozilla.org/fr/developers/addon/split-tabs/versions/submit/")
+    open_in_firefox("https://addons.mozilla.org/fr/developers/addon/split-tabs/versions/submit/")
     
