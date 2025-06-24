@@ -1,8 +1,8 @@
-/** 
- * Converts a hexadecimal color code to a rgb string 
- * @param {string} hex 
+/**
+ * Converts a hexadecimal color code to a rgb string
+ * @param {string} hex
  */
-export function hexToRgba (hex) {
+export function hexToRgba(hex) {
   if (!hex) return null;
   if (hex === "white") return "255, 255, 255, 1";
   if (hex === "black") return "0, 0, 0, 1";
@@ -14,11 +14,11 @@ export function hexToRgba (hex) {
 
   // return {r, g, b}
   return `${r}, ${g}, ${b}, 1`;
-};
+}
 
 /** Returns the inverted rgb values of a color without changing alpha channel
- *  ("0, 0, 0, a" -> "255, 255, 255, a") 
- * @param {string} rgb 
+ *  ("0, 0, 0, a" -> "255, 255, 255, a")
+ * @param {string} rgb
  */
 export function invertRgbValues(rgb) {
   // turns "255, 255, 255" into "0, 0, 0"
@@ -32,7 +32,7 @@ export function invertRgbValues(rgb) {
 
 /** Transforms a color that comes from a background-color css property to
  *  rgb values in a string (black -> "0, 0, 0, 0")
- * @param {string} bg 
+ * @param {string} bg
  */
 export function getRgbValuesFromBackgroundColor(bg) {
   if (bg === null || bg === undefined) return null;
@@ -50,8 +50,8 @@ export function getRgbValuesFromBackgroundColor(bg) {
 }
 
 /** Changes the value of a css variable
- * @param {string} variableName 
- * @param {string} value 
+ * @param {string} variableName
+ * @param {string} value
  */
 export function changeCssVariableValue(variableName, value) {
   if (value === undefined || value === null) return;

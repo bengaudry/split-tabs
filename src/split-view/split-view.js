@@ -3,6 +3,7 @@ import {
   getRgbValuesFromBackgroundColor,
   invertRgbValues,
 } from "./lib/colors";
+import { MIN_VIEW_PERCENTAGE } from "./lib/constants";
 import { createCompositeFavicon } from "./lib/favicon";
 import {
   addProtocolToUrl,
@@ -11,17 +12,11 @@ import {
   isUrlLike,
 } from "./lib/urls";
 
-// ===== CONSTANTS ===== //
-const MIN_VIEW_PERCENTAGE = 30;
-
 // ===== GLOBAL VARIABLES ===== //
 let orientation = "horizontal";
 
 let g_leftUrl = "";
 let g_rightUrl = "";
-
-const leftPaneHistory = [];
-const rightPaneHistory = [];
 
 let leftPaneIcon = null;
 let rightPaneIcon = null;
@@ -37,8 +32,7 @@ let activeSide = "left";
 function changeOrientation(newOrientation) {
   if (newOrientation === undefined) {
     // toggle orientation
-    if ("horizontal" === orientation) orientation = "vertical";
-    else orientation = "horizontal";
+    orientation = "horizontal" === orientation ? "vertical" : "horizontal";
   } else {
     // set orientation with defined value
     orientation = newOrientation;
@@ -81,22 +75,17 @@ document.addEventListener("DOMContentLoaded", () => {
   const searchbarWrapper = document.getElementById("searchbar-wrapper");
   const searchbarInput = document.getElementById("searchbar-url-input");
 
-  /** Sends a message to the iframe to get the url, the icon and the colors of the tab */
+  /** Sends a message to the iframe to get the url, the icon and the colors of the tab
+   * @param {"left" | "right"} side
+   */
   const requestIframeData = (side) => {
-    console.info("split-view.js > Requesting iframe data for side", side);
-    if (side === "left") {
-      if (!leftPaneIframe?.src) return;
-      leftPaneIframe?.contentWindow?.postMessage(
-        { type: "IFRAME_DATA" },
-        leftPaneIframe.src
-      );
-    } else if (side === "right") {
-      if (!rightPaneIframe?.src) return;
-      rightPaneIframe?.contentWindow?.postMessage(
-        { type: "IFRAME_DATA" },
-        rightPaneIframe.src
-      );
-    }
+    const targetIframe = "left" === side ? leftPaneIframe : rightPaneIframe;
+    if (!targetIframe?.src) return;
+    if (!targetIframe?.contentWindow) return;
+    targetIframe.contentWindow.postMessage(
+      { type: "IFRAME_DATA" },
+      targetIframe.src
+    );
   };
 
   /**
@@ -132,7 +121,6 @@ document.addEventListener("DOMContentLoaded", () => {
    * @param {boolean} isRefreshing
    */
   function loadUrl(side, url, isRefreshing) {
-    console.info("split-view.js > Loading url", url, "in side", side);
     if (url === null) return;
     url = addProtocolToUrl(url);
 
@@ -140,7 +128,6 @@ document.addEventListener("DOMContentLoaded", () => {
       // avoid refreshing when url is same
       if (g_leftUrl === url && !isRefreshing) return;
       leftPaneIframe.src = url;
-      leftPaneHistory.push(url);
       g_leftUrl = url;
     }
 
@@ -148,7 +135,6 @@ document.addEventListener("DOMContentLoaded", () => {
       // avoid refreshing when url is same
       if (g_rightUrl === url && !isRefreshing) return;
       rightPaneIframe.src = url;
-      rightPaneHistory.push(url);
       g_rightUrl = url;
     }
 
@@ -165,51 +151,53 @@ document.addEventListener("DOMContentLoaded", () => {
 
   // Listen for messages from the background script
   browser.runtime.onMessage.addListener((message) => {
-    // Initial url load
-    if ("LOAD_URLS" === message.type) {
-      if (message.leftUrl !== null) {
-        console.info("Loading left url");
-        loadUrl("left", message.leftUrl);
-      } else {
-        activeSide = "left";
-        populateToolbarLinkContainer();
-        openSearchbar();
-      }
+    switch (message.type) {
+      // Initial url load
+      case "LOAD_URLS":
+        if (message.leftUrl !== null) {
+          console.info("Loading left url");
+          loadUrl("left", message.leftUrl);
+        } else {
+          activeSide = "left";
+          populateToolbarLinkContainer();
+          openSearchbar();
+        }
 
-      if (message.rightUrl !== null) {
-        console.info("Loading right url");
-        loadUrl("right", message.rightUrl);
-      } else {
-        activeSide = "right";
-        populateToolbarLinkContainer();
-        openSearchbar();
-      }
-    }
+        if (message.rightUrl !== null) {
+          console.info("Loading right url");
+          loadUrl("right", message.rightUrl);
+        } else {
+          activeSide = "right";
+          populateToolbarLinkContainer();
+          openSearchbar();
+        }
+        break;
 
-    // Move left tab to the right and right tab to the left
-    if ("REVERSE_TABS" === message.type) {
-      reverseTabs();
-    }
+      // Move left tab to the right and right tab to the left
+      case "REVERSE_TABS":
+        reverseTabs();
+        break;
 
-    // Set the background color if provided
-    if ("BROWSER_COLORS" === message.type) {
-      changeCssVariableValue(
-        "--main-background-color",
-        getRgbValuesFromBackgroundColor(message.backgroundColor)
-      );
-      changeCssVariableValue(
-        "--primary-text-color",
-        getRgbValuesFromBackgroundColor(message.textColor)
-      );
-      changeCssVariableValue(
-        "--secondary-text-color",
-        getRgbValuesFromBackgroundColor(message.secondaryTextColor)
-      );
-    }
+      // Set the background color if provided
+      case "BROWSER_COLORS":
+        changeCssVariableValue(
+          "--main-background-color",
+          getRgbValuesFromBackgroundColor(message.backgroundColor)
+        );
+        changeCssVariableValue(
+          "--primary-text-color",
+          getRgbValuesFromBackgroundColor(message.textColor)
+        );
+        changeCssVariableValue(
+          "--secondary-text-color",
+          getRgbValuesFromBackgroundColor(message.secondaryTextColor)
+        );
+        break;
 
-    // Change the orientation when context menu pressed
-    if ("SET_ORIENTATION" === message.type) {
-      changeOrientation(message.orientation);
+      // Change the orientation when context menu pressed
+      case "SET_ORIENTATION":
+        changeOrientation(message.orientation);
+        break;
     }
   });
 
