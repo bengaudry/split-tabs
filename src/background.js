@@ -2,6 +2,7 @@ console.info("background.js > Loaded");
 
 const defaultSettings = {
   "close-tab-before-opening": true,
+  "show-rating-popup": true,
 };
 
 /**
@@ -111,7 +112,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
     // Fetch opened tabs on browser to make suggestions to user
     case "FETCH_TABS":
-      console.info("background.js > Fetching current tab");
       // Query all tabs in the current window
       const tabs = await fetchTabs(sender, sendResponse);
       return {
@@ -127,7 +127,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
     // Close one of the tabs in the split
     case "CLOSE_SPLIT":
-      console.info("background.js > Closing split view");
       browser.tabs.create({
         url: message.keep === "left" ? leftUrl : rightUrl,
         active: true,

@@ -1,6 +1,6 @@
 console.info("settings.js > Loaded");
 
-const settingsList = ["close-tab-before-opening"];
+const settingsList = ["close-tab-before-opening", "show-rating-popup"];
 
 document.addEventListener("DOMContentLoaded", async () => {
   for (const setting of settingsList) {

@@ -11,6 +11,13 @@
           Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
           sans-serif;
       }
+
+      .checkbox-list {
+        display: flex;
+        flex-direction: column;
+        gap: 4px;
+      }
+
       /* From Uiverse.io by Bodyhc */
       .checkbox-wrapper-35 .switch {
         display: none;
@@ -126,20 +133,35 @@
   <body>
     <h1>Settings</h1>
 
-    <div class="checkbox-wrapper-35">
-      <input
-        value="private"
-        name="switch"
-        id="close-tab-before-opening"
-        type="checkbox"
-        class="switch"
-        checked
-      />
-      <label for="close-tab-before-opening">
-        <span class="switch-x-text">
-          Close tab before opening in split view
-        </span>
-      </label>
+    <div class="checkbox-list">
+      <div class="checkbox-wrapper-35">
+        <input
+          value="private"
+          name="switch"
+          id="close-tab-before-opening"
+          type="checkbox"
+          class="switch"
+          checked
+        />
+        <label for="close-tab-before-opening">
+          <span class="switch-x-text">
+            Close tab before opening in split view
+          </span>
+        </label>
+      </div>
+      <div class="checkbox-wrapper-35">
+        <input
+          value="private"
+          name="switch"
+          id="show-rating-popup"
+          type="checkbox"
+          class="switch"
+          checked
+        />
+        <label for="show-rating-popup">
+          <span class="switch-x-text">Show rating popup</span>
+        </label>
+      </div>
     </div>
 
     <iframe

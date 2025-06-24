@@ -16,9 +16,17 @@
 
     <div id="rating-suggestion-box" data-visible="false">
       <span class="rating-title">Enjoying the extension ?</span>
+      <span>
+        <input type="checkbox" id="stop-showing-rating-popup-checkbox" />
+        <label for="stop-showing-rating-popup-checkbox">
+          Don't show again
+        </label>
+      </span>
       <div class="cta-container">
-        <button class="cta" id="cancel-rate-extension-btn">No thanks</button>
-        <button class="cta cta-primary" id="rate-extension-btn">
+        <button type="button" class="cta" id="cancel-rate-extension-btn">
+          No thanks
+        </button>
+        <button type="button" class="cta cta-primary" id="rate-extension-btn">
           Rate the extension
         </button>
       </div>
