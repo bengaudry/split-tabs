@@ -6,6 +6,11 @@ import {
 import { MIN_VIEW_PERCENTAGE } from "./lib/constants";
 import { createCompositeFavicon } from "./lib/favicon";
 import {
+  handleCancelExtensionRating,
+  handleExtensionRating,
+  showRatingPopupIfAuthorized,
+} from "./lib/ratingPopup";
+import {
   addProtocolToUrl,
   filterIncorrectTabs,
   getUrlBase,
@@ -435,68 +440,19 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* Extension rating */
-  const ratingPopup = document.getElementById("rating-suggestion-box");
-
-  const showRatingPopup = () => {
-    ratingPopup.setAttribute("data-visible", "true");
-    localStorage.setItem("has-rating-popup-been-shown-last-time", "true");
-  };
-  const hideRatingPopup = () => {
-    ratingPopup.setAttribute("data-visible", "false");
-  };
-
   const shownLastTime = localStorage.getItem(
     "has-rating-popup-been-shown-last-time"
   );
-  if (shownLastTime === "false") {
-    browser.runtime
-      .sendMessage({
-        type: "GET_SETTING",
-        key: "show-rating-popup",
-      })
-      .then((response) => {
-        console.log("reponse", response);
-        if (response.type === "SETTING_VALUE" && response.value === "false")
-          return;
-        showRatingPopup();
-      });
-  }
+  if (shownLastTime === "false") showRatingPopupIfAuthorized();
   if (shownLastTime === "true" || shownLastTime === null) {
     localStorage.setItem("has-rating-popup-been-shown-last-time", "false");
   }
 
-  const askToStopShowingRatingPopup = () => {
-    browser.runtime.sendMessage({
-      type: "EDIT_SETTINGS",
-      key: "show-rating-popup",
-      value: false,
-    });
-  };
-
   document
     .getElementById("cancel-rate-extension-btn")
-    ?.addEventListener("click", () => {
-      const stopShowingPopupCheckbox = document.getElementById(
-        "stop-showing-rating-popup-checkbox"
-      );
-      if (stopShowingPopupCheckbox?.checked === true) {
-        askToStopShowingRatingPopup();
-      }
-      hideRatingPopup();
-    });
+    ?.addEventListener("click", handleCancelExtensionRating);
 
   document
     .getElementById("rate-extension-btn")
-    ?.addEventListener("click", async () => {
-      try {
-        askToStopShowingRatingPopup();
-
-        await browser.runtime.sendMessage({
-          type: "OPEN_EXTERNAL_URL",
-          url: "https://addons.mozilla.org/fr/firefox/addon/split-tabs/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search",
-        });
-      } finally {
-        hideRatingPopup();
-      }
-    });
+    ?.addEventListener("click", handleExtensionRating);
 });
