@@ -5,6 +5,60 @@ const defaultSettings = {
   "show-rating-popup": true,
 };
 
+function generateSVG(fillColor) {
+  return `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="5" y="5" width="118" height="118" rx="27" stroke="${fillColor}" stroke-width="10"/>
+<rect x="59" y="5" width="10" height="118" fill="${fillColor}"/>
+</svg>
+  `;
+}
+
+async function updateIconColor(tabId) {
+  if (!tabId) return;
+  console.info("updating icon color");
+  try {
+    const theme = await browser.theme.getCurrent();
+
+    console.log(theme);
+
+    // Try to get the accent color from the theme
+    const accentColor =
+      theme.colors?.toolbar_text || theme.colors?.tab_text || "#727d87ff"; // fallback
+
+    const svg = generateSVG(accentColor);
+
+    const blob = new Blob([svg], { type: "image/svg+xml" });
+    const url = URL.createObjectURL(blob);
+
+    browser.pageAction.setIcon({
+      path: {
+        32: url,
+      },
+      tabId,
+    });
+
+    await browser.pageAction.show(tabId);
+  } catch (err) {
+    console.error("Could not update icon color :", err);
+  }
+}
+
+browser.tabs.onCreated.addListener((tab) => {
+  updateIconColor(tab.id);
+});
+
+// Also on updated (e.g. URL change)
+browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+  if (changeInfo.status === "complete") {
+    updateIconColor(tabId);
+  }
+});
+
+// When switching tabs
+browser.tabs.onActivated.addListener(({ tabId }) => {
+  updateIconColor(tabId);
+});
+
 /**
  * Creates the context menu available on right-click
  */

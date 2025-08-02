@@ -13,7 +13,6 @@ export async function showRatingPopupIfAuthorized() {
     type: "GET_SETTING",
     key: "show-rating-popup",
   });
-  console.log("reponse", response);
   if (response.type === "SETTING_VALUE" && response.value === "false") return;
   showRatingPopup();
 }

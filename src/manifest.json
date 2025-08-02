@@ -1,7 +1,7 @@
 {
     "manifest_version": 2,
     "name": "Split Tabs",
-    "version": "1.9.1",
+    "version": "2.0.0",
     "description": "Opens two tabs into a split view that can be resized.",
     "permissions": [
         "tabs",
@@ -20,7 +20,7 @@
     "page_action": {
         "browser_style": true,
         "default_icon": {
-            "48": "icons/icon-48.png"
+            "32": "icons/icon-svg-2.svg"
         },
         "pinned": true,
         "show_matches": [
