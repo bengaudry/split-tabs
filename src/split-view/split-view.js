@@ -162,6 +162,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message.leftUrl !== null) {
           console.info("Loading left url");
           loadUrl("left", message.leftUrl);
+          requestIframeData("left");
         } else {
           activeSide = "left";
           populateToolbarLinkContainer();
@@ -171,6 +172,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (message.rightUrl !== null) {
           console.info("Loading right url");
           loadUrl("right", message.rightUrl);
+          requestIframeData("right");
         } else {
           activeSide = "right";
           populateToolbarLinkContainer();

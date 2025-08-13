@@ -91,11 +91,34 @@ body.horizontal > #split-container > #right-pane {
   background-color: rgb(var(--right-pane-background-color));
 }
 
-#left-pane > .shortened-url-btn {
-  color: rgb(var(--left-pane-text-color));
+.shortened-url-btn {
+  border: 1px solid rgb(var(--border-color));
+  margin: 2px auto;
+  border-radius: 4px;
+  width: 100%;
+  padding: 2px 8px;
+  font-size: 12px;
+  white-space: nowrap;
+  overflow: hidden;
+  background-color: transparent;
 }
-#right-pane > .shortened-url-btn {
-  color: rgb(var(--right-pane-text-color));
+
+.shortened-url-btn:hover {
+  background-color: rgba(204, 204, 204, 0.125);
+}
+
+#left-pane-shortened-url-btn {
+  color: rgba(var(--left-pane-text-color));
+}
+#right-pane-shortened-url-btn {
+  color: rgba(var(--right-pane-text-color));
+}
+
+#left-pane .action-btn > i {
+  color: rgba(var(--left-pane-text-color)) !important;
+}
+#right-pane .action-btn > i {
+  color: rgba(var(--right-pane-text-color)) !important;
 }
 
 #resize-draggable {
@@ -200,23 +223,6 @@ iframe {
 .toolbar-content > .right {
   display: flex;
   justify-content: flex-start;
-}
-
-.shortened-url-btn {
-  border: 1px solid rgb(var(--border-color));
-  margin: 2px auto;
-  border-radius: 4px;
-  width: 100%;
-  padding: 2px 8px;
-  color: inherit;
-  font-size: 12px;
-  white-space: nowrap;
-  overflow: hidden;
-  background-color: transparent;
-}
-
-.shortened-url-btn:hover {
-  background-color: rgba(204, 204, 204, 0.125);
 }
 
 /* SEARCHBAR */

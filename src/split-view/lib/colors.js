@@ -27,7 +27,11 @@ export function invertRgbValues(rgb) {
   const g = tab[1];
   const b = tab[2];
   const a = tab[3] || 1;
-  return `${255 - r}, ${255 - g}, ${255 - b}, ${a}`;
+  const inverted = `${255 - r}, ${255 - g}, ${255 - b}, ${a}`;
+
+  console.log(`invert(${rgb}) -> ${inverted}`);
+
+  return inverted;
 }
 
 /** Transforms a color that comes from a background-color css property to
