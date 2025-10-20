@@ -92,7 +92,9 @@ const createContextMenu = () => {
       switch (info.menuItemId) {
         case "split-tabs-context-submenu-reverse-tabs":
           browser.tabs.sendMessage(tab.id, {
-            type: "REVERSE_TABS",
+            type: "LOAD_URLS",
+            leftUrl: rightUrl,
+            rightUrl: leftUrl,
           });
           break;
 
@@ -175,8 +177,11 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
     // Update global variables when changing url in split view
     case "UPDATE_TABS":
-      if (message.leftUrl) leftUrl = message.leftUrl;
-      if (message.rightUrl) rightUrl = message.rightUrl;
+      console.info("background.js > TABS UPDATED");
+      console.log(message);
+      if (message.updatedLeftUrl) leftUrl = message.updatedLeftUrl;
+      if (message.updatedRightUrl) rightUrl = message.updatedRightUrl;
+      console.log(leftUrl, rightUrl);
       break;
 
     // Close one of the tabs in the split
