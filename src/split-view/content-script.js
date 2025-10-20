@@ -1,7 +1,7 @@
 // Listen for messages from the parent window
 window.addEventListener("message", (event) => {
   // Verify the message is from our extension
-  if (event.data && event.data.type === "IFRAME_DATA") {
+  if (event.data && event.data.type === "REQUEST_IFRAME_DATA") {
     // Get the favicon URL
     const favicon =
       document.querySelector("link[rel*='icon']")?.href ||
@@ -29,7 +29,7 @@ window.addEventListener("message", (event) => {
     // Send the URL and background color back to the parent window
     window.parent.postMessage(
       {
-        type: "iframe-data",
+        type: "REQUEST_IFRAME_DATA_RESULTS",
         url: window.location.href,
         title: document.title,
         backgroundColor:
