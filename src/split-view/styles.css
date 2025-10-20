@@ -126,6 +126,20 @@ body.horizontal > #split-container > #right-pane {
   position: fixed;
 }
 
+#resize-draggable::after {
+  content: "";
+  display: block;
+  position: absolute;
+  background: rgb(var(--border-color));
+  scale: 0;
+  transition: transform ease-in-out 100ms;
+}
+
+#resize-draggable:hover::after,
+#resize-draggable:active::after {
+  scale: 1;
+}
+
 body.horizontal > #resize-draggable {
   height: 100%;
   left: var(--left-pane-view-percentage);
@@ -134,12 +148,30 @@ body.horizontal > #resize-draggable {
   cursor: ew-resize;
 }
 
+body.horizontal > #resize-draggable::after {
+  height: 100%;
+  width: 16px;
+  top: 0;
+  bottom: 0;
+  left: 50%;
+  transform: translateX(-50%);
+}
+
 body.vertical > #resize-draggable {
   width: 100%;
   top: var(--left-pane-view-percentage);
   transform: translateY(-50%);
   height: var(--resize-bar-width);
   cursor: ns-resize;
+}
+
+body.vertical > #resize-draggable::after {
+  width: 100%;
+  height: 16px;
+  left: 0;
+  right: 0;
+  top: 50%;
+  transform: translateY(-50%);
 }
 
 .split-pane {

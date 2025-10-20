@@ -45,12 +45,6 @@ document.addEventListener("DOMContentLoaded", () => {
   let leftSplit: Split = new Split(null, 50, "left");
   let rightSplit: Split = new Split(null, 50, "right");
 
-  function reverseTabs() {
-    const oldLeftUrl = leftSplit.getUrl();
-    leftSplit.loadUrl(rightSplit.getUrl());
-    rightSplit.loadUrl(oldLeftUrl);
-  }
-
   // Listen for messages from the background script
   browser.runtime.onMessage.addListener((message) => {
     switch (message.type) {
@@ -71,11 +65,6 @@ document.addEventListener("DOMContentLoaded", () => {
           Searchbar.setActiveSide("right");
           Searchbar.open(rightSplit);
         }
-        break;
-
-      // Move left tab to the right and right tab to the left
-      case "REVERSE_TABS":
-        reverseTabs();
         break;
 
       // Set the background color if provided

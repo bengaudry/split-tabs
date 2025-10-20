@@ -68,10 +68,6 @@ export class Split {
     splitInstance.loadUrl(newUrl);
   }
 
-  public getUrl() {
-    return this.url;
-  }
-
   /** Load a new URL into this split's iframe */
   public loadUrl(newUrl: string | null | undefined): boolean {
     console.log(`[${this.side} Split] Loading URL: `, newUrl);
@@ -88,7 +84,9 @@ export class Split {
       if (this.iframeRef) this.iframeRef.src = this.url;
       else console.warn("No iframe reference found");
       this.requestIframeData();
-
+      
+      Searchbar.close();
+      
       let updatedLeftUrl: string | null = null;
       let updatedRightUrl: string | null = null;
 
@@ -101,8 +99,9 @@ export class Split {
         updatedRightUrl,
       };
 
+      console.log("Sending message to background: ", msg);
+
       browser.runtime.sendMessage(msg);
-      Searchbar.close();
       return true;
     } catch (err) {
       // TODO -> Manage this error properly
