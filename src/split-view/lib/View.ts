@@ -1,16 +1,16 @@
+import { Searchbar } from "./Searchbar";
 import {
   changeCssVariableValue,
   getRgbValuesFromBackgroundColor,
   invertRgbValues,
-} from "./colors";
-import { MIN_VIEW_PERCENTAGE } from "./constants";
-import { createCompositeFavicon } from "./favicon";
-import { Searchbar } from "./Searchbar";
-import { getUrlBase } from "./urls";
+} from "./utils/colors";
+import { MIN_VIEW_PERCENTAGE } from "./utils/constants";
+import { createCompositeFavicon } from "./utils/favicon";
+import { getUrlBase } from "./utils/urls";
 
-export class Split {
-  private static leftSplitInstance: Split;
-  private static rightSplitInstance: Split;
+export class View {
+  private static leftSplitInstance: View;
+  private static rightSplitInstance: View;
 
   private static leftPaneIcon: string | null = null;
   private static rightPaneIcon: string | null = null;
@@ -32,8 +32,8 @@ export class Split {
     this.size = size;
     this.side = side;
 
-    if (side === "left") Split.leftSplitInstance = this;
-    else Split.rightSplitInstance = this;
+    if (side === "left") View.leftSplitInstance = this;
+    else View.rightSplitInstance = this;
 
     this.searchbarTrigger = document.querySelector(
       `#${side}-pane-shortened-url-btn`
@@ -45,7 +45,7 @@ export class Split {
     // Events
     this.searchbarTrigger?.addEventListener("click", () => {
       Searchbar.setActiveSide(this.side);
-      Searchbar.open(this, this.url);
+      Searchbar.open({ splitInstance: this, defaultUrl: this.url });
     });
 
     this.refreshBtn?.addEventListener("click", () => {
@@ -64,7 +64,7 @@ export class Split {
   /** Load a new URL into the specified side's split */
   public static loadUrl(side: "left" | "right", newUrl: string) {
     const splitInstance =
-      side === "left" ? Split.leftSplitInstance : Split.rightSplitInstance;
+      side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
     splitInstance.loadUrl(newUrl);
   }
 
@@ -84,9 +84,9 @@ export class Split {
       if (this.iframeRef) this.iframeRef.src = this.url;
       else console.warn("No iframe reference found");
       this.requestIframeData();
-      
+
       Searchbar.close();
-      
+
       let updatedLeftUrl: string | null = null;
       let updatedRightUrl: string | null = null;
 
@@ -149,9 +149,9 @@ export class Split {
       changeCssVariableValue("--left-pane-text-color", invertRgbValues(rgbVal));
 
       if (e.data.icon) {
-        if ("left" === this.side) Split.leftPaneIcon = e.data.icon;
-        else Split.rightPaneIcon = e.data.icon;
-        createCompositeFavicon(Split.leftPaneIcon, Split.rightPaneIcon);
+        if ("left" === this.side) View.leftPaneIcon = e.data.icon;
+        else View.rightPaneIcon = e.data.icon;
+        createCompositeFavicon(View.leftPaneIcon, View.rightPaneIcon);
       }
     });
   };

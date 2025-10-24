@@ -62,7 +62,7 @@ export function isValidUrl(url: string) {
 /** Adds a protocol to a url if it is not url like */
 export function addProtocolToUrl(url: string) {
   if (!isValidUrl(url)) {
-    return "https://" + url;
+    return "http://" + url;
   }
   return url;
 }
