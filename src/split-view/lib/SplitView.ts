@@ -13,12 +13,6 @@ export class SplitView {
 
   private isUserResizingViews = false;
 
-  private theme: SplitViewTheme = {
-    defaultBackgroundColor: "rgb(255, 255, 255)",
-    defaultTextColor: "rgb(0, 0, 0)",
-    defaultBorderColor: "rgb(200, 200, 200)",
-  };
-
   constructor() {
     Searchbar.initialize();
 
