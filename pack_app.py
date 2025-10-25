@@ -36,7 +36,7 @@ with open(manifestFile, "r") as f:
         manifest["name"] = "Split Tabs"
     else:
         manifest["name"] = "Split Tabs - Development"
-        
+
     with open(manifestFile, "w") as f:
         f.write(json.dumps(manifest, indent=4))
     
@@ -72,10 +72,6 @@ else:
     shutil.copyfile(os.path.join(iconsDir, "wip-icon-48.png"), os.path.join(buildDir, "icons", "icon-48.png"))
 
 shutil.copyfile(os.path.join(iconsDir, "icon-svg-2.svg"), os.path.join(buildDir, "icons", "icon-svg-2.svg"))
-shutil.copyfile(os.path.join(iconsDir, "LeftPaneIcon.svg"), os.path.join(buildDir, "icons", "LeftPaneIcon.svg"))
-shutil.copyfile(os.path.join(iconsDir, "RightPaneIcon.svg"), os.path.join(buildDir, "icons", "RightPaneIcon.svg"))
-shutil.copyfile(os.path.join(iconsDir, "TopPaneIcon.svg"), os.path.join(buildDir, "icons", "TopPaneIcon.svg"))
-shutil.copyfile(os.path.join(iconsDir, "BottomPaneIcon.svg"), os.path.join(buildDir, "icons", "BottomPaneIcon.svg"))
     
 # Run webpack to build the extension
 print("> Running webpack")
