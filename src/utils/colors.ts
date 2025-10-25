@@ -30,28 +30,38 @@ export function invertRgbValues(rgb: string) {
 }
 
 /** Transforms a color that comes from a background-color css property to
- *  rgb values in a string (black -> "0, 0, 0, 0") */
+ *  rgb values in a string (black -> "0, 0, 0") */
 export function getRgbValuesFromBackgroundColor(bg: string | null) {
-  if (!bg) return `0, 0, 0, 0`;
+  if (!bg) return `0, 0, 0`;
 
-  bg = bg.replaceAll(" ", "");
-  
-  if (bg.startsWith("rgba")) {
-    return bg.replaceAll("rgba", "").replaceAll("(", "").replaceAll(")", ""); // rgba(a, b, c, d) => a, b, c, d
-  }
-  
+  bg = bg.replaceAll(" ", "").trim();
+
   if (bg.startsWith("rgb")) {
-    return `${bg
+    const data = bg
+      .replaceAll("rgba", "")
       .replaceAll("rgb", "")
       .replaceAll("(", "")
-      .replaceAll(")", "")}, 1`; // rgb(a, b, c) => a, b, c, 1
+      .replaceAll(")", "")
+      .split(",");
+    return `${data[0] ?? 0}, ${data[1] ?? 0}, ${data[2] ?? 0}`; // rgba(a, b, c, d) => a, b, c, d
   }
 
-  return hexToRgba(bg) ?? `0, 0, 0, 0`;
+  return hexToRgba(bg) ?? `0, 0, 0`;
 }
 
 /** Changes the value of a css variable */
 export function changeCssVariableValue(variableName: string, value: string) {
   const root = document.querySelector<HTMLElement>(":root");
   if (root) root.style.setProperty(variableName, value);
+}
+
+/** Returns the user's preferred color scheme */
+export function getUserScheme(): "dark" | "light" {
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
+    return "dark";
+  }
+  return "light";
 }

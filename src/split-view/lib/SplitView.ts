@@ -1,6 +1,6 @@
+import { changeCssVariableValue } from "../../utils/colors";
+import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
 import { Searchbar } from "./Searchbar";
-import { changeCssVariableValue } from "./utils/colors";
-import { MIN_VIEW_PERCENTAGE } from "./utils/constants";
 import { View } from "./View";
 
 export type Orientation = "horizontal" | "vertical";

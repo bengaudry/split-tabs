@@ -1,16 +1,17 @@
 :root {
-  --page-default-background-color: 255, 255, 255;
-  --main-background-color: var(--page-default-background-color);
+  --main-background-color: 255, 255, 255;
+  --input-background-color: 255, 255, 255;
   --primary-text-color: 0, 0, 0;
   --secondary-text-color: 128, 128, 128;
   --border-color: 200, 200, 200;
-  --shadow-color: 225, 225, 225;
+  --shadow-color: rgba(var(--input-background-color), .2);
 
   --left-pane-view-percentage: 50%;
   --right-pane-view-percentage: 50%;
 
   --left-pane-background-color: var(--main-background-color);
   --left-pane-text-color: var(--primary-text-color);
+  
   --right-pane-background-color: var(--main-background-color);
   --right-pane-text-color: var(--primary-text-color);
 
@@ -21,8 +22,8 @@
 
 @media (prefers-color-scheme: dark) {
   :root {
-    --shadow-color: 12, 12, 12;
-    --page-default-background-color: 28, 27, 34;
+    --main-background-color: 28, 27, 34;
+    --input-background-color: 48, 48, 48;
     --primary-text-color: 255, 255, 255;
     --secondary-text-color: 128, 128, 128;
     --border-color: 75, 75, 75;
@@ -100,11 +101,11 @@ body.horizontal > #split-container > #right-pane {
   font-size: 12px;
   white-space: nowrap;
   overflow: hidden;
-  background-color: transparent;
+  background-color: rgb(var(--input-background-color));
 }
 
 .shortened-url-btn:hover {
-  background-color: rgba(204, 204, 204, 0.125);
+  background-color: rgba(var(--input-background-color), .7);
 }
 
 #left-pane-shortened-url-btn {
@@ -195,7 +196,7 @@ iframe {
   height: 100%;
   width: 100%;
   border: none;
-  background-color: rgb(var(--page-default-background-color));
+  background-color: rgb(var(--main-background-color));
 }
 
 .no-view-opened-msg {
@@ -296,9 +297,9 @@ iframe {
   width: 100%;
   min-width: 250px;
   max-width: 550px;
-  background: rgb(var(--main-background-color));
+  background: rgb(var(--input-background-color));
   overflow-x: hidden;
-  box-shadow: 0 8px 16px 8px rgba(var(--shadow-color), 0.4);
+  box-shadow: 0 8px 16px 8px var(--shadow-color);
   margin-bottom: 30vh; /* Moves upwards the box */
   z-index: 50;
 
@@ -388,13 +389,14 @@ iframe {
   border-radius: 4px;
   padding: 6px 12px;
   font-weight: 500;
-  background-color: rgba(var(--secondary-text-color), var(--bg-opacity));
+  background-color: rgb(var(--input-background-color));
   color: rgb(var(--primary-text-color));
   transition: background-color 150ms;
 }
 
 .cta-primary {
-  background-color: rgb(66, 68, 210, var(--bg-opacity));
+  background-color: rgb(var(--primary-text-color));
+  color: rgb(var(--input-background-color));
 }
 
 .cta:hover {
@@ -413,7 +415,7 @@ iframe {
   background: rgb(var(--main-background-color));
   border: 1px solid rgb(var(--border-color));
   color: rgb(var(--primary-text-color));
-  border-radius: 12px;
+  border-radius: 6px;
   z-index: 3;
   pointer-events: none;
   opacity: 0;

@@ -1,12 +1,12 @@
-import { Searchbar } from "./Searchbar";
 import {
-  changeCssVariableValue,
-  getRgbValuesFromBackgroundColor,
-  invertRgbValues,
-} from "./utils/colors";
-import { MIN_VIEW_PERCENTAGE } from "./utils/constants";
-import { createCompositeFavicon } from "./utils/favicon";
-import { getUrlBase } from "./utils/urls";
+    changeCssVariableValue,
+    getRgbValuesFromBackgroundColor,
+    invertRgbValues,
+} from "../../utils/colors";
+import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
+import { createCompositeFavicon } from "../../utils/favicon";
+import { getUrlBase } from "../../utils/urls";
+import { Searchbar } from "./Searchbar";
 
 export class View {
   private static leftSplitInstance: View;

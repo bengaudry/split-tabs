@@ -1,21 +1,18 @@
-import { Searchbar } from "./lib/Searchbar";
-import { SplitView } from "./lib/SplitView";
-import {
-  changeCssVariableValue,
-  getRgbValuesFromBackgroundColor,
-} from "./lib/utils/colors";
+import { getUserScheme } from "../utils/colors";
 import {
   handleCancelExtensionRating,
   handleExtensionRating,
   showRatingPopupIfAuthorized,
-} from "./lib/utils/ratingPopup";
-
-let splitViewInstance: SplitView;
+} from "../utils/ratingPopup";
+import { Searchbar } from "./lib/Searchbar";
+import { SplitView } from "./lib/SplitView";
+import { ThemeProvider } from "./lib/ThemeProvider";
 
 // Wait for the split view tab to be fully loaded to avoid issues
 // accessing elements and events
 document.addEventListener("DOMContentLoaded", () => {
-  splitViewInstance = new SplitView();
+  const splitViewInstance = new SplitView();
+  const themeProviderInstance = new ThemeProvider();
 
   // Listen for messages from the background script
   browser.runtime.onMessage.addListener((message) => {
@@ -45,18 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
 
       // Set the background color if provided
       case "BROWSER_COLORS":
-        changeCssVariableValue(
-          "--main-background-color",
-          getRgbValuesFromBackgroundColor(message.backgroundColor)
-        );
-        changeCssVariableValue(
-          "--primary-text-color",
-          getRgbValuesFromBackgroundColor(message.textColor)
-        );
-        changeCssVariableValue(
-          "--secondary-text-color",
-          getRgbValuesFromBackgroundColor(message.secondaryTextColor)
-        );
+        console.log(message.backgroundColor, typeof message.backgroundColor);
+        if (getUserScheme() === "dark")
+          themeProviderInstance.resetThemeToDefault();
+        else {
+          themeProviderInstance.setThemeProperties([
+            ["defaultBackgroundColor", message.backgroundColor],
+            ["defaultBorderColor", message.inputBorder],
+            ["defaultInputBackgroundColor", message.inputBackground],
+            ["defaultPrimaryTextColor", message.textColor],
+            ["defaultSecondaryTextColor", message.secondaryTextColor],
+          ]);
+        }
         break;
 
       // Change the orientation when context menu pressed

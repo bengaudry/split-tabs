@@ -15,17 +15,17 @@ function generateSVG(fillColor) {
 
 async function updateIconColor(tabId) {
   if (!tabId) return;
-  console.info("updating icon color");
   try {
-    const theme = await browser.theme.getCurrent();
+    const themeColors = await getThemeColors();
 
-    console.log(theme);
+    let color = themeColors.textColor;
+    if (!color) return;
 
+    if (Array.isArray(color)) color = `rgb(${color.join(",")})`;
+
+    console.info("updating icon color with :", color);
     // Try to get the accent color from the theme
-    const accentColor =
-      theme.colors?.toolbar_text || theme.colors?.tab_text || "#727d87ff"; // fallback
-
-    const svg = generateSVG(accentColor);
+    const svg = generateSVG(color);
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
@@ -231,10 +231,67 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       });
       break;
 
+    case "GET_THEME":
+      const theme = await browser.theme.getCurrent();
+      sendThemeToFront(theme);
+      break;
+
     default:
       break;
   }
 });
+
+async function sendThemeToFront() {
+  const themeColors = await getThemeColors();
+
+  // Send the BROWSER_COLORS data to the split-view page
+  browser.tabs.sendMessage(tab.id, {
+    type: "BROWSER_COLORS",
+    ...themeColors,
+  });
+
+  updateIconColor(tab.id);
+}
+
+async function getThemeColors() {
+  try {
+    // Get the current theme
+    const theme = await browser.theme.getCurrent();
+
+    console.log(theme.colors);
+
+    const backgroundColor =
+      theme.colors?.frame ?? theme.colors?.sidebar_highlight;
+    const textColor =
+      theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
+    const inputBorder =
+      theme.colors?.sidebar_border ??
+      theme.colors?.toolbar_field_border ??
+      theme.colors?.tab_line;
+    const inputBackground = theme.colors?.toolbar_field;
+    const secondaryTextColor = theme.colors?.toolbar_field_highlight;
+
+    return {
+      backgroundColor,
+      textColor,
+      inputBorder,
+      inputBackground,
+      secondaryTextColor,
+    };
+  } catch (err) {
+    return {
+      backgroundColor: undefined,
+      textColor: undefined,
+      inputBorder: undefined,
+      secondaryTextColor: undefined,
+    };
+  }
+}
+
+browser.theme.onUpdated = function ({ theme }) {
+  sendThemeToFront(theme);
+  updateIconColor(tab.id);
+};
 
 /**
  * Returns the setting value for a given setting key
@@ -267,13 +324,7 @@ const handleInitializeExtension = async (side) => {
       browser.tabs.remove(activeTab.id);
     }
 
-    // Get the current theme
-    const theme = await browser.theme.getCurrent();
-
-    const backgroundColor = theme.colors?.frame;
-    const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_text;
-    const inputBorder = theme.colors?.toolbar_field_border;
-    const secondaryTextColor = theme.colors?.toolbar_field_highlight;
+    const themeColors = await getThemeColors();
 
     // Wait for the tab to be fully loaded, and send informations
     browser.tabs.onUpdated.addListener(function listener(
@@ -307,10 +358,7 @@ const handleInitializeExtension = async (side) => {
         // Send the BROWSER_COLORS data to the split-view page
         browser.tabs.sendMessage(tab.id, {
           type: "BROWSER_COLORS",
-          backgroundColor,
-          textColor,
-          inputBorder,
-          secondaryTextColor,
+          ...themeColors,
         });
       }
     });
@@ -321,45 +369,3 @@ const handleInitializeExtension = async (side) => {
     console.error(err);
   }
 };
-
-browser.tabs.onUpdated.addListener(
-  async (updatedTabId, changeInfo, newTabState) => {
-    if (updatedTabId !== tab?.id) return;
-
-    if (changeInfo.status === "loading") {
-      // Wait for the tab to be fully loaded, and send informations
-      browser.tabs.onUpdated.addListener(async function listener(
-        tabId,
-        changeInfo,
-        updatedTab
-      ) {
-        if (tabId === tab.id && changeInfo.status === "complete") {
-          // Get the current theme
-          const theme = await browser.theme.getCurrent();
-          const backgroundColor = theme.colors.frame;
-          const textColor = theme.colors.tab_text ?? theme.colors.toolbar_text;
-          const inputBorder = theme.colors.toolbar_field_border;
-          const secondaryTextColor = theme.colors.toolbar_field_highlight;
-          // Remove the listener to avoid multiple calls
-          browser.tabs.onUpdated.removeListener(listener);
-
-          // Send the LOAD_URLS event to the split-view page
-          browser.tabs.sendMessage(tab.id, {
-            type: "LOAD_URLS",
-            leftUrl,
-            rightUrl,
-          });
-
-          // Send the BROWSER_COLORS data to the split-view page
-          browser.tabs.sendMessage(tab.id, {
-            type: "BROWSER_COLORS",
-            backgroundColor,
-            textColor,
-            inputBorder,
-            secondaryTextColor,
-          });
-        }
-      });
-    }
-  }
-);

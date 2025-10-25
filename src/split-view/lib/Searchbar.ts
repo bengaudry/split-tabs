@@ -1,5 +1,5 @@
+import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "../../utils/urls";
 import { View } from "./View";
-import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "./utils/urls";
 
 export class Searchbar {
   private static isCloseForbidden = false; // forbid close when one of the view is empty
@@ -197,8 +197,8 @@ export class Searchbar {
         button.appendChild(txtSpan);
 
         button.addEventListener("click", () => {
-          splitInstance.loadUrl(tab.url);
           Searchbar.enableClose();
+          splitInstance.loadUrl(tab.url);
         });
         if (toolbarLinksContainer) toolbarLinksContainer.appendChild(button);
       }
