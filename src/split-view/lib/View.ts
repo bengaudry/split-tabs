@@ -1,7 +1,7 @@
 import {
-    changeCssVariableValue,
-    getRgbValuesFromBackgroundColor,
-    invertRgbValues,
+  changeCssVariableValue,
+  getRgbValuesFromBackgroundColor,
+  invertRgbValues,
 } from "../../utils/colors";
 import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
 import { createCompositeFavicon } from "../../utils/favicon";
@@ -53,7 +53,10 @@ export class View {
     });
 
     this.closeBtn?.addEventListener("click", () => {
-      browser.runtime.sendMessage({ type: "CLOSE_SPLIT", keep: "right" });
+      browser.runtime.sendMessage({
+        type: "CLOSE_SPLIT",
+        keep: side === "left" ? "right" : "left",
+      });
     });
 
     this.iframeRef?.addEventListener("load", () => {

@@ -25,8 +25,7 @@
         "pinned": true,
         "show_matches": [
             "http://*/*",
-            "https://*/*",
-            "file://*/*"
+            "https://*/*"
         ],
         "default_popup": "popup.html"
     },

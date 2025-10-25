@@ -3,6 +3,7 @@ console.info("background.js > Loaded");
 const defaultSettings = {
   "close-tab-before-opening": true,
   "show-rating-popup": true,
+  "match-with-firefox-theme": true,
 };
 
 function generateSVG(fillColor) {
@@ -19,7 +20,11 @@ async function updateIconColor(tabId) {
     const themeColors = await getThemeColors();
 
     let color = themeColors.textColor;
-    if (!color) return;
+    if (!color) {
+      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
+        color = "#fbfbfe"; // default icon color for dark theme in firefox
+      } else color = "#4c4b51"; // default icon color for light theme in firefox
+    }
 
     if (Array.isArray(color)) color = `rgb(${color.join(",")})`;
 
@@ -218,6 +223,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       break;
 
     case "GET_SETTING":
+      console.info("[background.js] > Returning SETTING_VALUE")
       return {
         type: "SETTING_VALUE",
         key: message.key,

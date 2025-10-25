@@ -4,12 +4,10 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Split Tabs Settings</title>
-
+    <link rel="stylesheet" href="reset.css">
     <style>
-      * {
-        font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI",
-          Roboto, Oxygen, Ubuntu, Cantarell, "Open Sans", "Helvetica Neue",
-          sans-serif;
+      body {
+        padding: 32px 16px;
       }
 
       .checkbox-list {
@@ -28,7 +26,7 @@
         -webkit-align-items: center;
         -ms-flex-align: center;
         align-items: center;
-        color: #78768d;
+        color: var(--secondary-text-color);
         cursor: pointer;
         display: -webkit-box;
         display: -webkit-flex;
@@ -160,6 +158,22 @@
         />
         <label for="show-rating-popup">
           <span class="switch-x-text">Show rating popup</span>
+        </label>
+      </div>
+      <div class="checkbox-wrapper-35">
+        <input
+          value="private"
+          name="switch"
+          id="match-with-firefox-theme"
+          type="checkbox"
+          class="switch"
+          checked
+        />
+        <label for="match-with-firefox-theme">
+          <span class="switch-x-text"
+            >Match extension with firefox theme (can cause visibility issues
+            depending on your theme)</span
+          >
         </label>
       </div>
     </div>

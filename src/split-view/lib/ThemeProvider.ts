@@ -6,7 +6,6 @@ export type SplitViewTheme = {
   defaultPrimaryTextColor: string;
   defaultSecondaryTextColor: string;
   defaultBorderColor: string;
-  defaultShadowColor: string;
 
   leftViewBackgroundColor?: string;
   leftViewTextColor?: string;
@@ -21,7 +20,6 @@ const THEME_PROPERTY_NAMES: Record<keyof SplitViewTheme, string> = {
   defaultPrimaryTextColor: "--primary-text-color",
   defaultSecondaryTextColor: "--secondary-text-color",
   defaultBorderColor: "--border-color",
-  defaultShadowColor: "--shadow-color",
 
   leftViewBackgroundColor: "--left-pane-background-color",
   leftViewTextColor: "--left-pane-text-color",
@@ -31,21 +29,19 @@ const THEME_PROPERTY_NAMES: Record<keyof SplitViewTheme, string> = {
 };
 
 const DEFAULT_LIGHT_THEME: SplitViewTheme = {
-  defaultBackgroundColor: "255, 255, 255",
-  defaultInputBackgroundColor: "255, 255, 255",
+  defaultBackgroundColor: "234, 234, 237",
+  defaultInputBackgroundColor: "222, 222, 225",
   defaultPrimaryTextColor: "0, 0, 0",
   defaultSecondaryTextColor: "128, 128, 128",
   defaultBorderColor: "200, 200, 200",
-  defaultShadowColor: "255, 255, 255",
 };
 
 const DEFAULT_DARK_THEME: SplitViewTheme = {
   defaultBackgroundColor: "28, 27, 34",
-  defaultInputBackgroundColor: "48, 48, 48",
+  defaultInputBackgroundColor: "20, 19, 24",
   defaultPrimaryTextColor: "255, 255, 255",
   defaultSecondaryTextColor: "128, 128, 128",
   defaultBorderColor: "75, 75, 75",
-  defaultShadowColor: "12, 12, 12",
 };
 
 export class ThemeProvider {

@@ -97,6 +97,11 @@ settings_files = ["settings.html", "settings.js"]
 for file in settings_files:
     shutil.copyfile(os.path.join(settings_directory, file), os.path.join(buildDir, file))
 
+styles_directory = os.path.join(srcDir, "styles")
+styles_files = ["reset.css"]
+for file in styles_files:
+    shutil.copyfile(os.path.join(styles_directory, file), os.path.join(buildDir, file))
+
 # Compress into a zip file
 if isPackagingForPublish:
     shutil.make_archive(os.path.join(baseDir, "packages", newVersion), 'zip', os.path.join(baseDir, "build"))

@@ -43,6 +43,22 @@ document.addEventListener("DOMContentLoaded", () => {
       // Set the background color if provided
       case "BROWSER_COLORS":
         console.log(message.backgroundColor, typeof message.backgroundColor);
+        browser.runtime
+          .sendMessage({
+            type: "GET_SETTING",
+            key: "match-with-firefox-theme",
+          })
+          .then((response) => {
+            console.log("[split-view.ts] > SETTING_VALUE", response);
+            if (
+              response.type === "SETTING_VALUE" &&
+              response.value === "false"
+            ) {
+              themeProviderInstance.resetThemeToDefault();
+              return;
+            }
+          });
+
         if (getUserScheme() === "dark")
           themeProviderInstance.resetThemeToDefault();
         else {
