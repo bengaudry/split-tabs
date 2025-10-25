@@ -1,6 +1,6 @@
 {
     "manifest_version": 2,
-    "name": "Split Tabs",
+    "name": "Split Tabs - Development",
     "version": "2.1.1",
     "description": "Opens two tabs into a split view that can be resized.",
     "permissions": [

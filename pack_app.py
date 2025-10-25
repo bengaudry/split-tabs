@@ -22,21 +22,26 @@ buildDir = os.path.join(baseDir, "build")
 isPackagingForPublish = sys.argv[1] == "-p" if len(sys.argv) == 2 else False
             
 print(">> Packaging for publish <<\n" if isPackagingForPublish else ">> Packaging for development <<\n")
-    
-# Ask new version number if packaging for publish
-if isPackagingForPublish:
-    manifestFile = os.path.join(srcDir, "manifest.json")
-    with open(manifestFile, "r") as f:
-        manifest = f.read()
-        manifest = json.loads(manifest)
 
-    print("> Current version of the extension: " + manifest["version"])
-    newVersion = input("> Enter new version number: ")
-    manifest["version"] = newVersion
+manifestFile = os.path.join(srcDir, "manifest.json")
+with open(manifestFile, "r") as f:
+    manifest = f.read()
+    manifest = json.loads(manifest) 
+
+    # Ask new version number if packaging for publish
+    if isPackagingForPublish:
+        print("> Current version of the extension: " + manifest["version"])
+        newVersion = input("> Enter new version number: ")
+        manifest["version"] = newVersion
+        manifest["name"] = "Split Tabs"
+    else:
+        manifest["name"] = "Split Tabs - Development"
+        
     with open(manifestFile, "w") as f:
         f.write(json.dumps(manifest, indent=4))
-    print("")
     
+print("")
+
 # Check if the build directory exists, if it does, clean it up
 # and if it doesn't, create it
 if (os.path.exists(buildDir) and os.path.isdir(buildDir)):
