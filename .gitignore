@@ -1,4 +1,5 @@
 *.zip
 build
+build_backup
 packages
 node_modules

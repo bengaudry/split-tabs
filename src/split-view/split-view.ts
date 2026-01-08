@@ -54,6 +54,7 @@ document.addEventListener("DOMContentLoaded", () => {
               response.type === "SETTING_VALUE" &&
               response.value === "false"
             ) {
+              console.info("Resetting to default colors because the setting asks so");
               themeProviderInstance.resetThemeToDefault();
               return;
             }
@@ -62,6 +63,7 @@ document.addEventListener("DOMContentLoaded", () => {
         if (getUserScheme() === "dark")
           themeProviderInstance.resetThemeToDefault();
         else {
+          console.info("Setting custom theme colors");
           themeProviderInstance.setThemeProperties([
             ["defaultBackgroundColor", message.backgroundColor],
             ["defaultBorderColor", message.inputBorder],

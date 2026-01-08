@@ -45,10 +45,11 @@ const DEFAULT_DARK_THEME: SplitViewTheme = {
 };
 
 export class ThemeProvider {
-  private theme: SplitViewTheme = DEFAULT_LIGHT_THEME;
+  private theme: SplitViewTheme;
 
   constructor() {
-    this.setTheme(this.getDefaultTheme());
+    this.theme = { ...this.getDefaultTheme() };
+    this.setTheme(this.theme);
 
     // Listen for system theme changes
     window
@@ -61,6 +62,8 @@ export class ThemeProvider {
 
   /** Get the default theme based on the user's system preference */
   private getDefaultTheme(): SplitViewTheme {
+    console.log("dark :", DEFAULT_DARK_THEME)
+    console.log("light :", DEFAULT_LIGHT_THEME)
     return getUserScheme() === "dark"
       ? DEFAULT_DARK_THEME
       : DEFAULT_LIGHT_THEME;
@@ -68,7 +71,9 @@ export class ThemeProvider {
 
   /** Resets the theme to the default one */
   public resetThemeToDefault() {
+    console.info("Resetting theme to default values");
     const defaultTheme = this.getDefaultTheme();
+    console.log(defaultTheme);
     this.setTheme(defaultTheme);
     this.setThemeProperties([
       ["leftViewBackgroundColor", defaultTheme.defaultBackgroundColor],
@@ -90,12 +95,13 @@ export class ThemeProvider {
 
   /** Sets the theme */
   public setTheme(theme: SplitViewTheme) {
-    this.theme = theme;
+    // Create a shallow copy to avoid mutating the original theme object
+    this.theme = { ...theme };
 
-    for (const key of Object.keys(theme) as (keyof SplitViewTheme)[]) {
-      const value = theme[key];
-      // @ts-expect-error
-      this.setThemeProperties([key, value]);
+    for (const key of Object.keys(theme)) {
+      if (!Object.keys(THEME_PROPERTY_NAMES).includes(key)) continue;
+      const value = theme[key as keyof SplitViewTheme];
+      this.setThemeProperties([[key as keyof SplitViewTheme, value]]);
     }
   }
 
@@ -108,13 +114,13 @@ export class ThemeProvider {
 
       let cssValue: string | null = null;
 
+      console.log(`[ThemeProvider] Setting theme property ${key} to value:`, value, typeof value);
+
       // If the value is a string representing a color, convert it to rgb values
       if (typeof value === "string") {
         cssValue = getRgbValuesFromBackgroundColor(value);
-      }
-
-      // In some versions, rgb values are put in an array ([r, g, b])
-      if (Array.isArray(value)) {
+      } else if (Array.isArray(value)) {
+        // In some versions, rgb values are put in an array ([r, g, b])
         cssValue = value.join(", ");
       }
 
