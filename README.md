@@ -13,7 +13,17 @@ Fork the project and clone it on your machine using
 git clone https://github.com/<your_username>/firefox-split-view
 ```
 
-Add some modifications and then, build the extension using :
+Add some modifications and then, build the extension using the `pack_app.py` script.
+
+Before running the script, create a Python virtual environment and install dependencies:
+
+```sh
+python -m venv venv
+source venv/bin/activate  # On Windows: venv\Scripts\activate
+pip install -r requirements.txt
+```
+
+Now, run the script:
 
 ```sh
 python pack_app.py
