@@ -322,7 +322,7 @@ def compress_build_dir(is_packaging_for_publish: bool, newVersion: str):
     if is_packaging_for_publish:
         zip_path = os.path.join(BASE_DIR_PATH, "packages", newVersion)
     else:
-        zip_path = os.path.join(BASE_DIR_PATH, "extension.zip")
+        zip_path = os.path.join(BASE_DIR_PATH, "extension")
 
     shutil.make_archive(zip_path, 'zip', BUILD_DIR_PATH)
     spinner.succeed()
@@ -346,6 +346,8 @@ def main():
     manifest = read_current_manifest()
     updated_manifest = update_manifest_data(manifest, is_packaging_for_publish)
     export_manifest_to_build_dir(updated_manifest)
+
+    compress_build_dir(is_packaging_for_publish, updated_manifest["version"])
 
     if is_packaging_for_publish:
         print("\nPush changes to github ?")
