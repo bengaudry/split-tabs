@@ -52,7 +52,17 @@ def exit_with_error(message: str, error: Exception = None):
 def open_in_firefox(url: str):
     """Opens the given URL in Firefox browser"""
 
-    sp.run(["C:\\Program Files\\Mozilla Firefox\\firefox.exe", "-url", url])
+    try:
+        if sys.platform == "linux":
+            sp.run(["firefox", "-url", url])
+        elif sys.platform == "darwin":
+            sp.run(["open", "-a", "Firefox", url])
+        elif sys.platform == "win32":
+            sp.run(["C:\\Program Files\\Mozilla Firefox\\firefox.exe", "-url", url])
+        else:
+            print(f"Unsupported platform: {sys.platform}. Please open {url} manually.")
+    except FileNotFoundError:
+        print(f"Could not find Firefox. Please open {url} manually.")
 
 
 
