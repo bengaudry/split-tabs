@@ -52,7 +52,17 @@ def exit_with_error(message: str, error: Exception = None):
 def open_in_firefox(url: str):
     """Opens the given URL in Firefox browser"""
 
-    sp.run(["C:\\Program Files\\Mozilla Firefox\\firefox.exe", "-url", url])
+    try:
+        if sys.platform == "linux":
+            sp.run(["firefox", "-url", url])
+        elif sys.platform == "darwin":
+            sp.run(["open", "-a", "Firefox", url])
+        elif sys.platform == "win32":
+            sp.run(["C:\\Program Files\\Mozilla Firefox\\firefox.exe", "-url", url])
+        else:
+            print(f"Unsupported platform: {sys.platform}. Please open {url} manually.")
+    except FileNotFoundError:
+        print(f"Could not find Firefox. Please open {url} manually.")
 
 
 
@@ -322,7 +332,7 @@ def compress_build_dir(is_packaging_for_publish: bool, newVersion: str):
     if is_packaging_for_publish:
         zip_path = os.path.join(BASE_DIR_PATH, "packages", newVersion)
     else:
-        zip_path = os.path.join(BASE_DIR_PATH, "extension.zip")
+        zip_path = os.path.join(BASE_DIR_PATH, "extension")
 
     shutil.make_archive(zip_path, 'zip', BUILD_DIR_PATH)
     spinner.succeed()
@@ -346,6 +356,8 @@ def main():
     manifest = read_current_manifest()
     updated_manifest = update_manifest_data(manifest, is_packaging_for_publish)
     export_manifest_to_build_dir(updated_manifest)
+
+    compress_build_dir(is_packaging_for_publish, updated_manifest["version"])
 
     if is_packaging_for_publish:
         print("\nPush changes to github ?")
