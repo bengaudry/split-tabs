@@ -2,7 +2,7 @@
 
 SplitView is a Firefox Addon that can display two websites in a split view.
 
-It can be found on the [Firefox Addons Marketplace]("https://addons.mozilla.org/fr/firefox/addon/splitview/").
+It can be found on the [Firefox Addons Marketplace](https://addons.mozilla.org/en-US/firefox/addon/split-tabs).
 
 ## How to contribute
 
@@ -41,6 +41,25 @@ python pack_app.py -p
 ```
 
 And it will generate a _extension.zip_ archive that can be uploaded to mozilla addons.
+
+## Development
+
+This project uses **Prettier** for frontend formatting and **Ruff** for Python linting and formatting.
+
+### Prerequisites
+
+After cloning the repository, install the development dependencies:
+
+```sh
+npm install
+```
+
+This will also automatically set up **Husky** git hooks to ensure that all commits are automatically formatted and linted.
+
+### Available scripts
+
+- `npm run format`: Formats all supported files in the project.
+- `npm run lint`: Checks for style and linting violations.
 
 ## Versions handling
 
