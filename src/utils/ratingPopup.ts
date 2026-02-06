@@ -30,9 +30,7 @@ const askToStopShowingRatingPopup = () => {
  * The function triggered when pressing 'Cancel rate' button in popup
  */
 export function handleCancelExtensionRating() {
-  const stopShowingPopupCheckbox = document.querySelector<HTMLInputElement>(
-    "#stop-showing-rating-popup-checkbox"
-  );
+  const stopShowingPopupCheckbox = document.querySelector<HTMLInputElement>("#stop-showing-rating-popup-checkbox");
 
   if (stopShowingPopupCheckbox?.checked) {
     askToStopShowingRatingPopup();

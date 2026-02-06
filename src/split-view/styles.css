@@ -41,8 +41,6 @@ body.horizontal > #split-container > #right-pane {
   background-color: rgb(var(--right-pane-background-color));
 }
 
-
-
 .split-pane {
   height: 100%;
   width: 100%;
@@ -108,7 +106,7 @@ iframe {
 }
 
 .shortened-url-btn:hover {
-  background-color: rgba(var(--input-background-color), .7);
+  background-color: rgba(var(--input-background-color), 0.7);
 }
 
 #left-pane-shortened-url-btn {
@@ -261,7 +259,10 @@ body.vertical > #resize-draggable::after {
   display: flex;
   flex-direction: column;
 
-  transition: transform, opacity, ease-out 200ms;
+  transition:
+    transform,
+    opacity,
+    ease-out 200ms;
 }
 
 #searchbar-wrapper[data-expanded="false"] > .searchbar-content {
@@ -373,7 +374,10 @@ body.vertical > #resize-draggable::after {
   pointer-events: none;
   opacity: 0;
   transform: translateY(200%);
-  transition: transform, opacity, 200ms ease-out;
+  transition:
+    transform,
+    opacity,
+    200ms ease-out;
 }
 
 #rating-suggestion-box[data-visible="true"] {

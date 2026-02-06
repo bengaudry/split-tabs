@@ -88,10 +88,7 @@ const createContextMenu = () => {
   });
 
   // Handle context menu actions
-  browser.contextMenus.onClicked.addListener(function listener(
-    info,
-    activeTab
-  ) {
+  browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
     console.info(info);
     if (tab?.id === activeTab?.id) {
       switch (info.menuItemId) {
@@ -121,14 +118,10 @@ browser.webRequest.onHeadersReceived.addListener(
     let responseHeaders = details.responseHeaders;
 
     // Remove X-Frame-Options header
-    responseHeaders = responseHeaders.filter(
-      (header) => header.name.toLowerCase() !== "x-frame-options"
-    );
+    responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "x-frame-options");
 
     // Modify Content-Security-Policy to allow framing
-    responseHeaders = responseHeaders.filter(
-      (header) => header.name.toLowerCase() !== "content-security-policy"
-    );
+    responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "content-security-policy");
 
     return { responseHeaders };
   },
@@ -216,14 +209,11 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           typeof message.value +
           ")"
       );
-      localStorage.setItem(
-        "split-tabs-" + message.key + "-setting",
-        message.value
-      );
+      localStorage.setItem("split-tabs-" + message.key + "-setting", message.value);
       break;
 
     case "GET_SETTING":
-      console.info("[background.js] > Returning SETTING_VALUE")
+      console.info("[background.js] > Returning SETTING_VALUE");
       return {
         type: "SETTING_VALUE",
         key: message.key,
@@ -266,14 +256,9 @@ async function getThemeColors() {
 
     console.log(theme.colors);
 
-    const backgroundColor =
-      theme.colors?.frame ?? theme.colors?.sidebar_highlight;
-    const textColor =
-      theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
-    const inputBorder =
-      theme.colors?.sidebar_border ??
-      theme.colors?.toolbar_field_border ??
-      theme.colors?.tab_line;
+    const backgroundColor = theme.colors?.frame ?? theme.colors?.sidebar_highlight;
+    const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
+    const inputBorder = theme.colors?.sidebar_border ?? theme.colors?.toolbar_field_border ?? theme.colors?.tab_line;
     const inputBackground = theme.colors?.toolbar_field;
     const secondaryTextColor = theme.colors?.toolbar_field_highlight;
 
@@ -333,11 +318,7 @@ const handleInitializeExtension = async (side) => {
     const themeColors = await getThemeColors();
 
     // Wait for the tab to be fully loaded, and send informations
-    browser.tabs.onUpdated.addListener(function listener(
-      tabId,
-      changeInfo,
-      updatedTab
-    ) {
+    browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo, updatedTab) {
       if (tabId === tab.id && changeInfo.status === "complete") {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
@@ -348,8 +329,7 @@ const handleInitializeExtension = async (side) => {
         console.info("background.js > Sending SET_ORIENTATION");
         browser.tabs.sendMessage(tab.id, {
           type: "SET_ORIENTATION",
-          orientation:
-            side === "top" || side === "bottom" ? "vertical" : "horizontal",
+          orientation: side === "top" || side === "bottom" ? "vertical" : "horizontal",
         });
 
         console.info("background.js > Sending LOAD_URLS");
