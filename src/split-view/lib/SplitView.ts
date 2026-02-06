@@ -34,15 +34,10 @@ export class SplitView {
       if (this.isUserResizingViews && e.buttons == 1) {
         // check if the user is pressing the mouse btn
         const leftPercent = Math.round(
-          this.orientation === "horizontal"
-            ? (e.pageX * 100) / window.innerWidth
-            : (e.pageY * 100) / window.innerHeight
+          this.orientation === "horizontal" ? (e.pageX * 100) / window.innerWidth : (e.pageY * 100) / window.innerHeight
         );
         const rightPercent = 100 - leftPercent;
-        if (
-          leftPercent >= MIN_VIEW_PERCENTAGE &&
-          rightPercent >= MIN_VIEW_PERCENTAGE
-        ) {
+        if (leftPercent >= MIN_VIEW_PERCENTAGE && rightPercent >= MIN_VIEW_PERCENTAGE) {
           this.leftSplit.updateSize(leftPercent);
           this.rightSplit.updateSize(rightPercent);
         }
@@ -52,15 +47,11 @@ export class SplitView {
 
   public setOrientation(orientation?: Orientation) {
     if (!orientation) {
-      orientation =
-        this.orientation === "horizontal" ? "vertical" : "horizontal";
+      orientation = this.orientation === "horizontal" ? "vertical" : "horizontal";
     }
     this.orientation = orientation;
 
-    changeCssVariableValue(
-      "--view-orientation",
-      "vertical" === orientation ? "column" : "row"
-    );
+    changeCssVariableValue("--view-orientation", "vertical" === orientation ? "column" : "row");
     document.body?.classList.toggle("horizontal", "horizontal" === orientation);
     document.body?.classList.toggle("vertical", "vertical" === orientation);
   }

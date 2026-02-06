@@ -1,9 +1,5 @@
 import { getUserScheme } from "../utils/colors";
-import {
-  handleCancelExtensionRating,
-  handleExtensionRating,
-  showRatingPopupIfAuthorized,
-} from "../utils/ratingPopup";
+import { handleCancelExtensionRating, handleExtensionRating, showRatingPopupIfAuthorized } from "../utils/ratingPopup";
 import { Searchbar } from "./lib/Searchbar";
 import { SplitView } from "./lib/SplitView";
 import { ThemeProvider } from "./lib/ThemeProvider";
@@ -50,18 +46,14 @@ document.addEventListener("DOMContentLoaded", () => {
           })
           .then((response) => {
             console.log("[split-view.ts] > SETTING_VALUE", response);
-            if (
-              response.type === "SETTING_VALUE" &&
-              response.value === "false"
-            ) {
+            if (response.type === "SETTING_VALUE" && response.value === "false") {
               console.info("Resetting to default colors because the setting asks so");
               themeProviderInstance.resetThemeToDefault();
               return;
             }
           });
 
-        if (getUserScheme() === "dark")
-          themeProviderInstance.resetThemeToDefault();
+        if (getUserScheme() === "dark") themeProviderInstance.resetThemeToDefault();
         else {
           console.info("Setting custom theme colors");
           themeProviderInstance.setThemeProperties([
@@ -82,19 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* Extension rating */
-  const shownLastTime = localStorage.getItem(
-    "has-rating-popup-been-shown-last-time"
-  );
+  const shownLastTime = localStorage.getItem("has-rating-popup-been-shown-last-time");
   if (shownLastTime === "false") showRatingPopupIfAuthorized();
   if (shownLastTime === "true" || shownLastTime === null) {
     localStorage.setItem("has-rating-popup-been-shown-last-time", "false");
   }
 
-  document
-    .getElementById("cancel-rate-extension-btn")
-    ?.addEventListener("click", handleCancelExtensionRating);
+  document.getElementById("cancel-rate-extension-btn")?.addEventListener("click", handleCancelExtensionRating);
 
-  document
-    .getElementById("rate-extension-btn")
-    ?.addEventListener("click", handleExtensionRating);
+  document.getElementById("rate-extension-btn")?.addEventListener("click", handleExtensionRating);
 });
