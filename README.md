@@ -1,82 +1,106 @@
-# Firefox Split View
+# Firefox Split Tabs
 
-SplitView is a Firefox Addon that can display two websites in a split view.
+Split Tabs is a powerful Firefox extension that allows you to display and manage two websites simultaneously in a customizable split-view interface.
 
-It can be found on the [Firefox Addons Marketplace](https://addons.mozilla.org/en-US/firefox/addon/split-tabs).
+[![Firefox Add-ons](https://img.shields.io/amo/v/split-tabs.svg)](https://addons.mozilla.org/firefox/addon/split-tabs/)
+[![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://opensource.org/licenses/MIT)
 
-## How to contribute
+## Preview
 
-Fork the project and clone it on your machine using
+![Split tabs in action](./assets/preview.png)
 
-```sh
-git clone https://github.com/<your_username>/firefox-split-view
-```
+## Features
 
-Add some modifications and then, build the extension using the `pack_app.py` script.
+- **Split view**: View two tabs side-by-side or stacked.
+- **Resizable**: Easily adjust the size of each pane.
+- **Seamless integration**: Works directly within your Firefox browser.
+- **Customizable**: Adjustable settings to fit your workflow.
 
-Before running the script, create a Python virtual environment and install dependencies:
+## Getting started
 
-```sh
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+### Installation
 
-Now, run the script:
+You can install the official version from the [Firefox Add-ons Marketplace](https://addons.mozilla.org/firefox/addon/split-tabs/).
+
+### Manual installation for developers
+
+1. **Clone the repository**:
+
+   ```sh
+   git clone https://github.com/YOUR_USERNAME/split-tabs.git
+   cd split-tabs
+   ```
+
+2. **Install dependencies**:
+   This project requires both [Node.js](https://nodejs.org/en) (for frontend tools) and [Python](https://www.python.org/) (for build scripts).
+
+   ```sh
+   # Install Node dependencies
+   npm install
+
+   # Setup Python environment
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+## Development
+
+We use modern tooling to ensure high code quality and a consistent coding style.
+
+### Formatting and linting
+
+- **Frontend**: We use [Prettier](https://prettier.io/) for JavaScript, TypeScript, HTML, CSS, and JSON.
+- **Python**: We use [Ruff](https://astral.sh/ruff) for fast linting and formatting.
+
+#### Available scripts
+
+- `npm run format`: Automatically format all files in the project.
+- `npm run lint`: Check the project for style and linting violations.
+
+> [!TIP]
+> **Husky** git hooks are automatically installed. Every time you commit, [lint-staged](https://github.com/lint-staged/lint-staged) will ensure your changes are formatted and linted correctly.
+
+### Project structure
+
+- `src/`: Core extension logic and assets.
+- `icons/`: Extension icons for various states.
+- `pack_app.py`: Main build and packaging script.
+- `webpack.config.js`: Webpack configuration for bundling TypeScript/JavaScript.
+
+## Building and debugging
+
+### Development build
+
+To build the extension for local testing:
 
 ```sh
 python pack_app.py
 ```
 
-Then in firefox, go to [Firefox debugging page]("about:debugging#/runtime/this-firefox") and click load complementary module.
+This script will:
 
-Select the extension.zip that you created before and there you go.
+1. Run Webpack to bundle assets.
+2. Prepare a `build/` directory.
+3. Generate an `extension.zip` file.
+4. Automatically open `about:debugging` in Firefox for you to load the temporary addon.
 
-## Generate a publishable version
+### Production build
 
-Just run this command :
+To generate a versioned package for the Firefox Add-ons Marketplace:
 
 ```sh
 python pack_app.py -p
 ```
 
-And it will generate a _extension.zip_ archive that can be uploaded to mozilla addons.
-
-## Development
-
-This project uses **Prettier** for frontend formatting and **Ruff** for Python linting and formatting.
-
-### Prerequisites
-
-After cloning the repository, install the development dependencies:
-
-```sh
-npm install
-```
-
-This will also automatically set up **Husky** git hooks to ensure that all commits are automatically formatted and linted.
-
-### Available scripts
-
-- `npm run format`: Formats all supported files in the project.
-- `npm run lint`: Checks for style and linting violations.
-
 ## Versions handling
 
-The version can be found in _src/manifest.json_.
-The format is _x.y.z_,
+Versions are managed in `src/manifest.json` following the `x.y.z` format:
 
-- x is the major version (currently 1)
-- y is the minor version (incremented for new features)
-- z if the number of fixes for the minor version
+- `x`: Major version.
+- `y`: Minor version (new features).
+- `z`: Patch version (bug fixes).
 
-## Events explanation
+## License
 
-- background.js
-  - _INIT_EXT_: Initialize extension, args={side: "left" | "right" | "top" | "bottom"}
-  - _FETCH_TABS_: No args required, sends a _TABS_DATA_ event in response
-  - _UPDATE_TABS_: Has to be called whenever the urls change in the split view to update global variables in background args={leftUrl, rightUrl}
-  - _CLOSE_SPLIT_: Close the split view and opens the keep url in a new tab args={keep: "left" | "right"}
-  - _OPEN_SETTINGS_: Opens the settings page, no args required
-  - _EDIT_SETTINGS_: Edit the extension setting at key with value args={key, value}
-  - _GET_SETTING_: Returns the value of the setting at key in a _SETTING_VALUE_ event args={key}
+This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
