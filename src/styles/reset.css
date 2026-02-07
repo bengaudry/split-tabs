@@ -5,6 +5,7 @@
   --secondary-text-color: 128, 128, 128;
   --border-color: 200, 200, 200;
   --shadow-color: rgba(var(--input-background-color), 0.2);
+  --active-border-color: 0, 120, 215;
 
   --left-pane-view-percentage: 50%;
   --right-pane-view-percentage: 50%;
@@ -27,6 +28,7 @@
     --primary-text-color: 255, 255, 255;
     --secondary-text-color: 128, 128, 128;
     --border-color: 75, 75, 75;
+    --active-border-color: 66, 165, 245;
   }
 }
 
@@ -45,7 +47,6 @@
     "Open Sans",
     "Helvetica Neue",
     sans-serif;
-  /* font-family: Arial, Helvetica, sans-serif; */
   color: rgb(var(--primary-text-color));
 }
 
