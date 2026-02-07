@@ -3,6 +3,7 @@ body {
   border: none;
   outline: none;
   height: 100vh;
+  overflow: hidden;
 }
 
 #split-container {
@@ -10,6 +11,8 @@ body {
   width: 100vw;
   height: 100vh;
   padding: var(--container-padding);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 body.vertical > #split-container {
