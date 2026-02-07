@@ -17,6 +17,11 @@
   --right-pane-text-color: var(--primary-text-color);
 
   --resize-bar-width: 8px;
+  --resize-bar-offset: 6px;
+  --gutter-width: calc(var(--resize-bar-offset) * 2);
+  --container-padding: 12px;
+  --resize-handle-long-axis: 48px;
+  --resize-handle-short-axis: 4px;
 
   --view-orientation: row;
 }
