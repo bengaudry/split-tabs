@@ -37,3 +37,24 @@ window.addEventListener("message", (event) => {
     );
   }
 });
+
+function notifyFocus() {
+  window.top.postMessage({ type: "IFRAME_FOCUSED" }, "*");
+}
+
+window.addEventListener("click", notifyFocus);
+window.addEventListener("focus", notifyFocus);
+
+window.addEventListener("keydown", (e) => {
+  if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.top.postMessage(
+      {
+        type: "SWITCH_FOCUS",
+        direction: e.key === "ArrowLeft" ? "left" : "right",
+      },
+      "*"
+    );
+  }
+});

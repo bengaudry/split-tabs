@@ -17,6 +17,7 @@ export class View {
   private size: number;
   private side: "left" | "right";
 
+  private containerRef: HTMLDivElement | null;
   private iframeRef: HTMLIFrameElement | null;
   private searchbarTrigger: HTMLButtonElement | null;
   private refreshBtn: HTMLButtonElement | null;
@@ -31,12 +32,24 @@ export class View {
     if (side === "left") View.leftSplitInstance = this;
     else View.rightSplitInstance = this;
 
+    this.containerRef = document.querySelector(`#${side}-pane`);
     this.searchbarTrigger = document.querySelector(`#${side}-pane-shortened-url-btn`);
     this.iframeRef = document.querySelector(`#${side}-pane-iframe`);
     this.refreshBtn = document.querySelector(`#${side}-pane-refresh-btn`);
     this.closeBtn = document.querySelector(`#${side}-pane-close-split-btn`);
 
     // Events
+    this.containerRef?.addEventListener("mousedown", () => {
+      View.activate(this.side);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+        e.preventDefault();
+        View.activate(e.key === "ArrowLeft" ? "left" : "right");
+      }
+    });
+
     this.searchbarTrigger?.addEventListener("click", () => {
       Searchbar.setActiveSide(this.side);
       Searchbar.open({ splitInstance: this, defaultUrl: this.url });
@@ -56,6 +69,36 @@ export class View {
     this.iframeRef?.addEventListener("load", () => {
       this.requestIframeData();
     });
+
+    window.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "IFRAME_FOCUSED") {
+        if (this.iframeRef && e.source === this.iframeRef.contentWindow) {
+          View.activate(this.side);
+        }
+      }
+      if (e.data && e.data.type === "SWITCH_FOCUS") {
+        View.activate(e.data.direction);
+      }
+    });
+
+    if (side === "left") {
+      View.activate("left");
+    }
+  }
+
+  public static activate(side: "left" | "right") {
+    const leftContainer = View.leftSplitInstance?.containerRef;
+    const rightContainer = View.rightSplitInstance?.containerRef;
+
+    if (side === "left") {
+      leftContainer?.classList.add("active-split");
+      rightContainer?.classList.remove("active-split");
+      View.leftSplitInstance?.iframeRef?.focus();
+    } else {
+      rightContainer?.classList.add("active-split");
+      leftContainer?.classList.remove("active-split");
+      View.rightSplitInstance?.iframeRef?.focus();
+    }
   }
 
   /** Load a new URL into the specified side's split */
