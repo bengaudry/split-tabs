@@ -33,26 +33,21 @@ export function invertRgbValues(rgb: string) {
  *  rgb values in a string (black -> "0, 0, 0") */
 export function getRgbValuesFromBackgroundColor(bg: string | null) {
   if (!bg) return `0, 0, 0`;
-  console.log("1", bg)
-  
+  console.log("1", bg);
+
   bg = bg.replaceAll(" ", "").trim();
-  console.log("2", bg)
-  
+  console.log("2", bg);
+
   if (bg.startsWith("rgb")) {
-    const data = bg
-    .replaceAll("rgba", "")
-    .replaceAll("rgb", "")
-    .replaceAll("(", "")
-    .replaceAll(")", "")
-    .split(",");
-    console.log("3", data)
+    const data = bg.replaceAll("rgba", "").replaceAll("rgb", "").replaceAll("(", "").replaceAll(")", "").split(",");
+    console.log("3", data);
     return `${data[0] ?? 0}, ${data[1] ?? 0}, ${data[2] ?? 0}`; // rgba(a, b, c, d) => a, b, c, d
   }
 
   if (/^[0-9a-fA-F][0-9a-fA-F],[0-9a-fA-F][0-9a-fA-F],[0-9a-fA-F][0-9a-fA-F]$/.test(bg)) {
     return bg;
   }
-  console.log("4", hexToRgba(bg))
+  console.log("4", hexToRgba(bg));
   return hexToRgba(bg) ?? `0, 0, 0`;
 }
 
@@ -65,10 +60,7 @@ export function changeCssVariableValue(variableName: string, value: string) {
 
 /** Returns the user's preferred color scheme */
 export function getUserScheme(): "dark" | "light" {
-  if (
-    window.matchMedia &&
-    window.matchMedia("(prefers-color-scheme: dark)").matches
-  ) {
+  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
     return "dark";
   }
   return "light";

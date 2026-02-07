@@ -1,10 +1,6 @@
 console.info("settings.js > Loaded");
 
-const settingsList = [
-  "close-tab-before-opening",
-  "show-rating-popup",
-  "match-with-firefox-theme",
-];
+const settingsList = ["close-tab-before-opening", "show-rating-popup", "match-with-firefox-theme"];
 
 document.addEventListener("DOMContentLoaded", async () => {
   for (const setting of settingsList) {

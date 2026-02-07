@@ -22,10 +22,7 @@ export class Searchbar {
     const wrapper = Searchbar.getSearchbarWrapperRef();
     wrapper?.addEventListener("pointerdown", (e) => {
       const tgt = e.target as HTMLElement | null;
-      if (
-        tgt?.closest(".toolbar-links-container") ||
-        tgt?.closest("#searchbar-close-trigger")
-      ) {
+      if (tgt?.closest(".toolbar-links-container") || tgt?.closest("#searchbar-close-trigger")) {
         Searchbar.suppressNextBlur = true;
       }
     });
@@ -68,11 +65,9 @@ export class Searchbar {
     });
 
     // Close searchbar on pressing escape or clicking away
-    document
-      .getElementById("searchbar-close-trigger")
-      ?.addEventListener("click", () => {
-        Searchbar.close();
-      });
+    document.getElementById("searchbar-close-trigger")?.addEventListener("click", () => {
+      Searchbar.close();
+    });
 
     document.addEventListener("keyup", (e) => {
       if ("Escape" === e.code) Searchbar.close();
@@ -136,13 +131,7 @@ export class Searchbar {
   }
 
   /** Open the searchbar and set the default URL if provided */
-  public static open({
-    splitInstance,
-    defaultUrl,
-  }: {
-    splitInstance?: View;
-    defaultUrl?: string | null;
-  }) {
+  public static open({ splitInstance, defaultUrl }: { splitInstance?: View; defaultUrl?: string | null }) {
     const searchbarWrapper = this.getSearchbarWrapperRef();
     const searchbarInput = this.getSearchbarInputRef();
 
@@ -172,15 +161,10 @@ export class Searchbar {
 
       if (response.type !== "TABS_DATA") return;
 
-      const toolbarLinksContainer =
-        searchbarWrapper.querySelector<HTMLUListElement>(
-          ".toolbar-links-container"
-        );
+      const toolbarLinksContainer = searchbarWrapper.querySelector<HTMLUListElement>(".toolbar-links-container");
       if (toolbarLinksContainer) toolbarLinksContainer.innerHTML = ""; // Clear existing links
 
-      const tabs = filterIncorrectTabs(response.tabs).sort(
-        (a, b) => a.lastAccessed - b.lastAccessed
-      );
+      const tabs = filterIncorrectTabs(response.tabs).sort((a, b) => a.lastAccessed - b.lastAccessed);
 
       let i = 1;
       for (const tab of tabs) {

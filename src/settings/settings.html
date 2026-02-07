@@ -1,10 +1,10 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
   <head>
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0" />
     <title>Split Tabs Settings</title>
-    <link rel="stylesheet" href="reset.css">
+    <link rel="stylesheet" href="reset.css" />
     <style>
       body {
         padding: 32px 16px;
@@ -61,8 +61,10 @@
       .checkbox-wrapper-35 .switch + label::after {
         background-color: #fff;
         border-radius: 26px;
-        box-shadow: 0 3px 1px 0 rgba(37, 34, 71, 0.05),
-          0 2px 2px 0 rgba(37, 34, 71, 0.1), 0 3px 3px 0 rgba(37, 34, 71, 0.05);
+        box-shadow:
+          0 3px 1px 0 rgba(37, 34, 71, 0.05),
+          0 2px 2px 0 rgba(37, 34, 71, 0.1),
+          0 3px 3px 0 rgba(37, 34, 71, 0.05);
         height: 26px;
         left: 2px;
         position: absolute;
@@ -70,7 +72,9 @@
         -webkit-transition: -webkit-transform 0.125s ease-out;
         transition: -webkit-transform 0.125s ease-out;
         transition: transform 0.125s ease-out;
-        transition: transform 0.125s ease-out, -webkit-transform 0.125s ease-out;
+        transition:
+          transform 0.125s ease-out,
+          -webkit-transform 0.125s ease-out;
         width: 26px;
       }
 
@@ -93,11 +97,18 @@
         left: 0;
         position: absolute;
         top: 0;
-        -webkit-transition: opacity 0.125s ease-out,
+        -webkit-transition:
+          opacity 0.125s ease-out,
           -webkit-transform 0.125s ease-out;
-        transition: opacity 0.125s ease-out, -webkit-transform 0.125s ease-out;
-        transition: transform 0.125s ease-out, opacity 0.125s ease-out;
-        transition: transform 0.125s ease-out, opacity 0.125s ease-out,
+        transition:
+          opacity 0.125s ease-out,
+          -webkit-transform 0.125s ease-out;
+        transition:
+          transform 0.125s ease-out,
+          opacity 0.125s ease-out;
+        transition:
+          transform 0.125s ease-out,
+          opacity 0.125s ease-out,
           -webkit-transform 0.125s ease-out;
       }
 
@@ -133,46 +144,22 @@
 
     <div class="checkbox-list">
       <div class="checkbox-wrapper-35">
-        <input
-          value="private"
-          name="switch"
-          id="close-tab-before-opening"
-          type="checkbox"
-          class="switch"
-          checked
-        />
+        <input value="private" name="switch" id="close-tab-before-opening" type="checkbox" class="switch" checked />
         <label for="close-tab-before-opening">
-          <span class="switch-x-text">
-            Close tab before opening in split view
-          </span>
+          <span class="switch-x-text"> Close tab before opening in split view </span>
         </label>
       </div>
       <div class="checkbox-wrapper-35">
-        <input
-          value="private"
-          name="switch"
-          id="show-rating-popup"
-          type="checkbox"
-          class="switch"
-          checked
-        />
+        <input value="private" name="switch" id="show-rating-popup" type="checkbox" class="switch" checked />
         <label for="show-rating-popup">
           <span class="switch-x-text">Show rating popup</span>
         </label>
       </div>
       <div class="checkbox-wrapper-35">
-        <input
-          value="private"
-          name="switch"
-          id="match-with-firefox-theme"
-          type="checkbox"
-          class="switch"
-          checked
-        />
+        <input value="private" name="switch" id="match-with-firefox-theme" type="checkbox" class="switch" checked />
         <label for="match-with-firefox-theme">
           <span class="switch-x-text"
-            >Match extension with firefox theme (can cause visibility issues
-            depending on your theme)</span
+            >Match extension with firefox theme (can cause visibility issues depending on your theme)</span
           >
         </label>
       </div>
