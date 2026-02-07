@@ -19,8 +19,8 @@ Split Tabs is a powerful Firefox extension that allows you to display and manage
 
 ## Keyboard shortcuts
 
-- **Alt + Arrow Left**: Switch focus to the left/top pane.
-- **Alt + Arrow Right**: Switch focus to the right/bottom pane.
+- **Alt + Arrow Left / Up**: Switch focus to the left/top pane.
+- **Alt + Arrow Right / Down**: Switch focus to the right/bottom pane.
 
 ## Getting started
 

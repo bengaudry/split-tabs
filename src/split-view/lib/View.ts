@@ -44,9 +44,11 @@ export class View {
     });
 
     document.addEventListener("keydown", (e) => {
-      if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+      const isNavKey = e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown";
+      if (e.altKey && isNavKey) {
         e.preventDefault();
-        View.activate(e.key === "ArrowLeft" ? "left" : "right");
+        const direction = e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right";
+        View.activate(direction);
       }
     });
 

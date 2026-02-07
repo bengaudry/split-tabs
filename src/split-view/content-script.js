@@ -46,13 +46,14 @@ window.addEventListener("click", notifyFocus);
 window.addEventListener("focus", notifyFocus);
 
 window.addEventListener("keydown", (e) => {
-  if (e.altKey && (e.key === "ArrowLeft" || e.key === "ArrowRight")) {
+  const isNavKey = e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown";
+  if (e.altKey && isNavKey) {
     e.preventDefault();
     e.stopPropagation();
     window.top.postMessage(
       {
         type: "SWITCH_FOCUS",
-        direction: e.key === "ArrowLeft" ? "left" : "right",
+        direction: e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right",
       },
       "*"
     );
