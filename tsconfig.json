@@ -3,7 +3,7 @@
         "moduleResolution": "bundler",
         "target": "es2021",
         "noImplicitReturns": true,
-        "strict": true
+        "strict": true,
     },
     "include": ["./src/split-view/**/*.ts"],
     "exclude": ["node_modules"]
