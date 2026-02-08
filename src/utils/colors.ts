@@ -39,12 +39,20 @@ export function getRgbValuesFromBackgroundColor(bg: string | null) {
   console.log("2", bg);
 
   if (bg.startsWith("rgb")) {
-    const data = bg.replaceAll("rgba", "").replaceAll("rgb", "").replaceAll("(", "").replaceAll(")", "").split(",");
+    const data = bg
+      .replaceAll("rgba", "")
+      .replaceAll("rgb", "")
+      .replaceAll("(", "")
+      .replaceAll(")", "")
+      .split(",");
     console.log("3", data);
     return `${data[0] ?? 0}, ${data[1] ?? 0}, ${data[2] ?? 0}`; // rgba(a, b, c, d) => a, b, c, d
   }
 
-  if (/^[0-9a-fA-F][0-9a-fA-F],[0-9a-fA-F][0-9a-fA-F],[0-9a-fA-F][0-9a-fA-F]$/.test(bg)) {
+  const rgbRegex =
+    /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]$/;
+
+  if (rgbRegex.test(bg)) {
     return bg;
   }
   console.log("4", hexToRgba(bg));
@@ -53,14 +61,20 @@ export function getRgbValuesFromBackgroundColor(bg: string | null) {
 
 /** Changes the value of a css variable */
 export function changeCssVariableValue(variableName: string, value: string) {
-  console.log(`[colors.ts] Changing CSS variable ${variableName} to value:`, value);
+  console.log(
+    `[colors.ts] Changing CSS variable ${variableName} to value:`,
+    value,
+  );
   const root = document.querySelector<HTMLElement>(":root");
   if (root) root.style.setProperty(variableName, value);
 }
 
 /** Returns the user's preferred color scheme */
 export function getUserScheme(): "dark" | "light" {
-  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+  if (
+    window.matchMedia &&
+    window.matchMedia("(prefers-color-scheme: dark)").matches
+  ) {
     return "dark";
   }
   return "light";
