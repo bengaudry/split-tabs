@@ -49,7 +49,7 @@ export class View {
     this.closeBtn?.addEventListener("click", () => {
       browser.runtime.sendMessage({
         type: "CLOSE_SPLIT",
-        keep: side === "left" ? "right" : "left",
+        keep: side === "left" ? "right" : "left"
       });
     });
 
@@ -92,7 +92,7 @@ export class View {
       const msg = {
         type: "UPDATE_TABS",
         updatedLeftUrl,
-        updatedRightUrl,
+        updatedRightUrl
       };
 
       console.log("Sending message to background: ", msg);

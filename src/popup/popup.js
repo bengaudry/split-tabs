@@ -8,7 +8,7 @@ leftTrigger?.addEventListener("click", () => {
   console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
-    side: "left",
+    side: "left"
   });
 });
 
@@ -16,7 +16,7 @@ rightTrigger?.addEventListener("click", () => {
   console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
-    side: "right",
+    side: "right"
   });
 });
 
@@ -24,7 +24,7 @@ topTrigger?.addEventListener("click", () => {
   console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
-    side: "top",
+    side: "top"
   });
 });
 
@@ -32,7 +32,7 @@ bottomTrigger?.addEventListener("click", () => {
   console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
-    side: "bottom",
+    side: "bottom"
   });
 });
 
@@ -41,6 +41,6 @@ const settingsActionBtn = document.getElementById("action-settings");
 
 settingsActionBtn?.addEventListener("click", () => {
   browser.runtime.sendMessage({
-    type: "OPEN_SETTINGS",
+    type: "OPEN_SETTINGS"
   });
 });

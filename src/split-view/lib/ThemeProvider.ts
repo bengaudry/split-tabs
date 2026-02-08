@@ -25,7 +25,7 @@ const THEME_PROPERTY_NAMES: Record<keyof SplitViewTheme, string> = {
   leftViewTextColor: "--left-pane-text-color",
 
   rightViewBackgroundColor: "--right-pane-background-color",
-  rightViewTextColor: "--right-pane-text-color",
+  rightViewTextColor: "--right-pane-text-color"
 };
 
 const DEFAULT_LIGHT_THEME: SplitViewTheme = {
@@ -33,7 +33,7 @@ const DEFAULT_LIGHT_THEME: SplitViewTheme = {
   defaultInputBackgroundColor: "222, 222, 225",
   defaultPrimaryTextColor: "0, 0, 0",
   defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "200, 200, 200",
+  defaultBorderColor: "200, 200, 200"
 };
 
 const DEFAULT_DARK_THEME: SplitViewTheme = {
@@ -41,7 +41,7 @@ const DEFAULT_DARK_THEME: SplitViewTheme = {
   defaultInputBackgroundColor: "20, 19, 24",
   defaultPrimaryTextColor: "255, 255, 255",
   defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "75, 75, 75",
+  defaultBorderColor: "75, 75, 75"
 };
 
 export class ThemeProvider {
@@ -75,7 +75,7 @@ export class ThemeProvider {
       ["leftViewBackgroundColor", defaultTheme.defaultBackgroundColor],
       ["leftViewTextColor", defaultTheme.defaultPrimaryTextColor],
       ["rightViewBackgroundColor", defaultTheme.defaultBackgroundColor],
-      ["rightViewTextColor", defaultTheme.defaultPrimaryTextColor],
+      ["rightViewTextColor", defaultTheme.defaultPrimaryTextColor]
     ]);
   }
 
@@ -123,7 +123,7 @@ export class ThemeProvider {
       if ("defaultPrimaryTextColor" === key) {
         browser.runtime.sendMessage({
           type: "UPDATE_ICON_COLOR",
-          color: `rgb(${cssValue})`,
+          color: `rgb(${cssValue})`
         });
       }
 

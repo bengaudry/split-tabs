@@ -21,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
           Searchbar.setActiveSide("left");
           Searchbar.forbidClose();
           Searchbar.open({
-            splitInstance: splitViewInstance.getInstanceOfSide("left"),
+            splitInstance: splitViewInstance.getInstanceOfSide("left")
           });
         }
 
@@ -31,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
           Searchbar.setActiveSide("right");
           Searchbar.forbidClose();
           Searchbar.open({
-            splitInstance: splitViewInstance.getInstanceOfSide("right"),
+            splitInstance: splitViewInstance.getInstanceOfSide("right")
           });
         }
         break;
@@ -42,7 +42,7 @@ document.addEventListener("DOMContentLoaded", () => {
         browser.runtime
           .sendMessage({
             type: "GET_SETTING",
-            key: "match-with-firefox-theme",
+            key: "match-with-firefox-theme"
           })
           .then((response) => {
             console.log("[split-view.ts] > SETTING_VALUE", response);
@@ -61,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ["defaultBorderColor", message.inputBorder],
             ["defaultInputBackgroundColor", message.inputBackground],
             ["defaultPrimaryTextColor", message.textColor],
-            ["defaultSecondaryTextColor", message.secondaryTextColor],
+            ["defaultSecondaryTextColor", message.secondaryTextColor]
           ]);
         }
         break;

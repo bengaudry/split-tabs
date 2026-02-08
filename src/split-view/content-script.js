@@ -31,7 +31,7 @@ window.addEventListener("message", (event) => {
           topElementStyle?.backgroundColor === "rgba(0, 0, 0, 0)"
             ? bodyStyle?.backgroundColor
             : topElementStyle?.backgroundColor || bodyStyle?.backgroundColor,
-        icon: favicon,
+        icon: favicon
       },
       "*"
     );

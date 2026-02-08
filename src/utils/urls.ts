@@ -10,7 +10,7 @@ export const FORBIDDEN_HOSTNAMES = [
   "oauth.accounts.firefox.com",
   "profile.accounts.firefox.com",
   "support.mozilla.org",
-  "sync.services.mozilla.com",
+  "sync.services.mozilla.com"
 ];
 
 /** Returns an array of urls that are allowed to be opened in the split view */
