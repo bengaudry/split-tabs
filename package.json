@@ -22,7 +22,7 @@
     "url": "git+https://github.com/bengaudry/firefox-split-view.git"
   },
   "author": "Ben Gaudry",
-  "license": "MIT",
+  "license": "Apache-2.0",
   "bugs": {
     "url": "https://github.com/bengaudry/firefox-split-view/issues"
   },
