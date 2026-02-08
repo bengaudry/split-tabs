@@ -1,8 +1,4 @@
-import {
-  changeCssVariableValue,
-  getRgbValuesFromBackgroundColor,
-  invertRgbValues,
-} from "../../utils/colors";
+import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../utils/colors";
 import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
 import { createCompositeFavicon } from "../../utils/favicon";
 import { getUrlBase } from "../../utils/urls";
@@ -35,9 +31,7 @@ export class View {
     if (side === "left") View.leftSplitInstance = this;
     else View.rightSplitInstance = this;
 
-    this.searchbarTrigger = document.querySelector(
-      `#${side}-pane-shortened-url-btn`
-    );
+    this.searchbarTrigger = document.querySelector(`#${side}-pane-shortened-url-btn`);
     this.iframeRef = document.querySelector(`#${side}-pane-iframe`);
     this.refreshBtn = document.querySelector(`#${side}-pane-refresh-btn`);
     this.closeBtn = document.querySelector(`#${side}-pane-close-split-btn`);
@@ -55,7 +49,7 @@ export class View {
     this.closeBtn?.addEventListener("click", () => {
       browser.runtime.sendMessage({
         type: "CLOSE_SPLIT",
-        keep: side === "left" ? "right" : "left",
+        keep: side === "left" ? "right" : "left"
       });
     });
 
@@ -66,8 +60,7 @@ export class View {
 
   /** Load a new URL into the specified side's split */
   public static loadUrl(side: "left" | "right", newUrl: string) {
-    const splitInstance =
-      side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
+    const splitInstance = side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
     splitInstance.loadUrl(newUrl);
   }
 
@@ -99,7 +92,7 @@ export class View {
       const msg = {
         type: "UPDATE_TABS",
         updatedLeftUrl,
-        updatedRightUrl,
+        updatedRightUrl
       };
 
       console.log("Sending message to background: ", msg);
@@ -118,13 +111,9 @@ export class View {
    * @warning the other split must be resized accordingly by the caller
    */
   public updateSize(newSize: number): void {
-    if (this.size < MIN_VIEW_PERCENTAGE || newSize > 100 - MIN_VIEW_PERCENTAGE)
-      return;
+    if (this.size < MIN_VIEW_PERCENTAGE || newSize > 100 - MIN_VIEW_PERCENTAGE) return;
     this.size = newSize;
-    changeCssVariableValue(
-      `--${this.side}-pane-view-percentage`,
-      `${this.size}%`
-    );
+    changeCssVariableValue(`--${this.side}-pane-view-percentage`, `${this.size}%`);
   }
 
   /**
@@ -133,10 +122,7 @@ export class View {
   private requestIframeData = () => {
     console.log(`[${this.side} Split] Requesting iframe data`);
     if (!this.iframeRef?.contentWindow || !this.iframeRef.src) return;
-    this.iframeRef.contentWindow.postMessage(
-      { type: "REQUEST_IFRAME_DATA" },
-      this.iframeRef.src
-    );
+    this.iframeRef.contentWindow.postMessage({ type: "REQUEST_IFRAME_DATA" }, this.iframeRef.src);
 
     window.addEventListener("message", (e) => {
       if (!this.url) return;

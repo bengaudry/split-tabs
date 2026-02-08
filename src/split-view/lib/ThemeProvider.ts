@@ -25,7 +25,7 @@ const THEME_PROPERTY_NAMES: Record<keyof SplitViewTheme, string> = {
   leftViewTextColor: "--left-pane-text-color",
 
   rightViewBackgroundColor: "--right-pane-background-color",
-  rightViewTextColor: "--right-pane-text-color",
+  rightViewTextColor: "--right-pane-text-color"
 };
 
 const DEFAULT_LIGHT_THEME: SplitViewTheme = {
@@ -33,7 +33,7 @@ const DEFAULT_LIGHT_THEME: SplitViewTheme = {
   defaultInputBackgroundColor: "222, 222, 225",
   defaultPrimaryTextColor: "0, 0, 0",
   defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "200, 200, 200",
+  defaultBorderColor: "200, 200, 200"
 };
 
 const DEFAULT_DARK_THEME: SplitViewTheme = {
@@ -41,7 +41,7 @@ const DEFAULT_DARK_THEME: SplitViewTheme = {
   defaultInputBackgroundColor: "20, 19, 24",
   defaultPrimaryTextColor: "255, 255, 255",
   defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "75, 75, 75",
+  defaultBorderColor: "75, 75, 75"
 };
 
 export class ThemeProvider {
@@ -52,21 +52,17 @@ export class ThemeProvider {
     this.setTheme(this.theme);
 
     // Listen for system theme changes
-    window
-      .matchMedia("(prefers-color-scheme: dark)")
-      .addEventListener("change", () => {
-        this.setTheme(this.getDefaultTheme());
-        browser.runtime.sendMessage({ type: "GET_THEME" });
-      });
+    window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
+      this.setTheme(this.getDefaultTheme());
+      browser.runtime.sendMessage({ type: "GET_THEME" });
+    });
   }
 
   /** Get the default theme based on the user's system preference */
   private getDefaultTheme(): SplitViewTheme {
-    console.log("dark :", DEFAULT_DARK_THEME)
-    console.log("light :", DEFAULT_LIGHT_THEME)
-    return getUserScheme() === "dark"
-      ? DEFAULT_DARK_THEME
-      : DEFAULT_LIGHT_THEME;
+    console.log("dark :", DEFAULT_DARK_THEME);
+    console.log("light :", DEFAULT_LIGHT_THEME);
+    return getUserScheme() === "dark" ? DEFAULT_DARK_THEME : DEFAULT_LIGHT_THEME;
   }
 
   /** Resets the theme to the default one */
@@ -79,7 +75,7 @@ export class ThemeProvider {
       ["leftViewBackgroundColor", defaultTheme.defaultBackgroundColor],
       ["leftViewTextColor", defaultTheme.defaultPrimaryTextColor],
       ["rightViewBackgroundColor", defaultTheme.defaultBackgroundColor],
-      ["rightViewTextColor", defaultTheme.defaultPrimaryTextColor],
+      ["rightViewTextColor", defaultTheme.defaultPrimaryTextColor]
     ]);
   }
 
@@ -106,9 +102,7 @@ export class ThemeProvider {
   }
 
   /** Sets multiple theme properties at once */
-  public setThemeProperties<K extends keyof SplitViewTheme>(
-    properties: Array<[K, any]>
-  ) {
+  public setThemeProperties<K extends keyof SplitViewTheme>(properties: Array<[K, any]>) {
     for (const [key, value] of properties) {
       if (!value) continue;
 
@@ -129,8 +123,8 @@ export class ThemeProvider {
       if ("defaultPrimaryTextColor" === key) {
         browser.runtime.sendMessage({
           type: "UPDATE_ICON_COLOR",
-          color: `rgb(${cssValue})`,
-        })
+          color: `rgb(${cssValue})`
+        });
       }
 
       this.theme[key] = cssValue;

@@ -1,18 +1,18 @@
-import os
-import sys
 import json
+import os
 import shutil
 import subprocess as sp
+import sys
+
 from colorama import Fore, Style
 from halo import Halo
-
 
 # CONSTANTS
 
 # Strings
 ADDON_TITLE = "Split Tabs"
 
-# Directories paths 
+# Directories paths
 BASE_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 ICONS_DIR_PATH = os.path.join(BASE_DIR_PATH, "icons")
 SRC_DIR_PATH = os.path.join(BASE_DIR_PATH, "src")
@@ -22,14 +22,13 @@ BUILD_DIR_PATH = os.path.join(BASE_DIR_PATH, "build")
 MANIFEST_FILE_PATH = os.path.join(SRC_DIR_PATH, "manifest.json")
 
 
-
 # GLOBAL VARIABLES
 
-spinner: Halo = Halo(text='', spinner='dots')
-
+spinner: Halo = Halo(text="", spinner="dots")
 
 
 # FUNCTIONS
+
 
 def exit_with_error(message: str, error: Exception = None):
     """Prints an error message and exits the program"""
@@ -48,7 +47,6 @@ def exit_with_error(message: str, error: Exception = None):
     sys.exit(1)
 
 
-
 def open_in_firefox(url: str):
     """Opens the given URL in Firefox browser"""
 
@@ -65,7 +63,6 @@ def open_in_firefox(url: str):
         print(f"Could not find Firefox. Please open {url} manually.")
 
 
-
 def print_packaging_method(is_packaging_for_publish: bool):
     """Prints the packaging method"""
 
@@ -73,7 +70,6 @@ def print_packaging_method(is_packaging_for_publish: bool):
         print(">> Packaging for publish <<\n")
     else:
         print(">> Packaging for development <<\n")
-
 
 
 def read_current_manifest() -> dict:
@@ -90,14 +86,12 @@ def read_current_manifest() -> dict:
         exit_with_error("Error reading manifest file", e)
 
 
-
 def ask_new_addon_version(currentVersion: str) -> str:
     """Asks the user for a new addon version"""
 
     print("Current version of the extension: " + currentVersion)
     newVersion = input("Enter new version number:\n> ")
     return newVersion
-
 
 
 def update_manifest_data(manifest: dict, is_packaging_for_publish: bool):
@@ -113,7 +107,6 @@ def update_manifest_data(manifest: dict, is_packaging_for_publish: bool):
     return manifest
 
 
-
 def export_manifest_to_build_dir(manifest: dict):
     """Exports the updated manifest to the build directory"""
 
@@ -127,14 +120,13 @@ def export_manifest_to_build_dir(manifest: dict):
         exit_with_error("Error exporting manifest", e)
 
 
-
 def create_build_dir_backup():
     """Creates a backup of the build directory"""
 
     if build_dir_exists():
         spinner.start("Creating build directory backup\n")
         backup_path = BUILD_DIR_PATH + "_backup"
-        
+
         try:
             if os.path.exists(backup_path):
                 shutil.rmtree(backup_path)
@@ -144,14 +136,13 @@ def create_build_dir_backup():
             exit_with_error("Error creating build directory backup", e)
 
 
-
 def remove_build_dir_backup():
     """Removes the backup of the build directory"""
 
     backup_path = BUILD_DIR_PATH + "_backup"
     if os.path.exists(backup_path):
         spinner.start("Removing build directory backup\n")
-        
+
         try:
             shutil.rmtree(backup_path)
             spinner.succeed()
@@ -159,12 +150,10 @@ def remove_build_dir_backup():
             exit_with_error("Error removing build directory backup", e)
 
 
-
 def build_dir_exists() -> bool:
     """Checks if the build directory exists"""
 
     return os.path.exists(BUILD_DIR_PATH) and os.path.isdir(BUILD_DIR_PATH)
-
 
 
 def create_build_dir_if_not_exists():
@@ -174,7 +163,6 @@ def create_build_dir_if_not_exists():
         spinner.start("Creating build directory\n")
         os.mkdir(BUILD_DIR_PATH)
         spinner.succeed()
-
 
 
 def clear_build_dir():
@@ -193,7 +181,6 @@ def clear_build_dir():
         exit_with_error("Error clearing build directory", e)
 
 
-
 def prepare_build_dir():
     """Prepares the build directory by creating or cleaning it"""
 
@@ -205,7 +192,6 @@ def prepare_build_dir():
 
     # Create the icons directory in the build directory
     os.mkdir(os.path.join(BUILD_DIR_PATH, "icons"))
-
 
 
 def remove_old_extension_zip_if_exists(is_packaging_for_publish: bool):
@@ -222,14 +208,13 @@ def remove_old_extension_zip_if_exists(is_packaging_for_publish: bool):
             exit_with_error("Error removing old extension.zip", e)
 
 
-
 def restore_build_dir_from_backup():
     """Restores the build directory from its backup"""
 
     backup_path = BUILD_DIR_PATH + "_backup"
     if os.path.exists(backup_path):
         spinner.start("Restoring build directory from backup\n")
-        
+
         try:
             if build_dir_exists():
                 shutil.rmtree(BUILD_DIR_PATH)
@@ -237,7 +222,6 @@ def restore_build_dir_from_backup():
             spinner.succeed()
         except Exception as e:
             exit_with_error("Error restoring build directory from backup", e)
-
 
 
 def copy_icons_to_build_dir(is_packaging_for_publish: bool):
@@ -249,7 +233,7 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
     icons_map = {
         "icon-32.png": "icon-32.png",
         "icon-48.png": "icon-48.png",
-        "icon-svg-2.svg": "icon-svg-2.svg"
+        "icon-svg-2.svg": "icon-svg-2.svg",
     }
 
     if not is_packaging_for_publish:
@@ -259,8 +243,11 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
 
     try:
         # copy icons to build/icons
-        for (dest_icon, src_icon) in icons_map.items():
-            shutil.copyfile(os.path.join(ICONS_DIR_PATH, src_icon), os.path.join(BUILD_DIR_PATH, "icons", dest_icon))
+        for dest_icon, src_icon in icons_map.items():
+            shutil.copyfile(
+                os.path.join(ICONS_DIR_PATH, src_icon),
+                os.path.join(BUILD_DIR_PATH, "icons", dest_icon),
+            )
         spinner.succeed()
     except Exception as e:
         exit_with_error("Error copying icons", e)
@@ -298,7 +285,6 @@ def copy_src_files_to_build_dir():
     spinner.succeed()
 
 
-
 def copy_files_to_dir(is_packaging_for_publish: bool):
     """Copies necessary files to the build directory"""
 
@@ -306,12 +292,11 @@ def copy_files_to_dir(is_packaging_for_publish: bool):
         copy_src_files_to_build_dir()
     except Exception as e:
         exit_with_error("Error copying src files: ", e)
-        
+
     try:
         copy_icons_to_build_dir(is_packaging_for_publish)
     except Exception as e:
         exit_with_error("Error copying icons: ", e)
-
 
 
 def run_webpack():
@@ -320,7 +305,6 @@ def run_webpack():
     spinner.start("Running webpack\n")
     os.system("npx webpack")
     spinner.succeed()
-
 
 
 def compress_build_dir(is_packaging_for_publish: bool, newVersion: str):
@@ -334,9 +318,8 @@ def compress_build_dir(is_packaging_for_publish: bool, newVersion: str):
     else:
         zip_path = os.path.join(BASE_DIR_PATH, "extension")
 
-    shutil.make_archive(zip_path, 'zip', BUILD_DIR_PATH)
+    shutil.make_archive(zip_path, "zip", BUILD_DIR_PATH)
     spinner.succeed()
-
 
 
 def main():
@@ -364,7 +347,7 @@ def main():
         push = input("> (y/n): ")
         if push == "y":
             os.system("git add .")
-            os.system("git commit -m \"Version " + updated_manifest["version"] + "\"")
+            os.system('git commit -m "Version ' + updated_manifest["version"] + '"')
             os.system("git push origin master")
             print("Changes pushed to github")
         open_in_firefox("https://addons.mozilla.org/fr/developers/addon/split-tabs/versions/submit/")
@@ -374,7 +357,6 @@ def main():
     remove_build_dir_backup()
 
     print("\nPackaging complete")
-
 
 
 if __name__ == "__main__":
