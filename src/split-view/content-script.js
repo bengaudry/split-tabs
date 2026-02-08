@@ -53,7 +53,7 @@ window.addEventListener("keydown", (e) => {
     window.top.postMessage(
       {
         type: "SWITCH_FOCUS",
-        direction: e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right",
+        direction: e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right"
       },
       "*"
     );
