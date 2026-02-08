@@ -1,5 +1,7 @@
 *.zip
-build
-build_backup
-packages
-node_modules
+
+build/
+build_backup/
+packages/
+node_modules/
+venv/
