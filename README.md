@@ -7,7 +7,15 @@ Split Tabs is a powerful Firefox extension that allows you to display and manage
 
 ## Preview
 
-![Split tabs in action](./assets/preview.png)
+You can split your tabs either vertically or horizontally, making it easier to multitask and compare content side by side.
+
+Horizontal split example:
+
+![Split tabs horizontally](./assets/horizontal_split_preview.png)
+
+Vertical split example:
+
+![Split tabs vertically](./assets/vertical_split_preview.png)
 
 ## Features
 
