@@ -37,3 +37,25 @@ window.addEventListener("message", (event) => {
     );
   }
 });
+
+function notifyFocus() {
+  window.top.postMessage({ type: "IFRAME_FOCUSED" }, "*");
+}
+
+window.addEventListener("click", notifyFocus);
+window.addEventListener("focus", notifyFocus);
+
+window.addEventListener("keydown", (e) => {
+  const isNavKey = e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown";
+  if (e.altKey && isNavKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.top.postMessage(
+      {
+        type: "SWITCH_FOCUS",
+        direction: e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right",
+      },
+      "*"
+    );
+  }
+});

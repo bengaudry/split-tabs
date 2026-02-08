@@ -21,8 +21,14 @@ Vertical split example:
 
 - **Split view**: View two tabs side-by-side or stacked.
 - **Resizable**: Easily adjust the size of each pane.
+- **Active pane indicator**: Clearly see which side is focused with a dynamic border.
 - **Seamless integration**: Works directly within your Firefox browser.
 - **Customizable**: Adjustable settings to fit your workflow.
+
+## Keyboard shortcuts
+
+- **Alt + Arrow Left / Up**: Switch focus to the left/top pane.
+- **Alt + Arrow Right / Down**: Switch focus to the right/bottom pane.
 
 ## Getting started
 

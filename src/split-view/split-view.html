@@ -14,8 +14,6 @@
   </head>
 
   <body class="horizontal">
-    <div id="resize-draggable"></div>
-
     <div id="rating-suggestion-box" data-visible="false">
       <span class="rating-title">Enjoying the extension ?</span>
       <span>
@@ -50,52 +48,60 @@
 
     <div id="split-container">
       <div id="left-pane" class="split-pane">
-        <div id="left-pane-toolbar" class="toolbar" data-expanded="false">
-          <div class="toolbar-content">
-            <div class="left">
-              <button id="left-pane-refresh-btn" class="action-btn">
-                <i class="fi fi-rr-rotate-right"></i>
-              </button>
-            </div>
-            <div class="center">
-              <button class="shortened-url-btn" id="left-pane-shortened-url-btn"></button>
-            </div>
-            <div class="right">
-              <button id="left-pane-close-split-btn" class="action-btn">
-                <i class="fi fi-rr-circle-xmark"></i>
-              </button>
+        <div class="pane-content-wrapper">
+          <div id="left-pane-toolbar" class="toolbar" data-expanded="false">
+            <div class="toolbar-content">
+              <div class="left">
+                <button id="left-pane-refresh-btn" class="action-btn">
+                  <i class="fi fi-rr-rotate-right"></i>
+                </button>
+              </div>
+              <div class="center">
+                <button class="shortened-url-btn" id="left-pane-shortened-url-btn"></button>
+              </div>
+              <div class="right">
+                <button id="left-pane-close-split-btn" class="action-btn">
+                  <i class="fi fi-rr-circle-xmark"></i>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="iframe-container">
-          <p class="no-view-opened-msg">No view opened</p>
-          <iframe id="left-pane-iframe" target="_self"></iframe>
+          <div class="iframe-container">
+            <p class="no-view-opened-msg">No view opened</p>
+            <iframe id="left-pane-iframe" target="_self"></iframe>
+          </div>
         </div>
       </div>
 
+      <div id="gutter">
+        <div id="resize-draggable"></div>
+      </div>
+
       <div id="right-pane" class="split-pane">
-        <div id="right-pane-toolbar" class="toolbar" data-expanded="false">
-          <div class="toolbar-content">
-            <div class="left">
-              <button id="right-pane-refresh-btn" class="action-btn">
-                <i class="fi fi-rr-rotate-right"></i>
-              </button>
-            </div>
-            <div class="center">
-              <button class="shortened-url-btn" id="right-pane-shortened-url-btn"></button>
-            </div>
-            <div class="right">
-              <button id="right-pane-close-split-btn" class="action-btn">
-                <i class="fi fi-rr-circle-xmark"></i>
-              </button>
+        <div class="pane-content-wrapper">
+          <div id="right-pane-toolbar" class="toolbar" data-expanded="false">
+            <div class="toolbar-content">
+              <div class="left">
+                <button id="right-pane-refresh-btn" class="action-btn">
+                  <i class="fi fi-rr-rotate-right"></i>
+                </button>
+              </div>
+              <div class="center">
+                <button class="shortened-url-btn" id="right-pane-shortened-url-btn"></button>
+              </div>
+              <div class="right">
+                <button id="right-pane-close-split-btn" class="action-btn">
+                  <i class="fi fi-rr-circle-xmark"></i>
+                </button>
+              </div>
             </div>
           </div>
-        </div>
 
-        <div class="iframe-container">
-          <p class="no-view-opened-msg">No view opened</p>
-          <iframe id="right-pane-iframe" target="_self"></iframe>
+          <div class="iframe-container">
+            <p class="no-view-opened-msg">No view opened</p>
+            <iframe id="right-pane-iframe" target="_self"></iframe>
+          </div>
         </div>
       </div>
     </div>
