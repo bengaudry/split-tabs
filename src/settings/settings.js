@@ -1,10 +1,6 @@
 console.info("settings.js > Loaded");
 
-const settingsList = [
-  "close-tab-before-opening",
-  "show-rating-popup",
-  "match-with-firefox-theme",
-];
+const settingsList = ["close-tab-before-opening", "show-rating-popup", "match-with-firefox-theme"];
 
 document.addEventListener("DOMContentLoaded", async () => {
   for (const setting of settingsList) {
@@ -18,14 +14,14 @@ document.addEventListener("DOMContentLoaded", async () => {
       browser.runtime.sendMessage({
         type: "EDIT_SETTINGS",
         key: setting,
-        value: e.target.checked,
+        value: e.target.checked
       });
     });
 
     // Request the current value of the setting
     const response = await browser.runtime.sendMessage({
       type: "GET_SETTING",
-      key: setting,
+      key: setting
     });
 
     if (response.type !== "SETTING_VALUE") continue;

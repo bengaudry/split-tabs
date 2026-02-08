@@ -3,7 +3,7 @@ console.info("background.js > Loaded");
 const defaultSettings = {
   "close-tab-before-opening": true,
   "show-rating-popup": true,
-  "match-with-firefox-theme": true,
+  "match-with-firefox-theme": true
 };
 
 function generateSVG(fillColor) {
@@ -37,9 +37,9 @@ async function updateIconColor(tabId) {
 
     browser.pageAction.setIcon({
       path: {
-        32: url,
+        32: url
       },
-      tabId,
+      tabId
     });
 
     await browser.pageAction.show(tabId);
@@ -72,26 +72,23 @@ const createContextMenu = () => {
     id: "split-tabs-context-menu",
     type: "separator",
     title: "Split tabs",
-    contexts: ["all"],
+    contexts: ["all"]
   });
 
   browser.contextMenus.create({
     id: "split-tabs-context-submenu-reverse-tabs",
     title: "Reverse tabs",
-    contexts: ["all"],
+    contexts: ["all"]
   });
 
   browser.contextMenus.create({
     id: "split-tabs-context-submenu-toggle-orientation",
     title: "Toggle orientation",
-    contexts: ["all"],
+    contexts: ["all"]
   });
 
   // Handle context menu actions
-  browser.contextMenus.onClicked.addListener(function listener(
-    info,
-    activeTab
-  ) {
+  browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
     console.info(info);
     if (tab?.id === activeTab?.id) {
       switch (info.menuItemId) {
@@ -99,14 +96,14 @@ const createContextMenu = () => {
           browser.tabs.sendMessage(tab.id, {
             type: "LOAD_URLS",
             leftUrl: rightUrl,
-            rightUrl: leftUrl,
+            rightUrl: leftUrl
           });
           break;
 
         case "split-tabs-context-submenu-toggle-orientation":
           browser.tabs.sendMessage(tab.id, {
             type: "SET_ORIENTATION",
-            orientation: undefined,
+            orientation: undefined
           });
           break;
       }
@@ -121,14 +118,10 @@ browser.webRequest.onHeadersReceived.addListener(
     let responseHeaders = details.responseHeaders;
 
     // Remove X-Frame-Options header
-    responseHeaders = responseHeaders.filter(
-      (header) => header.name.toLowerCase() !== "x-frame-options"
-    );
+    responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "x-frame-options");
 
     // Modify Content-Security-Policy to allow framing
-    responseHeaders = responseHeaders.filter(
-      (header) => header.name.toLowerCase() !== "content-security-policy"
-    );
+    responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "content-security-policy");
 
     return { responseHeaders };
   },
@@ -147,7 +140,7 @@ async function fetchTabs(sender, sendResponse) {
     const tabs = await browser.tabs.query({ currentWindow: true });
     sendResponse({
       type: "TABS_DATA",
-      tabs: tabs,
+      tabs: tabs
     });
     return tabs;
   } catch (e) {
@@ -155,7 +148,7 @@ async function fetchTabs(sender, sendResponse) {
     console.error(e);
     browser.tabs.sendMessage(sender.tab.id, {
       type: "TABS_DATA",
-      error: error.message,
+      error: error.message
     });
     return null;
   }
@@ -177,7 +170,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       const tabs = await fetchTabs(sender, sendResponse);
       return {
         type: "TABS_DATA",
-        tabs: tabs,
+        tabs: tabs
       };
 
     // Update global variables when changing url in split view
@@ -193,7 +186,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     case "CLOSE_SPLIT":
       browser.tabs.create({
         url: message.keep === "left" ? leftUrl : rightUrl,
-        active: true,
+        active: true
       });
       browser.tabs.remove(tab.id);
       tab = null;
@@ -202,7 +195,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
     case "OPEN_SETTINGS":
       await browser.tabs.create({
         url: browser.runtime.getURL("settings.html"),
-        discarded: false,
+        discarded: false
       });
       break;
 
@@ -216,24 +209,21 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           typeof message.value +
           ")"
       );
-      localStorage.setItem(
-        "split-tabs-" + message.key + "-setting",
-        message.value
-      );
+      localStorage.setItem("split-tabs-" + message.key + "-setting", message.value);
       break;
 
     case "GET_SETTING":
-      console.info("[background.js] > Returning SETTING_VALUE")
+      console.info("[background.js] > Returning SETTING_VALUE");
       return {
         type: "SETTING_VALUE",
         key: message.key,
-        value: getSettingValue(message.key),
+        value: getSettingValue(message.key)
       };
 
     case "OPEN_EXTERNAL_URL":
       await browser.tabs.create({
         url: message.url,
-        discarded: false,
+        discarded: false
       });
       break;
 
@@ -253,7 +243,7 @@ async function sendThemeToFront() {
   // Send the BROWSER_COLORS data to the split-view page
   browser.tabs.sendMessage(tab.id, {
     type: "BROWSER_COLORS",
-    ...themeColors,
+    ...themeColors
   });
 
   updateIconColor(tab.id);
@@ -266,14 +256,9 @@ async function getThemeColors() {
 
     console.log(theme.colors);
 
-    const backgroundColor =
-      theme.colors?.frame ?? theme.colors?.sidebar_highlight;
-    const textColor =
-      theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
-    const inputBorder =
-      theme.colors?.sidebar_border ??
-      theme.colors?.toolbar_field_border ??
-      theme.colors?.tab_line;
+    const backgroundColor = theme.colors?.frame ?? theme.colors?.sidebar_highlight;
+    const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
+    const inputBorder = theme.colors?.sidebar_border ?? theme.colors?.toolbar_field_border ?? theme.colors?.tab_line;
     const inputBackground = theme.colors?.toolbar_field;
     const secondaryTextColor = theme.colors?.toolbar_field_highlight;
 
@@ -282,14 +267,14 @@ async function getThemeColors() {
       textColor,
       inputBorder,
       inputBackground,
-      secondaryTextColor,
+      secondaryTextColor
     };
   } catch (err) {
     return {
       backgroundColor: undefined,
       textColor: undefined,
       inputBorder: undefined,
-      secondaryTextColor: undefined,
+      secondaryTextColor: undefined
     };
   }
 }
@@ -314,7 +299,7 @@ const handleInitializeExtension = async (side) => {
     // Get the current tab's URL
     const activeTabs = await browser.tabs.query({
       active: true,
-      currentWindow: true,
+      currentWindow: true
     });
     const activeTab = activeTabs[0];
     const currentUrl = activeTab.url;
@@ -322,7 +307,7 @@ const handleInitializeExtension = async (side) => {
     // Creates a new tab containing the split view
     tab = await browser.tabs.create({
       url: browser.runtime.getURL("split-view.html"),
-      discarded: false,
+      discarded: false
     });
 
     if (getSettingValue("close-tab-before-opening") === "true") {
@@ -333,11 +318,7 @@ const handleInitializeExtension = async (side) => {
     const themeColors = await getThemeColors();
 
     // Wait for the tab to be fully loaded, and send informations
-    browser.tabs.onUpdated.addListener(function listener(
-      tabId,
-      changeInfo,
-      updatedTab
-    ) {
+    browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo, updatedTab) {
       if (tabId === tab.id && changeInfo.status === "complete") {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
@@ -348,8 +329,7 @@ const handleInitializeExtension = async (side) => {
         console.info("background.js > Sending SET_ORIENTATION");
         browser.tabs.sendMessage(tab.id, {
           type: "SET_ORIENTATION",
-          orientation:
-            side === "top" || side === "bottom" ? "vertical" : "horizontal",
+          orientation: side === "top" || side === "bottom" ? "vertical" : "horizontal"
         });
 
         console.info("background.js > Sending LOAD_URLS");
@@ -357,14 +337,14 @@ const handleInitializeExtension = async (side) => {
         browser.tabs.sendMessage(tab.id, {
           type: "LOAD_URLS",
           leftUrl,
-          rightUrl,
+          rightUrl
         });
 
         console.info("background.js > Sending BROWSER_COLORS");
         // Send the BROWSER_COLORS data to the split-view page
         browser.tabs.sendMessage(tab.id, {
           type: "BROWSER_COLORS",
-          ...themeColors,
+          ...themeColors
         });
       }
     });

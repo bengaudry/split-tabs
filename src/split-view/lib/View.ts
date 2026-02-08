@@ -1,8 +1,4 @@
-import {
-  changeCssVariableValue,
-  getRgbValuesFromBackgroundColor,
-  invertRgbValues,
-} from "../../utils/colors";
+import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../utils/colors";
 import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
 import { createCompositeFavicon } from "../../utils/favicon";
 import { getUrlBase } from "../../utils/urls";
@@ -21,6 +17,7 @@ export class View {
   private size: number;
   private side: "left" | "right";
 
+  private containerRef: HTMLDivElement | null;
   private iframeRef: HTMLIFrameElement | null;
   private searchbarTrigger: HTMLButtonElement | null;
   private refreshBtn: HTMLButtonElement | null;
@@ -35,14 +32,26 @@ export class View {
     if (side === "left") View.leftSplitInstance = this;
     else View.rightSplitInstance = this;
 
-    this.searchbarTrigger = document.querySelector(
-      `#${side}-pane-shortened-url-btn`
-    );
+    this.containerRef = document.querySelector(`#${side}-pane`);
+    this.searchbarTrigger = document.querySelector(`#${side}-pane-shortened-url-btn`);
     this.iframeRef = document.querySelector(`#${side}-pane-iframe`);
     this.refreshBtn = document.querySelector(`#${side}-pane-refresh-btn`);
     this.closeBtn = document.querySelector(`#${side}-pane-close-split-btn`);
 
     // Events
+    this.containerRef?.addEventListener("mousedown", () => {
+      View.activate(this.side);
+    });
+
+    document.addEventListener("keydown", (e) => {
+      const isNavKey = e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown";
+      if (e.altKey && isNavKey) {
+        e.preventDefault();
+        const direction = e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right";
+        View.activate(direction);
+      }
+    });
+
     this.searchbarTrigger?.addEventListener("click", () => {
       Searchbar.setActiveSide(this.side);
       Searchbar.open({ splitInstance: this, defaultUrl: this.url });
@@ -55,19 +64,48 @@ export class View {
     this.closeBtn?.addEventListener("click", () => {
       browser.runtime.sendMessage({
         type: "CLOSE_SPLIT",
-        keep: side === "left" ? "right" : "left",
+        keep: side === "left" ? "right" : "left"
       });
     });
 
     this.iframeRef?.addEventListener("load", () => {
       this.requestIframeData();
     });
+
+    window.addEventListener("message", (e) => {
+      if (e.data && e.data.type === "IFRAME_FOCUSED") {
+        if (this.iframeRef && e.source === this.iframeRef.contentWindow) {
+          View.activate(this.side);
+        }
+      }
+      if (e.data && e.data.type === "SWITCH_FOCUS") {
+        View.activate(e.data.direction);
+      }
+    });
+
+    if (side === "left") {
+      View.activate("left");
+    }
+  }
+
+  public static activate(side: "left" | "right") {
+    const leftContainer = View.leftSplitInstance?.containerRef;
+    const rightContainer = View.rightSplitInstance?.containerRef;
+
+    if (side === "left") {
+      leftContainer?.classList.add("active-split");
+      rightContainer?.classList.remove("active-split");
+      View.leftSplitInstance?.iframeRef?.focus();
+    } else {
+      rightContainer?.classList.add("active-split");
+      leftContainer?.classList.remove("active-split");
+      View.rightSplitInstance?.iframeRef?.focus();
+    }
   }
 
   /** Load a new URL into the specified side's split */
   public static loadUrl(side: "left" | "right", newUrl: string) {
-    const splitInstance =
-      side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
+    const splitInstance = side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
     splitInstance.loadUrl(newUrl);
   }
 
@@ -99,7 +137,7 @@ export class View {
       const msg = {
         type: "UPDATE_TABS",
         updatedLeftUrl,
-        updatedRightUrl,
+        updatedRightUrl
       };
 
       console.log("Sending message to background: ", msg);
@@ -118,13 +156,9 @@ export class View {
    * @warning the other split must be resized accordingly by the caller
    */
   public updateSize(newSize: number): void {
-    if (this.size < MIN_VIEW_PERCENTAGE || newSize > 100 - MIN_VIEW_PERCENTAGE)
-      return;
+    if (this.size < MIN_VIEW_PERCENTAGE || newSize > 100 - MIN_VIEW_PERCENTAGE) return;
     this.size = newSize;
-    changeCssVariableValue(
-      `--${this.side}-pane-view-percentage`,
-      `${this.size}%`
-    );
+    changeCssVariableValue(`--${this.side}-pane-view-percentage`, `${this.size}%`);
   }
 
   /**
@@ -133,10 +167,7 @@ export class View {
   private requestIframeData = () => {
     console.log(`[${this.side} Split] Requesting iframe data`);
     if (!this.iframeRef?.contentWindow || !this.iframeRef.src) return;
-    this.iframeRef.contentWindow.postMessage(
-      { type: "REQUEST_IFRAME_DATA" },
-      this.iframeRef.src
-    );
+    this.iframeRef.contentWindow.postMessage({ type: "REQUEST_IFRAME_DATA" }, this.iframeRef.src);
 
     window.addEventListener("message", (e) => {
       if (!this.url) return;

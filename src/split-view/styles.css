@@ -3,12 +3,16 @@ body {
   border: none;
   outline: none;
   height: 100vh;
+  overflow: hidden;
 }
 
 #split-container {
   display: flex;
   width: 100vw;
   height: 100vh;
+  padding: var(--container-padding);
+  box-sizing: border-box;
+  overflow: hidden;
 }
 
 body.vertical > #split-container {
@@ -18,38 +22,55 @@ body.horizontal > #split-container {
   flex-direction: row;
 }
 
-body.vertical > #split-container > #left-pane {
-  border-bottom: 2px solid rgb(var(--border-color));
-}
-body.horizontal > #split-container > #left-pane {
-  border-right: 2px solid rgb(var(--border-color));
-}
-body.vertical > #split-container > #right-pane {
-  border-top: 2px solid rgb(var(--border-color));
-}
-body.horizontal > #split-container > #right-pane {
-  border-left: 2px solid rgb(var(--border-color));
-}
-
 #left-pane {
-  flex-basis: var(--left-pane-view-percentage);
-  background-color: rgb(var(--left-pane-background-color));
+  background-color: transparent;
+  flex: 0 0 calc(var(--left-pane-view-percentage) - var(--resize-bar-offset));
 }
 
 #right-pane {
-  flex-basis: var(--right-pane-view-percentage);
-  background-color: rgb(var(--right-pane-background-color));
+  background-color: transparent;
+  flex: 0 0 calc(var(--right-pane-view-percentage) - var(--resize-bar-offset));
 }
 
-
+#gutter {
+  position: relative;
+  flex: 0 0 var(--gutter-width);
+  z-index: 30;
+}
 
 .split-pane {
   height: 100%;
   width: 100%;
+  padding: 0;
   display: flex;
   flex-direction: column;
   overflow: hidden;
   position: relative;
+  box-sizing: border-box;
+}
+
+.pane-content-wrapper {
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  width: 100%;
+  border: 2px solid rgb(var(--border-color));
+  border-radius: 8px;
+  overflow: hidden;
+  transition: border-color 0.25s ease-in-out;
+  box-sizing: border-box;
+}
+
+#left-pane .pane-content-wrapper {
+  background-color: rgb(var(--left-pane-background-color));
+}
+
+#right-pane .pane-content-wrapper {
+  background-color: rgb(var(--right-pane-background-color));
+}
+
+.split-pane.active-split .pane-content-wrapper {
+  border-color: rgb(var(--active-border-color));
 }
 
 .iframe-container {
@@ -108,7 +129,7 @@ iframe {
 }
 
 .shortened-url-btn:hover {
-  background-color: rgba(var(--input-background-color), .7);
+  background-color: rgba(var(--input-background-color), 0.7);
 }
 
 #left-pane-shortened-url-btn {
@@ -126,8 +147,9 @@ iframe {
 }
 
 #resize-draggable {
+  position: absolute;
+  inset: 0;
   z-index: 30;
-  position: fixed;
 }
 
 #resize-draggable::after {
@@ -136,6 +158,8 @@ iframe {
   position: absolute;
   background: rgb(var(--border-color));
   scale: 0 1;
+  border-radius: 99px;
+  transition: scale 0.2s ease-in-out;
 }
 
 #resize-draggable:hover::after,
@@ -143,38 +167,27 @@ iframe {
   scale: 1 1;
 }
 
-body.horizontal > #resize-draggable {
-  height: 100%;
-  left: var(--left-pane-view-percentage);
-  transform: translateX(-50%);
-  width: var(--resize-bar-width);
+body.horizontal > #split-container > #gutter > #resize-draggable {
   cursor: ew-resize;
 }
-
-body.horizontal > #resize-draggable::after {
-  height: 100%;
-  width: 16px;
-  top: 0;
-  bottom: 0;
-  left: 50%;
-  transform: translateX(-50%);
-}
-
-body.vertical > #resize-draggable {
-  width: 100%;
-  top: var(--left-pane-view-percentage);
-  transform: translateY(-50%);
-  height: var(--resize-bar-width);
+body.vertical > #split-container > #gutter > #resize-draggable {
   cursor: ns-resize;
 }
 
-body.vertical > #resize-draggable::after {
-  width: 100%;
-  height: 16px;
-  left: 0;
-  right: 0;
+body.horizontal #resize-draggable::after {
+  height: var(--resize-handle-long-axis);
+  width: var(--resize-handle-short-axis);
   top: 50%;
-  transform: translateY(-50%);
+  left: 50%;
+  transform: translate(-50%, -50%);
+}
+
+body.vertical #resize-draggable::after {
+  width: var(--resize-handle-long-axis);
+  height: var(--resize-handle-short-axis);
+  left: 50%;
+  top: 50%;
+  transform: translate(-50%, -50%);
 }
 
 .action-btn {
@@ -261,7 +274,10 @@ body.vertical > #resize-draggable::after {
   display: flex;
   flex-direction: column;
 
-  transition: transform, opacity, ease-out 200ms;
+  transition:
+    transform,
+    opacity,
+    ease-out 200ms;
 }
 
 #searchbar-wrapper[data-expanded="false"] > .searchbar-content {
@@ -373,7 +389,10 @@ body.vertical > #resize-draggable::after {
   pointer-events: none;
   opacity: 0;
   transform: translateY(200%);
-  transition: transform, opacity, 200ms ease-out;
+  transition:
+    transform,
+    opacity,
+    200ms ease-out;
 }
 
 #rating-suggestion-box[data-visible="true"] {

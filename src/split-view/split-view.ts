@@ -1,9 +1,5 @@
 import { getUserScheme } from "../utils/colors";
-import {
-  handleCancelExtensionRating,
-  handleExtensionRating,
-  showRatingPopupIfAuthorized,
-} from "../utils/ratingPopup";
+import { handleCancelExtensionRating, handleExtensionRating, showRatingPopupIfAuthorized } from "../utils/ratingPopup";
 import { Searchbar } from "./lib/Searchbar";
 import { SplitView } from "./lib/SplitView";
 import { ThemeProvider } from "./lib/ThemeProvider";
@@ -25,7 +21,7 @@ document.addEventListener("DOMContentLoaded", () => {
           Searchbar.setActiveSide("left");
           Searchbar.forbidClose();
           Searchbar.open({
-            splitInstance: splitViewInstance.getInstanceOfSide("left"),
+            splitInstance: splitViewInstance.getInstanceOfSide("left")
           });
         }
 
@@ -35,7 +31,7 @@ document.addEventListener("DOMContentLoaded", () => {
           Searchbar.setActiveSide("right");
           Searchbar.forbidClose();
           Searchbar.open({
-            splitInstance: splitViewInstance.getInstanceOfSide("right"),
+            splitInstance: splitViewInstance.getInstanceOfSide("right")
           });
         }
         break;
@@ -46,22 +42,18 @@ document.addEventListener("DOMContentLoaded", () => {
         browser.runtime
           .sendMessage({
             type: "GET_SETTING",
-            key: "match-with-firefox-theme",
+            key: "match-with-firefox-theme"
           })
           .then((response) => {
             console.log("[split-view.ts] > SETTING_VALUE", response);
-            if (
-              response.type === "SETTING_VALUE" &&
-              response.value === "false"
-            ) {
+            if (response.type === "SETTING_VALUE" && response.value === "false") {
               console.info("Resetting to default colors because the setting asks so");
               themeProviderInstance.resetThemeToDefault();
               return;
             }
           });
 
-        if (getUserScheme() === "dark")
-          themeProviderInstance.resetThemeToDefault();
+        if (getUserScheme() === "dark") themeProviderInstance.resetThemeToDefault();
         else {
           console.info("Setting custom theme colors");
           themeProviderInstance.setThemeProperties([
@@ -69,7 +61,7 @@ document.addEventListener("DOMContentLoaded", () => {
             ["defaultBorderColor", message.inputBorder],
             ["defaultInputBackgroundColor", message.inputBackground],
             ["defaultPrimaryTextColor", message.textColor],
-            ["defaultSecondaryTextColor", message.secondaryTextColor],
+            ["defaultSecondaryTextColor", message.secondaryTextColor]
           ]);
         }
         break;
@@ -82,19 +74,13 @@ document.addEventListener("DOMContentLoaded", () => {
   });
 
   /* Extension rating */
-  const shownLastTime = localStorage.getItem(
-    "has-rating-popup-been-shown-last-time"
-  );
+  const shownLastTime = localStorage.getItem("has-rating-popup-been-shown-last-time");
   if (shownLastTime === "false") showRatingPopupIfAuthorized();
   if (shownLastTime === "true" || shownLastTime === null) {
     localStorage.setItem("has-rating-popup-been-shown-last-time", "false");
   }
 
-  document
-    .getElementById("cancel-rate-extension-btn")
-    ?.addEventListener("click", handleCancelExtensionRating);
+  document.getElementById("cancel-rate-extension-btn")?.addEventListener("click", handleCancelExtensionRating);
 
-  document
-    .getElementById("rate-extension-btn")
-    ?.addEventListener("click", handleExtensionRating);
+  document.getElementById("rate-extension-btn")?.addEventListener("click", handleExtensionRating);
 });

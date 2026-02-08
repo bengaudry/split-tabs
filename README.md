@@ -1,65 +1,120 @@
-# Firefox Split View
+# Firefox Split Tabs
 
-SplitView is a Firefox Addon that can display two websites in a split view.
+Split Tabs is a powerful Firefox extension that allows you to display and manage two websites simultaneously in a customizable split-view interface.
 
-It can be found on the [Firefox Addons Marketplace]("https://addons.mozilla.org/fr/firefox/addon/splitview/").
+[![Firefox Add-ons](https://img.shields.io/amo/v/split-tabs.svg)](https://addons.mozilla.org/firefox/addon/split-tabs/)
+[![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
+## Preview
 
-## How to contribute
+You can split your tabs either vertically or horizontally, making it easier to multitask and compare content side by side.
 
-Fork the project and clone it on your machine using
+Horizontal split example:
 
-```sh
-git clone https://github.com/<your_username>/firefox-split-view
-```
+![Split tabs horizontally](./assets/horizontal_split_preview.png)
 
-Add some modifications and then, build the extension using the `pack_app.py` script.
+Vertical split example:
 
-Before running the script, create a Python virtual environment and install dependencies:
+![Split tabs vertically](./assets/vertical_split_preview.png)
 
-```sh
-python -m venv venv
-source venv/bin/activate  # On Windows: venv\Scripts\activate
-pip install -r requirements.txt
-```
+## Features
 
-Now, run the script:
+- **Split view**: View two tabs side-by-side or stacked.
+- **Resizable**: Easily adjust the size of each pane.
+- **Active pane indicator**: Clearly see which side is focused with a dynamic border.
+- **Seamless integration**: Works directly within your Firefox browser.
+- **Customizable**: Adjustable settings to fit your workflow.
+
+## Keyboard shortcuts
+
+- **Alt + Arrow Left / Up**: Switch focus to the left/top pane.
+- **Alt + Arrow Right / Down**: Switch focus to the right/bottom pane.
+
+## Getting started
+
+### Installation
+
+You can install the official version from the [Firefox Add-ons Marketplace](https://addons.mozilla.org/firefox/addon/split-tabs/).
+
+### Manual installation for developers
+
+1. **Clone the repository**:
+
+   ```sh
+   git clone https://github.com/YOUR_USERNAME/split-tabs.git
+   cd split-tabs
+   ```
+
+2. **Install dependencies**:
+   This project requires both [Node.js](https://nodejs.org/en) (for frontend tools) and [Python](https://www.python.org/) (for build scripts).
+
+   ```sh
+   # Install Node dependencies
+   npm install
+
+   # Setup Python environment
+   python -m venv venv
+   source venv/bin/activate  # On Windows: venv\Scripts\activate
+   pip install -r requirements.txt
+   ```
+
+## Development
+
+We use modern tooling to ensure high code quality and a consistent coding style.
+
+### Formatting and linting
+
+- **Frontend**: We use [Prettier](https://prettier.io/) for JavaScript, TypeScript, HTML, CSS, and JSON.
+- **Python**: We use [Ruff](https://astral.sh/ruff) for fast linting and formatting.
+
+#### Available scripts
+
+- `npm run format`: Automatically format all files in the project.
+- `npm run lint`: Check the project for style and linting violations.
+
+> [!TIP]
+> **Husky** git hooks are automatically installed. Every time you commit, [lint-staged](https://github.com/lint-staged/lint-staged) will ensure your changes are formatted and linted correctly.
+
+### Project structure
+
+- `src/`: Core extension logic and assets.
+- `icons/`: Extension icons for various states.
+- `pack_app.py`: Main build and packaging script.
+- `webpack.config.js`: Webpack configuration for bundling TypeScript/JavaScript.
+
+## Building and debugging
+
+### Development build
+
+To build the extension for local testing:
 
 ```sh
 python pack_app.py
 ```
 
-Then in firefox, go to [Firefox debugging page]("about:debugging#/runtime/this-firefox") and click load complementary module.
+This script will:
 
-Select the extension.zip that you created before and there you go.
+1. Run Webpack to bundle assets.
+2. Prepare a `build/` directory.
+3. Generate an `extension.zip` file.
+4. Automatically open `about:debugging` in Firefox for you to load the temporary addon.
 
+### Production build
 
-## Generate a publishable version
-
-Just run this command : 
+To generate a versioned package for the Firefox Add-ons Marketplace:
 
 ```sh
 python pack_app.py -p
 ```
 
-And it will generate a _extension.zip_ archive that can be uploaded to mozilla addons.
-
-
 ## Versions handling
 
-The version can be found in _src/manifest.json_.
-The format is _x.y.z_, 
-- x is the major version (currently 1)
-- y is the minor version (incremented for new features)
-- z if the number of fixes for the minor version
+Versions are managed in `src/manifest.json` following the `x.y.z` format:
 
-## Events explanation
+- `x`: Major version.
+- `y`: Minor version (new features).
+- `z`: Patch version (bug fixes).
 
-- background.js
-    - *INIT_EXT*: Initialize extension, args={side: "left" | "right" | "top" | "bottom"}
-    - *FETCH_TABS*: No args required, sends a *TABS_DATA* event in response
-    - *UPDATE_TABS*: Has to be called whenever the urls change in the split view to update global variables in background args={leftUrl, rightUrl}
-    - *CLOSE_SPLIT*: Close the split view and opens the keep url in a new tab args={keep: "left" | "right"}
-    - *OPEN_SETTINGS*: Opens the settings page, no args required
-    - *EDIT_SETTINGS*: Edit the extension setting at key with value args={key, value}
-    - *GET_SETTING*: Returns the value of the setting at key in a *SETTING_VALUE* event args={key} 
+## License
+
+This project is licensed under the Apache License 2.0 - see the [LICENSE](LICENSE) file for details.

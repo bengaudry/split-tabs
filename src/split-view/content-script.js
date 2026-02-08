@@ -4,8 +4,7 @@ window.addEventListener("message", (event) => {
   if (event.data && event.data.type === "REQUEST_IFRAME_DATA") {
     // Get the favicon URL
     const favicon =
-      document.querySelector("link[rel*='icon']")?.href ||
-      document.querySelector("link[rel='shortcut icon']")?.href;
+      document.querySelector("link[rel*='icon']")?.href || document.querySelector("link[rel='shortcut icon']")?.href;
 
     // Get the computed background color
     const bodyStyle = window.getComputedStyle(document.body);
@@ -16,11 +15,7 @@ window.addEventListener("message", (event) => {
     const choosePreferredBgColor = () => {
       const topBg = topElementStyle?.backgroundColor?.toLowerCase();
       const bodyBg = bodyStyle?.backgroundColor?.toLowerCase();
-      if (
-        topBg === "rgba(0,0,0,0)" ||
-        topBg === "rgb(0,0,0)" ||
-        topBg === "black"
-      ) {
+      if (topBg === "rgba(0,0,0,0)" || topBg === "rgb(0,0,0)" || topBg === "black") {
         return bodyBg ?? topBg;
       }
       return topBg ?? bodyBg;
@@ -36,7 +31,29 @@ window.addEventListener("message", (event) => {
           topElementStyle?.backgroundColor === "rgba(0, 0, 0, 0)"
             ? bodyStyle?.backgroundColor
             : topElementStyle?.backgroundColor || bodyStyle?.backgroundColor,
-        icon: favicon,
+        icon: favicon
+      },
+      "*"
+    );
+  }
+});
+
+function notifyFocus() {
+  window.top.postMessage({ type: "IFRAME_FOCUSED" }, "*");
+}
+
+window.addEventListener("click", notifyFocus);
+window.addEventListener("focus", notifyFocus);
+
+window.addEventListener("keydown", (e) => {
+  const isNavKey = e.key === "ArrowLeft" || e.key === "ArrowRight" || e.key === "ArrowUp" || e.key === "ArrowDown";
+  if (e.altKey && isNavKey) {
+    e.preventDefault();
+    e.stopPropagation();
+    window.top.postMessage(
+      {
+        type: "SWITCH_FOCUS",
+        direction: e.key === "ArrowLeft" || e.key === "ArrowUp" ? "left" : "right",
       },
       "*"
     );
