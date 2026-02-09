@@ -8,6 +8,8 @@ enum ColorType {
   hexa, // hexadecimal with alpha channel
   rgb,
   rgba,
+  rgbValues,
+  rgbaValues,
   unknown
 }
 
@@ -36,7 +38,7 @@ export function invertRgbValues(rgb: string) {
   const r = parseInt(tab[0]);
   const g = parseInt(tab[1]);
   const b = parseInt(tab[2]);
-  const a = parseInt(tab[3] ?? "1");
+  const a = parseFloat(tab[3] ?? "1");
   const inverted = `${255 - r}, ${255 - g}, ${255 - b}, ${a}`;
 
   return inverted;
@@ -73,8 +75,8 @@ export function getRgbValuesFromBackgroundColor(bg: string | null) {
  * @example
  * isRgbColorString("255, 255, 255") // true
  */
-export function isRgbColorString(color: string): boolean {
-  const rgbRegex = /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]$/;
+export function isRgbValuesColorString(color: string): boolean {
+  const rgbRegex = /^\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*$/;
   return rgbRegex.test(color);
 }
 
@@ -86,8 +88,8 @@ export function isRgbColorString(color: string): boolean {
  * @example
  * isRgbaColorString("255, 255, 255, 1") // true
  */
-export function isRgbaColorString(color: string): boolean {
-  const rgbaRegex = /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9],\d+\.?\d*$/;
+export function isRgbaValuesColorString(color: string): boolean {
+  const rgbaRegex = /^\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*,\s*\d+\.?\d*\s*$/;
   return rgbaRegex.test(color);
 }
 
@@ -135,8 +137,8 @@ export function getColorType(color: string | undefined | null): ColorType | null
 
   const clearedColor = color.trim().replaceAll(" ", "");
 
-  if (isRgbColorString(clearedColor)) return ColorType.rgb;
-  if (isRgbaColorString(clearedColor)) return ColorType.rgba;
+  if (isRgbValuesColorString(clearedColor)) return ColorType.rgbValues;
+  if (isRgbaValuesColorString(clearedColor)) return ColorType.rgbaValues;
   if (isHexColorString(clearedColor)) return ColorType.hex;
   if (isHexaColorString(clearedColor)) return ColorType.hexa;
 
