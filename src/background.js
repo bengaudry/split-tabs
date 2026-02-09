@@ -135,6 +135,35 @@ let rightUrl = null;
 
 let tab = null;
 
+const FORBIDDEN_HOSTNAMES = [
+  "accounts-static.cdn.mozilla.net",
+  "accounts.firefox.com",
+  "addons.cdn.mozilla.net",
+  "addons.mozilla.org",
+  "api.accounts.firefox.com",
+  "content.cdn.mozilla.net",
+  "discovery.addons.mozilla.org",
+  "install.mozilla.org",
+  "oauth.accounts.firefox.com",
+  "profile.accounts.firefox.com",
+  "support.mozilla.org",
+  "sync.services.mozilla.com"
+];
+
+function isForbiddenUrl(url) {
+  if (!url) return true;
+  if (url.startsWith("moz-extension:")) return true;
+  if (url.startsWith("about:")) return true;
+  if (url.startsWith("file:")) return true;
+  try {
+    const urlObj = new URL(url);
+    if (FORBIDDEN_HOSTNAMES.includes(urlObj.hostname)) return true;
+  } catch (_) {
+    return true;
+  }
+  return false;
+}
+
 async function fetchTabs(sender, sendResponse) {
   try {
     const tabs = await browser.tabs.query({ currentWindow: true });
@@ -302,7 +331,7 @@ const handleInitializeExtension = async (side) => {
       currentWindow: true
     });
     const activeTab = activeTabs[0];
-    const currentUrl = activeTab.url;
+    const currentUrl = isForbiddenUrl(activeTab.url) ? null : activeTab.url;
 
     // Creates a new tab containing the split view
     tab = await browser.tabs.create({
