@@ -233,13 +233,14 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
     icons_map = {
         "icon-32.png": "icon-32.png",
         "icon-48.png": "icon-48.png",
-        "icon-svg-2.svg": "icon-svg-2.svg",
+        "browser-action-icon.svg": "browser-action-icon.svg",
     }
 
     if not is_packaging_for_publish:
         # change icons for development version
         icons_map["icon-32.png"] = "wip-icon-32.png"
         icons_map["icon-48.png"] = "wip-icon-48.png"
+        icons_map["browser-action-icon.svg"] = "wip-browser-action-icon.svg"
 
     try:
         # copy icons to build/icons
@@ -253,12 +254,34 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
         exit_with_error("Error copying icons", e)
 
 
+def change_dev_value_in_constants_file(is_dev: bool):
+    """Changes the value of IS_DEV in the constants.ts file"""
+
+    spinner.start("Updating constants file\n")
+
+    constants_file_path = os.path.join(SRC_DIR_PATH, "utils", "constants.ts")
+    try:
+        with open(constants_file_path, "r") as f:
+            lines = f.readlines()
+
+        with open(constants_file_path, "w") as f:
+            for line in lines:
+                if line.startswith("export const IS_DEV"):
+                    f.write(f"export const IS_DEV = {str(is_dev).lower()};\n")
+                else:
+                    f.write(line)
+
+        spinner.succeed()
+    except Exception as e:
+        exit_with_error("Error updating constants file", e)
+
+
 def copy_src_files_to_build_dir():
     """Copy the src directory and the subfolders content to the build directory root"""
 
     spinner.start("Copying src directory\n")
 
-    src_root_files = ["background.js", "manifest.json"]
+    src_root_files = ["manifest.json"]
     for file in src_root_files:
         shutil.copyfile(os.path.join(SRC_DIR_PATH, file), os.path.join(BUILD_DIR_PATH, file))
 
@@ -333,6 +356,7 @@ def main():
     remove_old_extension_zip_if_exists(is_packaging_for_publish)
 
     prepare_build_dir()
+    change_dev_value_in_constants_file(not is_packaging_for_publish)
     run_webpack()
     copy_files_to_dir(is_packaging_for_publish)
 
