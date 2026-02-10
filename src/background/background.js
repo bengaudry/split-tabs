@@ -1,3 +1,5 @@
+import { IS_DEV } from "../utils/constants";
+
 console.info("background.js > Loaded");
 
 const defaultSettings = {
@@ -7,6 +9,25 @@ const defaultSettings = {
 };
 
 function generateSVG(fillColor) {
+  if (IS_DEV) {
+    return `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
+<rect x="5" y="5" width="102" height="102" rx="21" stroke="${fillColor}" stroke-width="10"/>
+<rect x="51.625" y="4.375" width="8.75" height="103.25" fill="${fillColor}"/>
+<path d="M78.899 117.857L91.1841 98.4998C91.5908 97.8589 91.8068 97.1154 91.8068 96.3563V73C91.8068 70.7909 93.5977 69 95.8068 69H108.091C110.3 69 112.091 70.7909 112.091 73V96.5319C112.091 97.18 112.248 97.8183 112.55 98.3919L122.922 118.14C124.321 120.804 122.389 124 119.381 124H82.2762C79.1221 124 77.2088 120.52 78.899 117.857Z" fill="url(#paint0_linear_2001_4)" stroke="url(#paint1_linear_2001_4)" stroke-width="6"/>
+<defs>
+<linearGradient id="paint0_linear_2001_4" x1="100.5" y1="69" x2="100.5" y2="124" gradientUnits="userSpaceOnUse">
+<stop stop-color="#01FF88"/>
+<stop offset="1" stop-color="#00C8F5"/>
+</linearGradient>
+<linearGradient id="paint1_linear_2001_4" x1="100.5" y1="69" x2="100.5" y2="124" gradientUnits="userSpaceOnUse">
+<stop stop-color="#00FF88"/>
+<stop offset="1" stop-color="#00C8F5"/>
+</linearGradient>
+</defs>
+</svg>
+`;
+  }
+
   return `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="5" y="5" width="118" height="118" rx="27" stroke="${fillColor}" stroke-width="10"/>
 <rect x="59" y="5" width="10" height="118" fill="${fillColor}"/>

@@ -2,10 +2,13 @@ const path = require("path");
 
 module.exports = {
   mode: "production",
-  entry: "./src/split-view/split-view.ts",
+  entry: {
+    "split-view": "./src/split-view/split-view.ts",
+    background: "./src/background/background.js"
+  },
   output: {
     path: path.resolve(__dirname, "build"),
-    filename: "split-view.js"
+    filename: "[name].js"
   },
   resolve: {
     extensions: [".ts", ".js"]
