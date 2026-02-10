@@ -47,6 +47,8 @@ async function updateIconColor(tabId) {
       } else color = "#4c4b51"; // default icon color for light theme in firefox
     }
 
+    color = "#FF0000";
+
     if (Array.isArray(color)) color = `rgb(${color.join(",")})`;
 
     console.info("updating icon color with :", color);
@@ -55,6 +57,13 @@ async function updateIconColor(tabId) {
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
+
+    browser.browserAction.setIcon({
+      tabId,
+      imageData: {
+        32: url
+      }
+    });
 
     browser.pageAction.setIcon({
       path: {
