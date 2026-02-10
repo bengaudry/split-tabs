@@ -233,13 +233,14 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
     icons_map = {
         "icon-32.png": "icon-32.png",
         "icon-48.png": "icon-48.png",
-        "icon-svg-2.svg": "icon-svg-2.svg",
+        "browser-action-icon.svg": "browser-action-icon.svg",
     }
 
     if not is_packaging_for_publish:
         # change icons for development version
         icons_map["icon-32.png"] = "wip-icon-32.png"
         icons_map["icon-48.png"] = "wip-icon-48.png"
+        icons_map["browser-action-icon.svg"] = "wip-browser-action-icon.svg"
 
     try:
         # copy icons to build/icons
