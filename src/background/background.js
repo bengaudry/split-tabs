@@ -47,8 +47,6 @@ async function updateIconColor(tabId) {
       } else color = "#4c4b51"; // default icon color for light theme in firefox
     }
 
-    color = "#FF0000";
-
     if (Array.isArray(color)) color = `rgb(${color.join(",")})`;
 
     console.info("updating icon color with :", color);
