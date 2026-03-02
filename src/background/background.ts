@@ -1,4 +1,5 @@
 import { IS_DEV, FORBIDDEN_HOSTNAMES } from "../utils/constants";
+import { MessageSender, Side, Tab, TabId, Theme } from "./types";
 
 console.info("background.js > Loaded");
 
@@ -8,7 +9,7 @@ const defaultSettings = {
   "match-with-firefox-theme": true
 };
 
-function generateSVG(fillColor) {
+function generateSVG(fillColor: string) {
   if (IS_DEV) {
     return `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
 <rect x="5" y="5" width="102" height="102" rx="21" stroke="${fillColor}" stroke-width="10"/>
@@ -35,11 +36,11 @@ function generateSVG(fillColor) {
   `;
 }
 
-let iconObjectUrl = null;
+let iconObjectUrl: string | null = null;
 
 async function createIconObjectUrl() {
   try {
-    const themeColors = await getThemeColors();
+    const themeColors = await getThemeColors(await browser.theme.getCurrent());
 
     let color = themeColors.textColor;
     if (!color) {
@@ -68,7 +69,7 @@ async function getIconObjectUrl() {
   return iconObjectUrl;
 }
 
-async function updatePageIconColor(tabId) {
+async function updatePageIconColor(tabId: TabId) {
   try {
     const iconUrl = await getIconObjectUrl();
     if (!iconUrl) return;
@@ -88,13 +89,13 @@ async function updatePageIconColor(tabId) {
   }
 }
 
-async function updateTabFavicon(tabId) {
+async function updateTabFavicon(tabId: TabId) {
   try {
     const iconUrl = await getIconObjectUrl();
     if (!iconUrl) return;
 
-    const changeFaviconScript = (newIconUrl) => {
-      let link = document.querySelector("link[rel~='icon']");
+    const changeFaviconScript = (newIconUrl: string) => {
+      let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
       if (!link) {
         link = document.createElement("link");
         link.rel = "icon";
@@ -117,10 +118,10 @@ async function updateTabFavicon(tabId) {
   }
 }
 
-async function updateIcons(tabId) {
+async function updateIcons(tabId: number | undefined) {
   if (!tabId) return;
-  updatePageIconColor(tabId);
-  updateTabFavicon(tabId);
+  updatePageIconColor(tabId as TabId);
+  updateTabFavicon(tabId as TabId);
 }
 
 browser.tabs.onCreated.addListener((tab) => {
@@ -128,7 +129,7 @@ browser.tabs.onCreated.addListener((tab) => {
 });
 
 // Also on updated (e.g. URL change)
-browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
+browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
   if (changeInfo.status === "complete") {
     updateIcons(tabId);
   }
@@ -168,19 +169,23 @@ const createContextMenu = () => {
     if (tab?.id === activeTab?.id) {
       switch (info.menuItemId) {
         case "split-tabs-context-submenu-reverse-tabs":
-          browser.tabs.sendMessage(tab.id, {
-            type: "LOAD_URLS",
-            leftUrl: rightUrl,
-            rightUrl: leftUrl
-          });
+          if (tab?.id !== undefined) {
+            browser.tabs.sendMessage(tab.id, {
+              type: "LOAD_URLS",
+              leftUrl: rightUrl,
+              rightUrl: leftUrl
+            });
+          }
           break;
 
         case "split-tabs-context-submenu-toggle-orientation":
-          browser.tabs.sendMessage(tab.id, {
-            type: "SET_ORIENTATION",
-            orientation: undefined
-          });
-          break;
+          if (tab?.id !== undefined) {
+            browser.tabs.sendMessage(tab.id, {
+              type: "SET_ORIENTATION",
+              orientation: undefined
+            });
+            break;
+          }
       }
     }
   });
@@ -192,11 +197,13 @@ browser.webRequest.onHeadersReceived.addListener(
   function (details) {
     let responseHeaders = details.responseHeaders;
 
-    // Remove X-Frame-Options header
-    responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "x-frame-options");
+    if (responseHeaders) {
+      // Remove X-Frame-Options header
+      responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "x-frame-options");
 
-    // Modify Content-Security-Policy to allow framing
-    responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "content-security-policy");
+      // Modify Content-Security-Policy to allow framing
+      responseHeaders = responseHeaders.filter((header) => header.name.toLowerCase() !== "content-security-policy");
+    }
 
     return { responseHeaders };
   },
@@ -205,12 +212,12 @@ browser.webRequest.onHeadersReceived.addListener(
 );
 
 // ===== GLOBAL VARIABLES ===== //
-let leftUrl = null;
-let rightUrl = null;
+let leftUrl: string | null = null;
+let rightUrl: string | null = null;
 
-let tab = null;
+let tab: Tab | null = null;
 
-function isForbiddenUrl(url) {
+function isForbiddenUrl(url: string | undefined | null) {
   if (!url) return true;
   if (url.startsWith("moz-extension:")) return true;
   if (url.startsWith("about:")) return true;
@@ -224,7 +231,7 @@ function isForbiddenUrl(url) {
   return false;
 }
 
-async function fetchTabs(sender, sendResponse) {
+async function fetchTabs(sender: MessageSender, sendResponse: (response?: any) => void) {
   try {
     const tabs = await browser.tabs.query({ currentWindow: true });
     sendResponse({
@@ -232,13 +239,15 @@ async function fetchTabs(sender, sendResponse) {
       tabs: tabs
     });
     return tabs;
-  } catch (e) {
+  } catch (error) {
     console.error("background.js > Error while fetching tabs");
-    console.error(e);
-    browser.tabs.sendMessage(sender.tab.id, {
-      type: "TABS_DATA",
-      error: error.message
-    });
+    console.error(error);
+    if (sender.tab && sender.tab.id) {
+      browser.tabs.sendMessage(sender.tab.id, {
+        type: "TABS_DATA",
+        error: error instanceof Error ? error.message : "Unknown error"
+      });
+    }
     return null;
   }
 }
@@ -248,10 +257,10 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   console.info("[background.js] > received " + message.type);
   switch (message.type) {
     case "INIT_EXT":
-      console.info("background.js > Initializing extension");
+      console.info("[background.js] > Initializing extension");
       console.info(message.side);
       handleInitializeExtension(message.side);
-      break;
+      return null;
 
     // Fetch opened tabs on browser to make suggestions to user
     case "FETCH_TABS":
@@ -264,33 +273,36 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
     // Update global variables when changing url in split view
     case "UPDATE_TABS":
-      console.info("background.js > TABS UPDATED");
+      console.info("[background.js] > TABS UPDATED");
       console.log(message);
       if (message.updatedLeftUrl) leftUrl = message.updatedLeftUrl;
       if (message.updatedRightUrl) rightUrl = message.updatedRightUrl;
       console.log(leftUrl, rightUrl);
-      break;
+      return null;
 
     // Close one of the tabs in the split
     case "CLOSE_SPLIT":
-      browser.tabs.create({
-        url: message.keep === "left" ? leftUrl : rightUrl,
-        active: true
-      });
-      browser.tabs.remove(tab.id);
-      tab = null;
-      break;
+      const urlToKeep = message.keep === "left" ? leftUrl : rightUrl;
+      if (urlToKeep && tab?.id !== undefined) {
+        browser.tabs.create({
+          url: urlToKeep,
+          active: true
+        });
+        browser.tabs.remove(tab?.id);
+        tab = null;
+      }
+      return null;
 
     case "OPEN_SETTINGS":
       await browser.tabs.create({
         url: browser.runtime.getURL("settings.html"),
         discarded: false
       });
-      break;
+      return null;
 
     case "EDIT_SETTINGS":
       console.info(
-        "background.js > Editing setting " +
+        "[background.js] > Editing setting " +
           message.key +
           " with value : " +
           message.value +
@@ -299,7 +311,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
           ")"
       );
       localStorage.setItem("split-tabs-" + message.key + "-setting", message.value);
-      break;
+      return null;
 
     case "GET_SETTING":
       console.info("[background.js] > Returning SETTING_VALUE");
@@ -314,20 +326,22 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         url: message.url,
         discarded: false
       });
-      break;
+      return null;
 
     case "GET_THEME":
       const theme = await browser.theme.getCurrent();
       sendThemeToFront(theme);
-      break;
+      return null;
 
     default:
-      break;
+      return null;
   }
 });
 
-async function sendThemeToFront() {
-  const themeColors = await getThemeColors();
+async function sendThemeToFront(theme: Theme) {
+  if (tab?.id === undefined) return;
+
+  const themeColors = await getThemeColors(theme);
 
   // Send the BROWSER_COLORS data to the split-view page
   browser.tabs.sendMessage(tab.id, {
@@ -335,55 +349,45 @@ async function sendThemeToFront() {
     ...themeColors
   });
 
-  updatePageIconColor(tab.id);
+  updatePageIconColor(tab.id as TabId);
 }
 
-async function getThemeColors() {
-  try {
-    // Get the current theme
-    const theme = await browser.theme.getCurrent();
+async function getThemeColors(theme: Theme) {
+  // Get the current theme
+  console.log(theme.colors);
 
-    console.log(theme.colors);
+  const backgroundColor = theme.colors?.frame ?? theme.colors?.sidebar_highlight;
+  const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
+  const inputBorder = theme.colors?.sidebar_border ?? theme.colors?.toolbar_field_border ?? theme.colors?.tab_line;
+  const inputBackground = theme.colors?.toolbar_field;
+  const secondaryTextColor = theme.colors?.toolbar_field_highlight;
 
-    const backgroundColor = theme.colors?.frame ?? theme.colors?.sidebar_highlight;
-    const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
-    const inputBorder = theme.colors?.sidebar_border ?? theme.colors?.toolbar_field_border ?? theme.colors?.tab_line;
-    const inputBackground = theme.colors?.toolbar_field;
-    const secondaryTextColor = theme.colors?.toolbar_field_highlight;
-
-    return {
-      backgroundColor,
-      textColor,
-      inputBorder,
-      inputBackground,
-      secondaryTextColor
-    };
-  } catch (err) {
-    return {
-      backgroundColor: undefined,
-      textColor: undefined,
-      inputBorder: undefined,
-      secondaryTextColor: undefined
-    };
-  }
+  return {
+    backgroundColor,
+    textColor,
+    inputBorder,
+    inputBackground,
+    secondaryTextColor
+  };
 }
 
-browser.theme.onUpdated = function ({ theme }) {
+browser.theme.onUpdated.addListener(function ({ theme }) {
+  if (tab?.id === undefined) return;
   sendThemeToFront(theme);
-  updatePageIconColor(tab.id);
-};
+  updatePageIconColor(tab.id as TabId);
+});
 
 /**
  * Returns the setting value for a given setting key
  * @param {keyof defaultSettings} key
  * @returns {string | null}
  */
-const getSettingValue = (key) => {
+const getSettingValue = (key: keyof typeof defaultSettings) => {
   const settingValue = localStorage.getItem("split-tabs-" + key + "-setting");
   return settingValue ?? defaultSettings[key] ?? null;
 };
 
-const handleInitializeExtension = async (side) => {
+const handleInitializeExtension = async (side: Side) => {
   try {
     // Get the current tab's URL
     const activeTabs = await browser.tabs.query({
@@ -391,6 +395,12 @@ const handleInitializeExtension = async (side) => {
       currentWindow: true
     });
     const activeTab = activeTabs[0];
+
+    if (!activeTab?.id) {
+      console.error("background.js > No active tab found");
+      return;
+    }
+
     const currentUrl = isForbiddenUrl(activeTab.url) ? null : activeTab.url;
 
     // Creates a new tab containing the split view
@@ -399,21 +409,26 @@ const handleInitializeExtension = async (side) => {
       discarded: false
     });
 
+    if (!tab?.id) {
+      console.error("background.js > Could not create new tab for split view");
+      return;
+    }
+
     if (getSettingValue("close-tab-before-opening") === "true") {
       console.log("Active tab", activeTab);
       browser.tabs.remove(activeTab.id);
     }
 
-    const themeColors = await getThemeColors();
+    const themeColors = await getThemeColors(await browser.theme.getCurrent());
 
     // Wait for the tab to be fully loaded, and send informations
     browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo, updatedTab) {
-      if (tabId === tab.id && changeInfo.status === "complete") {
+      if (tab?.id && tabId === tab.id && changeInfo.status === "complete") {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
 
-        leftUrl = side === "left" || side === "top" ? currentUrl : null;
-        rightUrl = side === "right" || side === "bottom" ? currentUrl : null;
+        leftUrl = side === "left" || side === "top" ? (currentUrl ?? null) : null;
+        rightUrl = side === "right" || side === "bottom" ? (currentUrl ?? null) : null;
 
         console.info("background.js > Sending SET_ORIENTATION");
         browser.tabs.sendMessage(tab.id, {

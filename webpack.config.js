@@ -4,7 +4,7 @@ module.exports = {
   mode: "production",
   entry: {
     "split-view": "./src/split-view/split-view.ts",
-    background: "./src/background/background.js"
+    background: "./src/background/background.ts"
   },
   output: {
     path: path.resolve(__dirname, "build"),
