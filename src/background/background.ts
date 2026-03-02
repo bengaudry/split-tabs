@@ -1,4 +1,6 @@
-import { IS_DEV, FORBIDDEN_HOSTNAMES } from "../utils/constants";
+import { FORBIDDEN_HOSTNAMES } from "../utils/constants";
+import { updateIcons } from "./icons";
+import { getThemeColors, sendThemeToFront } from "./theme";
 import { MessageSender, Side, Tab, TabId, Theme } from "./types";
 
 console.info("background.js > Loaded");
@@ -9,120 +11,7 @@ const defaultSettings = {
   "match-with-firefox-theme": true
 };
 
-function generateSVG(fillColor: string) {
-  if (IS_DEV) {
-    return `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="5" y="5" width="102" height="102" rx="21" stroke="${fillColor}" stroke-width="10"/>
-<rect x="51.625" y="4.375" width="8.75" height="103.25" fill="${fillColor}"/>
-<path d="M78.899 117.857L91.1841 98.4998C91.5908 97.8589 91.8068 97.1154 91.8068 96.3563V73C91.8068 70.7909 93.5977 69 95.8068 69H108.091C110.3 69 112.091 70.7909 112.091 73V96.5319C112.091 97.18 112.248 97.8183 112.55 98.3919L122.922 118.14C124.321 120.804 122.389 124 119.381 124H82.2762C79.1221 124 77.2088 120.52 78.899 117.857Z" fill="url(#paint0_linear_2001_4)" stroke="url(#paint1_linear_2001_4)" stroke-width="6"/>
-<defs>
-<linearGradient id="paint0_linear_2001_4" x1="100.5" y1="69" x2="100.5" y2="124" gradientUnits="userSpaceOnUse">
-<stop stop-color="#01FF88"/>
-<stop offset="1" stop-color="#00C8F5"/>
-</linearGradient>
-<linearGradient id="paint1_linear_2001_4" x1="100.5" y1="69" x2="100.5" y2="124" gradientUnits="userSpaceOnUse">
-<stop stop-color="#00FF88"/>
-<stop offset="1" stop-color="#00C8F5"/>
-</linearGradient>
-</defs>
-</svg>
-`;
-  }
-
-  return `<svg width="128" height="128" viewBox="0 0 128 128" fill="none" xmlns="http://www.w3.org/2000/svg">
-<rect x="5" y="5" width="118" height="118" rx="27" stroke="${fillColor}" stroke-width="10"/>
-<rect x="59" y="5" width="10" height="118" fill="${fillColor}"/>
-</svg>
-  `;
-}
-
-let iconObjectUrl: string | null = null;
-
-async function createIconObjectUrl() {
-  try {
-    const themeColors = await getThemeColors(await browser.theme.getCurrent());
-
-    let color = themeColors.textColor;
-    if (!color) {
-      if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
-        color = "#fbfbfe"; // default icon color for dark theme in firefox
-      } else color = "#4c4b51"; // default icon color for light theme in firefox
-    }
-
-    if (Array.isArray(color)) color = `rgb(${color.join(",")})`;
-
-    console.info("updating icon color with :", color);
-    // Try to get the accent color from the theme
-    const svg = generateSVG(color);
-
-    const blob = new Blob([svg], { type: "image/svg+xml" });
-    const url = URL.createObjectURL(blob);
-    iconObjectUrl = url;
-  } catch (err) {
-    console.error("Could not create icon object URL:", err);
-  }
-}
-
-async function getIconObjectUrl() {
-  if (iconObjectUrl) return iconObjectUrl;
-  await createIconObjectUrl();
-  return iconObjectUrl;
-}
-
-async function updatePageIconColor(tabId: TabId) {
-  try {
-    const iconUrl = await getIconObjectUrl();
-    if (!iconUrl) return;
-
-    if (browser.pageAction) {
-      browser.pageAction.setIcon({
-        path: {
-          32: iconUrl
-        },
-        tabId
-      });
-
-      await browser.pageAction.show(tabId);
-    }
-  } catch (err) {
-    console.error("Could not update page icon color :", err);
-  }
-}
-
-async function updateTabFavicon(tabId: TabId) {
-  try {
-    const iconUrl = await getIconObjectUrl();
-    if (!iconUrl) return;
-
-    const changeFaviconScript = (newIconUrl: string) => {
-      let link = document.querySelector<HTMLLinkElement>("link[rel~='icon']");
-      if (!link) {
-        link = document.createElement("link");
-        link.rel = "icon";
-        document.head.appendChild(link);
-      }
-      link.href = newIconUrl;
-    };
-
-    try {
-      browser.scripting.executeScript({
-        target: { tabId },
-        func: changeFaviconScript,
-        args: [iconUrl]
-      });
-    } catch (err) {
-      console.error("Could not execute script to change tab favicon:", err);
-    }
-  } catch (err) {
-    console.error("Could not update icon color :", err);
-  }
-}
-
-async function updateIcons(tabId: number | undefined) {
-  if (!tabId) return;
-  updatePageIconColor(tabId as TabId);
-  updateTabFavicon(tabId as TabId);
-}
+/* ===== Listeners for page icon & tab icon ===== */
 
 browser.tabs.onCreated.addListener((tab) => {
   updateIcons(tab.id);
@@ -330,7 +219,8 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
     case "GET_THEME":
       const theme = await browser.theme.getCurrent();
-      sendThemeToFront(theme);
+      if (tab?.id === undefined) return null;
+      sendThemeToFront(tab.id as TabId, theme);
       return null;
 
     default:
@@ -338,49 +228,14 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   }
 });
 
-async function sendThemeToFront(theme: Theme) {
-  if (tab?.id === undefined) return;
-
-  const themeColors = await getThemeColors(theme);
-
-  // Send the BROWSER_COLORS data to the split-view page
-  browser.tabs.sendMessage(tab.id, {
-    type: "BROWSER_COLORS",
-    ...themeColors
-  });
-
-  updatePageIconColor(tab.id as TabId);
-}
-
-async function getThemeColors(theme: Theme) {
-  // Get the current theme
-  console.log(theme.colors);
-
-  const backgroundColor = theme.colors?.frame ?? theme.colors?.sidebar_highlight;
-  const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
-  const inputBorder = theme.colors?.sidebar_border ?? theme.colors?.toolbar_field_border ?? theme.colors?.tab_line;
-  const inputBackground = theme.colors?.toolbar_field;
-  const secondaryTextColor = theme.colors?.toolbar_field_highlight;
-
-  return {
-    backgroundColor,
-    textColor,
-    inputBorder,
-    inputBackground,
-    secondaryTextColor
-  };
-}
-
 browser.theme.onUpdated.addListener(function ({ theme }) {
   if (tab?.id === undefined) return;
-  sendThemeToFront(theme);
-  updatePageIconColor(tab.id as TabId);
+  sendThemeToFront(tab.id as TabId, theme);
+  updateIcons(tab.id as TabId);
 });
 
 /**
  * Returns the setting value for a given setting key
- * @param {keyof defaultSettings} key
- * @returns {string | null}
  */
 const getSettingValue = (key: keyof typeof defaultSettings) => {
   const settingValue = localStorage.getItem("split-tabs-" + key + "-setting");
