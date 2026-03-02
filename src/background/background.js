@@ -35,8 +35,9 @@ function generateSVG(fillColor) {
   `;
 }
 
-async function updateIconColor(tabId) {
-  if (!tabId) return;
+let iconObjectUrl = null;
+
+async function createIconObjectUrl() {
   try {
     const themeColors = await getThemeColors();
 
@@ -55,34 +56,87 @@ async function updateIconColor(tabId) {
 
     const blob = new Blob([svg], { type: "image/svg+xml" });
     const url = URL.createObjectURL(blob);
+    iconObjectUrl = url;
+  } catch (err) {
+    console.error("Could not create icon object URL:", err);
+  }
+}
 
-    browser.pageAction.setIcon({
-      path: {
-        32: url
-      },
-      tabId
-    });
+async function getIconObjectUrl() {
+  if (iconObjectUrl) return iconObjectUrl;
+  await createIconObjectUrl();
+  return iconObjectUrl;
+}
 
-    await browser.pageAction.show(tabId);
+async function updatePageIconColor(tabId) {
+  try {
+    const iconUrl = await getIconObjectUrl();
+    if (!iconUrl) return;
+
+    if (browser.pageAction) {
+      browser.pageAction.setIcon({
+        path: {
+          32: iconUrl
+        },
+        tabId
+      });
+
+      await browser.pageAction.show(tabId);
+    }
+  } catch (err) {
+    console.error("Could not update page icon color :", err);
+  }
+}
+
+async function updateTabFavicon(tabId) {
+  try {
+    const iconUrl = await getIconObjectUrl();
+    if (!iconUrl) return;
+
+    const changeFaviconScript = (newIconUrl) => {
+      let link = document.querySelector("link[rel~='icon']");
+      if (!link) {
+        link = document.createElement("link");
+        link.rel = "icon";
+        document.head.appendChild(link);
+      }
+      link.href = newIconUrl;
+    };
+
+    try {
+      browser.scripting.executeScript({
+        target: { tabId },
+        func: changeFaviconScript,
+        args: [iconUrl]
+      });
+    } catch (err) {
+      console.error("Could not execute script to change tab favicon:", err);
+    }
   } catch (err) {
     console.error("Could not update icon color :", err);
   }
 }
 
+async function updateIcons(tabId) {
+  if (!tabId) return;
+  updatePageIconColor(tabId);
+  updateTabFavicon(tabId);
+}
+
 browser.tabs.onCreated.addListener((tab) => {
-  updateIconColor(tab.id);
+  updateIcons(tab.id);
 });
 
 // Also on updated (e.g. URL change)
 browser.tabs.onUpdated.addListener((tabId, changeInfo, tab) => {
   if (changeInfo.status === "complete") {
-    updateIconColor(tabId);
+    updateIcons(tabId);
   }
 });
 
 // When switching tabs
 browser.tabs.onActivated.addListener(({ tabId }) => {
-  updateIconColor(tabId);
+  updateIcons(tabId);
 });
 
 /**
@@ -281,7 +335,7 @@ async function sendThemeToFront() {
     ...themeColors
   });
 
-  updateIconColor(tab.id);
+  updatePageIconColor(tab.id);
 }
 
 async function getThemeColors() {
@@ -316,7 +370,7 @@ async function getThemeColors() {
 
 browser.theme.onUpdated = function ({ theme }) {
   sendThemeToFront(theme);
-  updateIconColor(tab.id);
+  updatePageIconColor(tab.id);
 };
 
 /**
