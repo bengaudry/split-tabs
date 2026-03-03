@@ -4,6 +4,7 @@ import { BackgroundContext } from "./BackgroundContext";
 import { getThemeColors, sendThemeToFront } from "./theme";
 import { MessageSender, TabId } from "./types";
 import { Side } from "../shared/types";
+import { createContextMenu } from "./contextMenu";
 
 console.info("[background.ts] > Loaded");
 
@@ -24,57 +25,6 @@ browser.tabs.onUpdated.addListener((tabId, changeInfo) => {
 browser.tabs.onActivated.addListener(({ tabId }) => {
   updateIcons(tabId);
 });
-
-/**
- * Creates the context menu available on right-click
- */
-const createContextMenu = () => {
-  browser.contextMenus.create({
-    id: "split-tabs-context-menu",
-    type: "separator",
-    title: "Split tabs",
-    contexts: ["all"]
-  });
-
-  browser.contextMenus.create({
-    id: "split-tabs-context-submenu-reverse-tabs",
-    title: "Reverse tabs",
-    contexts: ["all"]
-  });
-
-  browser.contextMenus.create({
-    id: "split-tabs-context-submenu-toggle-orientation",
-    title: "Toggle orientation",
-    contexts: ["all"]
-  });
-
-  // Handle context menu actions
-  browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
-    console.info(info);
-    const context = BackgroundContext.getInstance();
-    const tab = context.getTab();
-
-    if (tab?.id === activeTab?.id) {
-      const context = BackgroundContext.getInstance();
-      switch (info.menuItemId) {
-        case "split-tabs-context-submenu-reverse-tabs":
-          if (tab?.id !== undefined) {
-            const leftUrl = context.getLeftUrl();
-            const rightUrl = context.getRightUrl();
-            context.setLeftUrl(rightUrl ?? null);
-            context.setRightUrl(leftUrl ?? null);
-          }
-          break;
-
-        case "split-tabs-context-submenu-toggle-orientation":
-          if (tab?.id !== undefined) {
-            context.toggleOrientation();
-            break;
-          }
-      }
-    }
-  });
-};
 
 // Remove X-Frame-Options and modify Content-Security-Policy headers
 // because some pages prevent being renderered into iframes
