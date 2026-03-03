@@ -20,7 +20,7 @@ export async function showRatingPopupIfAuthorized() {
 /** Hides the rating popup in future uses */
 const askToStopShowingRatingPopup = () => {
   browser.runtime.sendMessage({
-    type: "EDIT_SETTINGS",
+    type: "UPDATE_SETTING",
     key: "show-rating-popup",
     value: false
   });

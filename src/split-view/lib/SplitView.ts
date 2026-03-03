@@ -1,11 +1,12 @@
-import { changeCssVariableValue } from "../../utils/colors";
-import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
+import { changeCssVariableValue } from "../../shared/colors";
+import { MIN_VIEW_PERCENTAGE } from "../../shared/constants";
+import { Observer } from "../../shared/observability/Observer";
+import type { Orientation, Side } from "../../shared/types";
 import { Searchbar } from "./Searchbar";
+import { SplitContext } from "./SplitContext";
 import { View } from "./View";
 
-export type Orientation = "horizontal" | "vertical";
-
-export class SplitView {
+export class SplitView implements Observer<SplitContext> {
   private orientation: Orientation = "horizontal";
 
   private leftSplit: View;
@@ -56,20 +57,30 @@ export class SplitView {
     document.body?.classList.toggle("vertical", "vertical" === orientation);
   }
 
-  public getOrientation(): Orientation {
-    return this.orientation;
-  }
-
   private static getResizeDraggableRef() {
     return document.querySelector<HTMLDivElement>("#resize-draggable");
   }
 
-  public getInstanceOfSide(side: "left" | "right"): View {
+  public getInstanceOfSide(side: Side): View {
     if ("left" === side) return this.leftSplit;
     return this.rightSplit;
   }
 
-  public loadUrl(side: "left" | "right", url: string) {
+  public loadUrl(side: Side, url: string) {
     this.getInstanceOfSide(side).loadUrl(url);
+  }
+
+  public update(context: SplitContext) {
+    console.info("[SplitView] > Received update from context:", context);
+
+    // Update the SplitView based on changes in the context
+    this.setOrientation(context.getOrientation());
+
+    if (context.getLeftUrl() !== this.leftSplit.getCurrentUrl()) {
+      this.leftSplit.loadUrl(context.getLeftUrl());
+    }
+    if (context.getRightUrl() !== this.rightSplit.getCurrentUrl()) {
+      this.rightSplit.loadUrl(context.getRightUrl());
+    }
   }
 }

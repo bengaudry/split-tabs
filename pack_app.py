@@ -259,7 +259,7 @@ def change_dev_value_in_constants_file(is_dev: bool):
 
     spinner.start("Updating constants file\n")
 
-    constants_file_path = os.path.join(SRC_DIR_PATH, "utils", "constants.ts")
+    constants_file_path = os.path.join(SRC_DIR_PATH, "shared", "constants.ts")
     try:
         with open(constants_file_path, "r") as f:
             lines = f.readlines()

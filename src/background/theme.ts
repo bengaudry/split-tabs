@@ -1,5 +1,5 @@
 import { updateIcons } from "./icons";
-import { TabId, Theme } from "./types";
+import { TabId, Theme, ThemeColors } from "./types";
 
 /**
  * Sends the theme colors to the split view page, so that it can adapt its colors to match the browser theme.
@@ -18,10 +18,28 @@ export async function sendThemeToFront(tabId: TabId, theme: Theme) {
   updateIcons(tabId);
 }
 
+function themeColorToCssColor(themeColor: any): string | undefined {
+  if (typeof themeColor === "string") {
+    return themeColor;
+  } else if (typeof themeColor === "number") {
+    // Convert the number to a hex color string
+    return "#" + themeColor.toString(16).padStart(6, "0");
+  } else if (Array.isArray(themeColor) && themeColor.length >= 3) {
+    // Convert the RGB array to a hex color string
+    return (
+      "#" +
+      themeColor[0].toString(16).padStart(2, "0") +
+      themeColor[1].toString(16).padStart(2, "0") +
+      themeColor[2].toString(16).padStart(2, "0")
+    );
+  }
+  return undefined;
+}
+
 /**
  * Extracts relevant colors from the theme object
  */
-export async function getThemeColors(theme: Theme) {
+export async function getThemeColors(theme: Theme): Promise<ThemeColors> {
   // Get the current theme
   console.log(theme.colors);
 
@@ -32,10 +50,10 @@ export async function getThemeColors(theme: Theme) {
   const secondaryTextColor = theme.colors?.toolbar_field_highlight;
 
   return {
-    backgroundColor,
-    textColor,
-    inputBorder,
-    inputBackground,
-    secondaryTextColor
+    backgroundColor: themeColorToCssColor(backgroundColor) ?? "#ffffff",
+    textColor: themeColorToCssColor(textColor) ?? "#000",
+    inputBorder: themeColorToCssColor(inputBorder) ?? "#ccc",
+    inputBackground: themeColorToCssColor(inputBackground) ?? "#222",
+    secondaryTextColor: themeColorToCssColor(secondaryTextColor) ?? "#ccc"
   };
 }

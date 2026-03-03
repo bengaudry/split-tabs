@@ -1,8 +1,9 @@
-import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../utils/colors";
-import { MIN_VIEW_PERCENTAGE } from "../../utils/constants";
-import { createCompositeFavicon } from "../../utils/favicon";
-import { getUrlBase } from "../../utils/urls";
+import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../shared/colors";
+import { MIN_VIEW_PERCENTAGE } from "../../shared/constants";
+import { createCompositeFavicon } from "../../shared/favicon";
+import { getUrlBase } from "../../shared/urls";
 import { Searchbar } from "./Searchbar";
+import { SplitContext } from "./SplitContext";
 
 export class View {
   private static leftSplitInstance: View;
@@ -103,6 +104,10 @@ export class View {
     }
   }
 
+  public getCurrentUrl() {
+    return this.url;
+  }
+
   /** Load a new URL into the specified side's split */
   public static loadUrl(side: "left" | "right", newUrl: string) {
     const splitInstance = side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
@@ -134,7 +139,9 @@ export class View {
       if ("left" === this.side) updatedLeftUrl = this.url;
       if ("right" === this.side) updatedRightUrl = this.url;
 
-      const msg = {
+      const context = SplitContext.getInstance();
+      context.updateUrl(this.side, this.url);
+      /*       const msg = {
         type: "UPDATE_TABS",
         updatedLeftUrl,
         updatedRightUrl
@@ -142,7 +149,7 @@ export class View {
 
       console.log("Sending message to background: ", msg);
 
-      browser.runtime.sendMessage(msg);
+      browser.runtime.sendMessage(msg); */
       return true;
     } catch (err) {
       // TODO -> Manage this error properly
