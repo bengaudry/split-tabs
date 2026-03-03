@@ -3,27 +3,22 @@ const showRatingPopup = () => {
   ratingPopup?.setAttribute("data-visible", "true");
   localStorage.setItem("has-rating-popup-been-shown-last-time", "true");
 };
+
 const hideRatingPopup = () => {
   const ratingPopup = document.getElementById("rating-suggestion-box");
   ratingPopup?.setAttribute("data-visible", "false");
 };
 
 export async function showRatingPopupIfAuthorized() {
-  const response = await browser.runtime.sendMessage({
-    type: "GET_SETTING",
-    key: "show-rating-popup"
-  });
-  if (response.type === "SETTING_VALUE" && response.value === "false") return;
+  const isUnauthorized = localStorage.getItem("stop-showing-rating-popup");
+  console.info("[RatingPopup] > Is unauthorized to show the rating popup? ", isUnauthorized);
+  if (Boolean(isUnauthorized)) return;
   showRatingPopup();
 }
 
 /** Hides the rating popup in future uses */
 const askToStopShowingRatingPopup = () => {
-  browser.runtime.sendMessage({
-    type: "UPDATE_SETTING",
-    key: "show-rating-popup",
-    value: false
-  });
+  localStorage.setItem("stop-showing-rating-popup", "true");
 };
 
 /**

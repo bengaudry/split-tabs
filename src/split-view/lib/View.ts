@@ -148,15 +148,7 @@ export class View {
 
       const context = SplitContext.getInstance();
       context.updateUrl(this.side, this.url);
-      /*       const msg = {
-        type: "UPDATE_TABS",
-        updatedLeftUrl,
-        updatedRightUrl
-      };
 
-      console.log("Sending message to background: ", msg);
-
-      browser.runtime.sendMessage(msg); */
       return true;
     } catch (err) {
       // TODO -> Manage this error properly

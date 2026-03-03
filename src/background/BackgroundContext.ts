@@ -2,6 +2,7 @@ import { Context } from "../shared/Context";
 import {
   BackgroundEvent,
   BackgroundEventType,
+  InitExtensionBackgroundEvent,
   UpdateLeftUrlBackgroundEvent,
   UpdateOrientationBackgroundEvent,
   UpdateRightUrlBackgroundEvent,
@@ -99,6 +100,9 @@ export class BackgroundContext extends Context {
         break;
       case "THEME_COLORS":
         event = new UpdateThemeColorsBackgroundEvent(this.themeColors);
+        break;
+      case "INIT_EXTENSION":
+        event = new InitExtensionBackgroundEvent(this.settings);
         break;
       default:
         console.warn(`Warning: Unknown background event type "${eventType}"`);

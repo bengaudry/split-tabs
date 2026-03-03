@@ -56,3 +56,12 @@ export class UpdateThemeColorsBackgroundEvent extends BackgroundEvent {
     this.themeColors = themeColors;
   }
 }
+
+export class InitExtensionBackgroundEvent extends BackgroundEvent {
+  settings: { [key: string]: string | number | boolean };
+
+  constructor(settings: { [key: string]: string | number | boolean }) {
+    super("INIT_EXTENSION");
+    this.settings = settings;
+  }
+}

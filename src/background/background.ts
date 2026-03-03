@@ -248,6 +248,8 @@ const handleInitializeExtension = async (side: Side) => {
       return;
     }
 
+    BackgroundContext.getInstance(); // initialize the singleton instance of BackgroundContext, which will dispatch the INIT_EXTENSION event to the split page
+
     const context = BackgroundContext.getInstance();
     context.setTab(splitViewTab);
 
