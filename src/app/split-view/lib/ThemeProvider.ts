@@ -1,4 +1,4 @@
-import { changeCssVariableValue, getRgbValuesFromBackgroundColor, getUserScheme } from "../../shared/colors";
+import { changeCssVariableValue, getRgbValuesFromBackgroundColor, getUserScheme } from "../../../shared/colors";
 
 export type SplitViewTheme = {
   defaultBackgroundColor: string;

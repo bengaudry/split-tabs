@@ -3,8 +3,8 @@ const path = require("path");
 module.exports = {
   mode: "production",
   entry: {
-    "split-view": "./src/split-view/split-view.ts",
-    background: "./src/background/background.ts"
+    "split-view": "./src/app/split-view/split-view.ts",
+    background: "./src/app/background/background.ts"
   },
   output: {
     path: path.resolve(__dirname, "build"),

@@ -1,4 +1,4 @@
-import { ThemeColors } from "../background/types";
+import { ThemeColors } from "../app/background/types";
 import { Orientation } from "./types";
 
 export abstract class Context {

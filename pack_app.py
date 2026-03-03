@@ -16,6 +16,7 @@ ADDON_TITLE = "Split Tabs"
 BASE_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 ICONS_DIR_PATH = os.path.join(BASE_DIR_PATH, "icons")
 SRC_DIR_PATH = os.path.join(BASE_DIR_PATH, "src")
+APP_DIR_PATH = os.path.join(SRC_DIR_PATH, "app")
 BUILD_DIR_PATH = os.path.join(BASE_DIR_PATH, "build")
 
 # Files paths
@@ -103,6 +104,10 @@ def update_manifest_data(manifest: dict, is_packaging_for_publish: bool):
         manifest["name"] = ADDON_TITLE
     else:
         manifest["name"] = ADDON_TITLE + " - Development"
+
+    # Write the updated manifest back to the manifest file in the src directory
+    with open(MANIFEST_FILE_PATH, "w") as f:
+        json.dump(manifest, f, indent=4)
 
     return manifest
 
@@ -285,17 +290,17 @@ def copy_src_files_to_build_dir():
     for file in src_root_files:
         shutil.copyfile(os.path.join(SRC_DIR_PATH, file), os.path.join(BUILD_DIR_PATH, file))
 
-    split_view_directory = os.path.join(SRC_DIR_PATH, "split-view")
+    split_view_directory = os.path.join(APP_DIR_PATH, "split-view")
     split_view_files = ["content-script.js", "split-view.html", "styles.css"]
     for file in split_view_files:
         shutil.copyfile(os.path.join(split_view_directory, file), os.path.join(BUILD_DIR_PATH, file))
 
-    popup_directory = os.path.join(SRC_DIR_PATH, "popup")
+    popup_directory = os.path.join(APP_DIR_PATH, "popup")
     popup_files = ["popup.html", "popup.js"]
     for file in popup_files:
         shutil.copyfile(os.path.join(popup_directory, file), os.path.join(BUILD_DIR_PATH, file))
 
-    settings_directory = os.path.join(SRC_DIR_PATH, "settings")
+    settings_directory = os.path.join(APP_DIR_PATH, "settings")
     settings_files = ["settings.html", "settings.js"]
     for file in settings_files:
         shutil.copyfile(os.path.join(settings_directory, file), os.path.join(BUILD_DIR_PATH, file))

@@ -1,4 +1,4 @@
-import { IS_DEV } from "../shared/constants";
+import { IS_DEV } from "../../shared/constants";
 import { getThemeColors } from "./theme";
 import { TabId } from "./types";
 

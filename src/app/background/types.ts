@@ -1,4 +1,4 @@
-import { Branded } from "../shared/types";
+import { Branded } from "../../shared/types";
 
 export type TabId = Branded<number, "TabId">;
 

@@ -1,7 +1,7 @@
-import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../shared/colors";
-import { MIN_VIEW_PERCENTAGE } from "../../shared/constants";
-import { createCompositeFavicon } from "../../shared/favicon";
-import { getUrlBase } from "../../shared/urls";
+import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../../shared/colors";
+import { MIN_VIEW_PERCENTAGE } from "../../../shared/constants";
+import { createCompositeFavicon } from "../../../shared/favicon";
+import { getUrlBase } from "../../../shared/urls";
 import { Searchbar } from "./Searchbar";
 import { SplitContext } from "./SplitContext";
 

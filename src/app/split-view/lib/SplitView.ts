@@ -1,7 +1,7 @@
-import { changeCssVariableValue } from "../../shared/colors";
-import { MIN_VIEW_PERCENTAGE } from "../../shared/constants";
-import { Observer } from "../../shared/observability/Observer";
-import type { Orientation, Side } from "../../shared/types";
+import { changeCssVariableValue } from "../../../shared/colors";
+import { MIN_VIEW_PERCENTAGE } from "../../../shared/constants";
+import { Observer } from "../../../shared/observability/Observer";
+import type { Orientation, Side } from "../../../shared/types";
 import { Searchbar } from "./Searchbar";
 import { SplitContext } from "./SplitContext";
 import { View } from "./View";

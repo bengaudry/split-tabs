@@ -1,9 +1,9 @@
-import { FORBIDDEN_HOSTNAMES } from "../shared/constants";
+import { FORBIDDEN_HOSTNAMES } from "../../shared/constants";
 import { updateIcons } from "./icons";
 import { BackgroundContext } from "./BackgroundContext";
 import { getThemeColors, sendThemeToFront } from "./theme";
 import { MessageSender, TabId } from "./types";
-import { Side } from "../shared/types";
+import { Side } from "../../shared/types";
 import { createContextMenu } from "./contextMenu";
 
 console.info("[background.ts] > Loaded");
