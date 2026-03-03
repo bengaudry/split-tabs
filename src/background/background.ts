@@ -1,15 +1,11 @@
-import { FORBIDDEN_HOSTNAMES } from "../utils/constants";
+import { FORBIDDEN_HOSTNAMES } from "../shared/constants";
 import { updateIcons } from "./icons";
+import { BackgroundContext } from "./BackgroundContext";
 import { getThemeColors, sendThemeToFront } from "./theme";
-import { MessageSender, Side, Tab, TabId, Theme } from "./types";
+import { MessageSender, TabId } from "./types";
+import { Side } from "../shared/types";
 
-console.info("background.js > Loaded");
-
-const defaultSettings = {
-  "close-tab-before-opening": true,
-  "show-rating-popup": true,
-  "match-with-firefox-theme": true
-};
+console.info("[background.ts] > Loaded");
 
 /* ===== Listeners for page icon & tab icon ===== */
 
@@ -55,24 +51,24 @@ const createContextMenu = () => {
   // Handle context menu actions
   browser.contextMenus.onClicked.addListener(function listener(info, activeTab) {
     console.info(info);
+    const context = BackgroundContext.getInstance();
+    const tab = context.getTab();
+
     if (tab?.id === activeTab?.id) {
+      const context = BackgroundContext.getInstance();
       switch (info.menuItemId) {
         case "split-tabs-context-submenu-reverse-tabs":
           if (tab?.id !== undefined) {
-            browser.tabs.sendMessage(tab.id, {
-              type: "LOAD_URLS",
-              leftUrl: rightUrl,
-              rightUrl: leftUrl
-            });
+            const leftUrl = context.getLeftUrl();
+            const rightUrl = context.getRightUrl();
+            context.setLeftUrl(rightUrl ?? null);
+            context.setRightUrl(leftUrl ?? null);
           }
           break;
 
         case "split-tabs-context-submenu-toggle-orientation":
           if (tab?.id !== undefined) {
-            browser.tabs.sendMessage(tab.id, {
-              type: "SET_ORIENTATION",
-              orientation: undefined
-            });
+            context.toggleOrientation();
             break;
           }
       }
@@ -101,11 +97,6 @@ browser.webRequest.onHeadersReceived.addListener(
 );
 
 // ===== GLOBAL VARIABLES ===== //
-let leftUrl: string | null = null;
-let rightUrl: string | null = null;
-
-let tab: Tab | null = null;
-
 function isForbiddenUrl(url: string | undefined | null) {
   if (!url) return true;
   if (url.startsWith("moz-extension:")) return true;
@@ -129,7 +120,7 @@ async function fetchTabs(sender: MessageSender, sendResponse: (response?: any) =
     });
     return tabs;
   } catch (error) {
-    console.error("background.js > Error while fetching tabs");
+    console.error("background.ts > Error while fetching tabs");
     console.error(error);
     if (sender.tab && sender.tab.id) {
       browser.tabs.sendMessage(sender.tab.id, {
@@ -143,10 +134,36 @@ async function fetchTabs(sender: MessageSender, sendResponse: (response?: any) =
 
 browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   // Initialize extension
-  console.info("[background.js] > received " + message.type);
+  console.info("[background.ts] > received " + message.type);
+
+  const context = BackgroundContext.getInstance();
+  const tab = context.getTab();
+
+  if (message.sender === "split") {
+    context.updateFromSplitDispatch(message.event);
+  }
+
+  if (message.sender === "settings") {
+    switch (message.type) {
+      case "UPDATE_SETTING":
+        context.setSetting(message.key, message.value);
+        return null;
+
+      case "GET_SETTING":
+        return {
+          type: "SETTING_VALUE",
+          key: message.key,
+          value: context.getSetting(message.key)
+        };
+
+      default:
+        return null;
+    }
+  }
+
   switch (message.type) {
     case "INIT_EXT":
-      console.info("[background.js] > Initializing extension");
+      console.info("[background.ts] > Initializing extension");
       console.info(message.side);
       handleInitializeExtension(message.side);
       return null;
@@ -160,25 +177,16 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         tabs: tabs
       };
 
-    // Update global variables when changing url in split view
-    case "UPDATE_TABS":
-      console.info("[background.js] > TABS UPDATED");
-      console.log(message);
-      if (message.updatedLeftUrl) leftUrl = message.updatedLeftUrl;
-      if (message.updatedRightUrl) rightUrl = message.updatedRightUrl;
-      console.log(leftUrl, rightUrl);
-      return null;
-
     // Close one of the tabs in the split
     case "CLOSE_SPLIT":
-      const urlToKeep = message.keep === "left" ? leftUrl : rightUrl;
+      const urlToKeep = message.keep === "left" ? context.getLeftUrl() : context.getRightUrl();
       if (urlToKeep && tab?.id !== undefined) {
         browser.tabs.create({
           url: urlToKeep,
           active: true
         });
         browser.tabs.remove(tab?.id);
-        tab = null;
+        context.setTab(null);
       }
       return null;
 
@@ -189,27 +197,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       });
       return null;
 
-    case "EDIT_SETTINGS":
-      console.info(
-        "[background.js] > Editing setting " +
-          message.key +
-          " with value : " +
-          message.value +
-          " (" +
-          typeof message.value +
-          ")"
-      );
-      localStorage.setItem("split-tabs-" + message.key + "-setting", message.value);
-      return null;
-
-    case "GET_SETTING":
-      console.info("[background.js] > Returning SETTING_VALUE");
-      return {
-        type: "SETTING_VALUE",
-        key: message.key,
-        value: getSettingValue(message.key)
-      };
-
     case "OPEN_EXTERNAL_URL":
       await browser.tabs.create({
         url: message.url,
@@ -218,8 +205,8 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       return null;
 
     case "GET_THEME":
-      const theme = await browser.theme.getCurrent();
       if (tab?.id === undefined) return null;
+      const theme = await browser.theme.getCurrent();
       sendThemeToFront(tab.id as TabId, theme);
       return null;
 
@@ -229,18 +216,12 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 });
 
 browser.theme.onUpdated.addListener(function ({ theme }) {
+  const context = BackgroundContext.getInstance();
+  const tab = context.getTab();
   if (tab?.id === undefined) return;
   sendThemeToFront(tab.id as TabId, theme);
   updateIcons(tab.id as TabId);
 });
-
-/**
- * Returns the setting value for a given setting key
- */
-const getSettingValue = (key: keyof typeof defaultSettings) => {
-  const settingValue = localStorage.getItem("split-tabs-" + key + "-setting");
-  return settingValue ?? defaultSettings[key] ?? null;
-};
 
 const handleInitializeExtension = async (side: Side) => {
   try {
@@ -252,24 +233,30 @@ const handleInitializeExtension = async (side: Side) => {
     const activeTab = activeTabs[0];
 
     if (!activeTab?.id) {
-      console.error("background.js > No active tab found");
+      console.error("background.ts > No active tab found");
       return;
     }
 
     const currentUrl = isForbiddenUrl(activeTab.url) ? null : activeTab.url;
 
     // Creates a new tab containing the split view
-    tab = await browser.tabs.create({
+    const splitViewTab = await browser.tabs.create({
       url: browser.runtime.getURL("split-view.html"),
       discarded: false
     });
 
-    if (!tab?.id) {
-      console.error("background.js > Could not create new tab for split view");
+    if (!splitViewTab?.id) {
+      console.error("background.ts > Could not create new tab for split view");
       return;
     }
 
-    if (getSettingValue("close-tab-before-opening") === "true") {
+    BackgroundContext.getInstance(); // initialize the singleton instance of BackgroundContext, which will dispatch the INIT_EXTENSION event to the split page
+
+    const context = BackgroundContext.getInstance();
+    context.setTab(splitViewTab);
+
+    console.log(context.getSetting("close-tab-before-opening"));
+    if (Boolean(context.getSetting("close-tab-before-opening"))) {
       console.log("Active tab", activeTab);
       browser.tabs.remove(activeTab.id);
     }
@@ -278,30 +265,30 @@ const handleInitializeExtension = async (side: Side) => {
 
     // Wait for the tab to be fully loaded, and send informations
     browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo, updatedTab) {
-      if (tab?.id && tabId === tab.id && changeInfo.status === "complete") {
+      if (splitViewTab?.id && tabId === splitViewTab.id && changeInfo.status === "complete") {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
 
-        leftUrl = side === "left" || side === "top" ? (currentUrl ?? null) : null;
-        rightUrl = side === "right" || side === "bottom" ? (currentUrl ?? null) : null;
+        context.setLeftUrl(side === "left" || side === "top" ? (currentUrl ?? null) : null);
+        context.setRightUrl(side === "right" || side === "bottom" ? (currentUrl ?? null) : null);
 
-        console.info("background.js > Sending SET_ORIENTATION");
-        browser.tabs.sendMessage(tab.id, {
+        console.info("background.ts > Sending SET_ORIENTATION");
+        browser.tabs.sendMessage(splitViewTab.id, {
           type: "SET_ORIENTATION",
           orientation: side === "top" || side === "bottom" ? "vertical" : "horizontal"
         });
 
-        console.info("background.js > Sending LOAD_URLS");
+        console.info("background.ts > Sending LOAD_URLS");
         // Send the LOAD_URLS event to the split-view page
-        browser.tabs.sendMessage(tab.id, {
+        browser.tabs.sendMessage(splitViewTab.id, {
           type: "LOAD_URLS",
-          leftUrl,
-          rightUrl
+          leftUrl: context.getLeftUrl(),
+          rightUrl: context.getRightUrl()
         });
 
-        console.info("background.js > Sending BROWSER_COLORS");
+        console.info("background.ts > Sending BROWSER_COLORS");
         // Send the BROWSER_COLORS data to the split-view page
-        browser.tabs.sendMessage(tab.id, {
+        browser.tabs.sendMessage(splitViewTab.id, {
           type: "BROWSER_COLORS",
           ...themeColors
         });
@@ -310,7 +297,7 @@ const handleInitializeExtension = async (side: Side) => {
 
     createContextMenu();
   } catch (err) {
-    console.error("background.js > Error while initializing extension :");
+    console.error("background.ts > Error while initializing extension :");
     console.error(err);
   }
 };

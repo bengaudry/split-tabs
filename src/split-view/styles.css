@@ -88,6 +88,10 @@ iframe {
   background-color: rgb(var(--main-background-color));
 }
 
+iframe.loading {
+  filter: blur(6px);
+}
+
 .no-view-opened-msg {
   color: rgb(var(--primary-text-color));
   position: absolute;

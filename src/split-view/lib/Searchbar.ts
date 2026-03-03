@@ -1,4 +1,4 @@
-import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "../../utils/urls";
+import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "../../shared/urls";
 import { View } from "./View";
 
 export class Searchbar {

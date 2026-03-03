@@ -1,6 +1,7 @@
-import { getUserScheme } from "../utils/colors";
-import { handleCancelExtensionRating, handleExtensionRating, showRatingPopupIfAuthorized } from "../utils/ratingPopup";
+import { getUserScheme } from "../shared/colors";
+import { handleCancelExtensionRating, handleExtensionRating, showRatingPopupIfAuthorized } from "../shared/ratingPopup";
 import { Searchbar } from "./lib/Searchbar";
+import { SplitContext } from "./lib/SplitContext";
 import { SplitView } from "./lib/SplitView";
 import { ThemeProvider } from "./lib/ThemeProvider";
 
@@ -10,8 +11,18 @@ document.addEventListener("DOMContentLoaded", () => {
   const splitViewInstance = new SplitView();
   const themeProviderInstance = new ThemeProvider();
 
+  const context = SplitContext.getInstance();
+  context.addObserver(splitViewInstance);
+
   // Listen for messages from the background script
   browser.runtime.onMessage.addListener((message) => {
+    console.info("[split-view.ts] > Received message:", message);
+
+    if (message.sender === "background") {
+      console.info("[split-view.ts] > Received message from background:", message);
+      context.updateFromBackgroundEvent(message.event);
+    }
+
     switch (message.type) {
       // Initial url load
       case "LOAD_URLS":
