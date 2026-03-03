@@ -141,10 +141,24 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
   if (message.sender === "split") {
     context.updateFromSplitDispatch(message.event);
-  } else {
-    console.info(
-      "[background.ts] > Received message from unknown sender (" + message.sender + ") or with unknown event type"
-    );
+  }
+
+  if (message.sender === "settings") {
+    switch (message.type) {
+      case "UPDATE_SETTING":
+        context.setSetting(message.key, message.value);
+        return null;
+
+      case "GET_SETTING":
+        return {
+          type: "SETTING_VALUE",
+          key: message.key,
+          value: context.getSetting(message.key)
+        };
+
+      default:
+        return null;
+    }
   }
 
   switch (message.type) {
@@ -182,18 +196,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
         discarded: false
       });
       return null;
-
-    case "EDIT_SETTINGS":
-      context.setSetting(message.key, message.value);
-      return null;
-
-    case "GET_SETTING":
-      console.info("[background.ts] > Returning SETTING_VALUE");
-      return {
-        type: "SETTING_VALUE",
-        key: message.key,
-        value: context.getSetting(message.key)
-      };
 
     case "OPEN_EXTERNAL_URL":
       await browser.tabs.create({
@@ -253,7 +255,8 @@ const handleInitializeExtension = async (side: Side) => {
     const context = BackgroundContext.getInstance();
     context.setTab(splitViewTab);
 
-    if (context.getSetting("close-tab-before-opening") === "true") {
+    console.log(context.getSetting("close-tab-before-opening"));
+    if (Boolean(context.getSetting("close-tab-before-opening"))) {
       console.log("Active tab", activeTab);
       browser.tabs.remove(activeTab.id);
     }
