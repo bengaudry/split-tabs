@@ -111,13 +111,20 @@ export class View {
   /** Load a new URL into the specified side's split */
   public static loadUrl(side: "left" | "right", newUrl: string) {
     const splitInstance = side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
-    splitInstance.loadUrl(newUrl);
+    return splitInstance.loadUrl(newUrl);
   }
 
   /** Load a new URL into this split's iframe */
   public loadUrl(newUrl: string | null | undefined): boolean {
     console.log(`[${this.side} Split] Loading URL: `, newUrl);
     if (!newUrl) return false;
+    if (!this.iframeRef) return false;
+
+    this.iframeRef.classList.add("loading");
+    this.iframeRef.onload = () => {
+      this.iframeRef?.classList.remove("loading");
+    };
+
     try {
       const urlObj = new URL(newUrl);
 
