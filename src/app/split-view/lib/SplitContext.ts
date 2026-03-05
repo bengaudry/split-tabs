@@ -16,6 +16,8 @@ export class SplitContext extends Context implements Observable<SplitContext> {
   private static instance: SplitContext;
   private dispatchNextEvent: boolean = true;
 
+  private activeSide: Side = "left";
+
   /* === Observability === */
   private observers: Observer<SplitContext>[] = [];
 
@@ -63,6 +65,15 @@ export class SplitContext extends Context implements Observable<SplitContext> {
 
   public updateOrientation(orientation: Orientation) {
     this.orientation = orientation;
+    this.notifyObservers();
+  }
+
+  public getActiveSide(): Side {
+    return this.activeSide;
+  }
+
+  public setActiveSide(side: Side) {
+    this.activeSide = side;
     this.notifyObservers();
   }
 

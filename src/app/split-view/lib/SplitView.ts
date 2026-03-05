@@ -24,9 +24,6 @@ export class SplitView implements Observer<SplitContext> {
   private isUserResizingViews = false;
 
   private constructor() {
-    SplitContext.getInstance().addObserver(this);
-    Searchbar.initialize();
-
     this.leftSplit = new View(null, 50, "left");
     this.rightSplit = new View(null, 50, "right");
 
@@ -54,6 +51,8 @@ export class SplitView implements Observer<SplitContext> {
         }
       }
     });
+
+    SplitContext.getInstance().addObserver(this);
   }
 
   public setOrientation(orientation?: Orientation) {
@@ -86,14 +85,16 @@ export class SplitView implements Observer<SplitContext> {
     // Update the SplitView based on changes in the context
     this.setOrientation(context.getOrientation());
 
-    if (context.getLeftUrl() !== this.leftSplit.getCurrentUrl()) {
+    if (context.getLeftUrl() !== this.leftSplit?.getCurrentUrl()) {
       console.info("[SplitView] > Updating left split URL to: " + context.getLeftUrl());
       this.leftSplit.loadUrl(context.getLeftUrl());
     }
 
-    if (context.getRightUrl() !== this.rightSplit.getCurrentUrl()) {
+    if (context.getRightUrl() !== this.rightSplit?.getCurrentUrl()) {
       console.info("[SplitView] > Updating right split URL to: " + context.getRightUrl());
       this.rightSplit.loadUrl(context.getRightUrl());
     }
+
+    View.activate(context.getActiveSide());
   }
 }

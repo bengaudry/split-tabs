@@ -1,35 +1,44 @@
+import { Side } from "../../../shared/types";
 import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "../../../shared/urls";
+import { SplitContext } from "./SplitContext";
 import { View } from "./View";
 
 export class Searchbar {
-  private static isCloseForbidden = false; // forbid close when one of the view is empty
-  private static initialValue: string | null = null; // used to know if the value has changed since the opening
-  private static activeSide: "left" | "right" = "left";
+  private static instance: Searchbar;
+
+  private isCloseForbidden = false; // forbid close when one of the view is empty
+  private initialValue: string | null = null; // used to know if the value has changed since the opening
 
   // When clicking on toolbar links (or close button), the input naturally blurs.
   // We want to ignore the blur handler in that specific case to avoid triggering a search.
-  private static suppressNextBlur = false;
+  private suppressNextBlur = false;
+
+  public static getInstance(): Searchbar {
+    if (!Searchbar.instance) {
+      Searchbar.instance = new Searchbar();
+    }
+    return Searchbar.instance;
+  }
 
   /**
    * Adds all events related to the search bar
-   * @warning This method must be called once after the searchbar elements are present in the DOM
    */
-  public static initialize() {
-    const searchbarInput = Searchbar.getSearchbarInputRef();
+  private constructor() {
+    const searchbarInput = this.getSearchbarInputRef();
     if (!searchbarInput) return;
 
     // Mark that the next blur should be ignored when user clicks inside the toolbar area
-    const wrapper = Searchbar.getSearchbarWrapperRef();
+    const wrapper = this.getSearchbarWrapperRef();
     wrapper?.addEventListener("pointerdown", (e) => {
       const tgt = e.target as HTMLElement | null;
       if (tgt?.closest(".toolbar-links-container") || tgt?.closest("#searchbar-close-trigger")) {
-        Searchbar.suppressNextBlur = true;
+        this.suppressNextBlur = true;
       }
     });
 
     // Reset the suppression flag right after the click sequence completes
     document.addEventListener("pointerup", () => {
-      setTimeout(() => (Searchbar.suppressNextBlur = false), 0);
+      setTimeout(() => (this.suppressNextBlur = false), 0);
     });
 
     // Change panes urls on input blurs or Enter key press
@@ -40,7 +49,7 @@ export class Searchbar {
       // If focus is moving to a toolbar link or close button, ignore this blur
       const next = (e.relatedTarget as HTMLElement | null) ?? null;
       if (
-        Searchbar.suppressNextBlur ||
+        this.suppressNextBlur ||
         next?.closest(".toolbar-links-container") ||
         next?.closest("#searchbar-close-trigger")
       ) {
@@ -48,44 +57,44 @@ export class Searchbar {
       }
       // If the value is empty or unchanged it might be because the user
       // clicked on a link, so let the click event handle it
-      if (value === "" || value === Searchbar.initialValue) {
+      if (value === "" || value === this.initialValue) {
         e.stopPropagation();
         return;
       }
 
-      Searchbar.handleSearchBarEndInput(value);
+      this.handleSearchBarEndInput(value);
     });
 
     searchbarInput.addEventListener("keyup", (e: KeyboardEvent) => {
       if ("Enter" === e.key) {
         const input = e.target as HTMLInputElement | null;
-        Searchbar.handleSearchBarEndInput(input?.value ?? "");
+        this.handleSearchBarEndInput(input?.value ?? "");
       }
     });
 
     // Close searchbar on pressing escape or clicking away
     document.getElementById("searchbar-close-trigger")?.addEventListener("click", () => {
-      Searchbar.close();
+      this.close();
     });
 
     document.addEventListener("keyup", (e) => {
-      if ("Escape" === e.code) Searchbar.close();
+      if ("Escape" === e.code) this.close();
     });
   }
 
-  public static forbidClose() {
-    Searchbar.isCloseForbidden = true;
+  public forbidClose() {
+    this.isCloseForbidden = true;
   }
 
-  public static enableClose() {
-    Searchbar.isCloseForbidden = false;
+  public enableClose() {
+    this.isCloseForbidden = false;
   }
 
   /**
    * Make a query with the search engine or open a url in the split-view
    * when the search bar receives validation (Enter key or blur)
    */
-  private static handleSearchBarEndInput(query: string) {
+  private handleSearchBarEndInput(query: string) {
     if (query === "") return; // avoid setting a new tab if the user has just discarded the searchbar
     const searchbarInput = this.getSearchbarInputRef();
 
@@ -97,25 +106,21 @@ export class Searchbar {
       url = googleUrl.toString();
     }
     if (searchbarInput) searchbarInput.value = "";
-    View.loadUrl(Searchbar.activeSide, url);
-    Searchbar.enableClose();
+    View.loadUrl(SplitContext.getInstance().getActiveSide(), url);
+    this.enableClose();
   }
 
-  public static setActiveSide(side: "left" | "right") {
-    Searchbar.activeSide = side;
-  }
-
-  private static getSearchbarWrapperRef() {
+  private getSearchbarWrapperRef() {
     return document.querySelector<HTMLDivElement>("#searchbar-wrapper");
   }
 
-  private static getSearchbarInputRef() {
+  private getSearchbarInputRef() {
     return document.querySelector<HTMLInputElement>("#searchbar-url-input");
   }
 
   /** Close the searchbar */
-  public static close() {
-    if (Searchbar.isCloseForbidden) return;
+  public close() {
+    if (this.isCloseForbidden) return;
 
     const searchbarWrapper = this.getSearchbarWrapperRef();
     if (!searchbarWrapper) return;
@@ -123,14 +128,14 @@ export class Searchbar {
     const searchbarInput = this.getSearchbarInputRef();
     if (!searchbarInput) return;
 
-    Searchbar.initialValue = null;
+    this.initialValue = null;
 
     searchbarWrapper.setAttribute("data-expanded", "false");
     searchbarInput.value = "";
   }
 
   /** Open the searchbar and set the default URL if provided */
-  public static open({ splitInstance, defaultUrl }: { splitInstance?: View; defaultUrl?: string | null }) {
+  public open({ splitInstance, defaultUrl }: { splitInstance?: View; defaultUrl?: string | null }) {
     const searchbarWrapper = this.getSearchbarWrapperRef();
     const searchbarInput = this.getSearchbarInputRef();
 
@@ -138,7 +143,7 @@ export class Searchbar {
 
     if (splitInstance) this.populateToolbarLinkContainer(splitInstance);
 
-    Searchbar.initialValue = defaultUrl || null;
+    this.initialValue = defaultUrl || null;
 
     searchbarWrapper.setAttribute("data-expanded", "true");
     searchbarInput.value = defaultUrl || "";
@@ -149,7 +154,7 @@ export class Searchbar {
   /** Fetches browser opened tabs and creates links to them
    *  inside the toolbar
    */
-  public static async populateToolbarLinkContainer(splitInstance: View) {
+  public async populateToolbarLinkContainer(splitInstance: View) {
     const searchbarWrapper = this.getSearchbarWrapperRef();
     if (!searchbarWrapper) return;
 
@@ -180,7 +185,7 @@ export class Searchbar {
         button.appendChild(txtSpan);
 
         button.addEventListener("click", () => {
-          Searchbar.enableClose();
+          this.enableClose();
           splitInstance.loadUrl(tab.url);
         });
         if (toolbarLinksContainer) toolbarLinksContainer.appendChild(button);

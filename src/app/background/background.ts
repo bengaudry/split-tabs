@@ -112,7 +112,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
   switch (message.type) {
     case "INIT_EXT":
-      console.info("[background.ts] > Initializing extension");
       handleInitializeExtension(message.side);
       return null;
 

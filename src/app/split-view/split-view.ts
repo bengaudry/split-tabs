@@ -12,6 +12,7 @@ import { ThemeProvider } from "./lib/ThemeProvider";
 // accessing elements and events
 document.addEventListener("DOMContentLoaded", () => {
   const splitViewInstance = SplitView.getInstance();
+  const searchbarInstance = Searchbar.getInstance();
   const themeProviderInstance = new ThemeProvider();
 
   const context = SplitContext.getInstance();
@@ -29,10 +30,13 @@ document.addEventListener("DOMContentLoaded", () => {
 
     // open searchbar when initializing the extension in order to open the second split
     if (message.event?.type === "INIT_EXTENSION") {
-      Searchbar.setActiveSide(message.side);
-      Searchbar.forbidClose();
-      Searchbar.open({
-        splitInstance: splitViewInstance.getInstanceOfSide(message.side)
+      console.log(message.event);
+      const awaitingUrlSide = message.event.side === "left" ? "right" : "left";
+      context.updateOrientation(message.event.orientation);
+      context.setActiveSide(awaitingUrlSide);
+      searchbarInstance.forbidClose();
+      searchbarInstance.open({
+        splitInstance: splitViewInstance.getInstanceOfSide(awaitingUrlSide)
       });
     }
   });

@@ -1,6 +1,7 @@
 import { changeCssVariableValue, invertRgbValues } from "../../../shared/colors/utils";
 import { MIN_VIEW_PERCENTAGE } from "../../../shared/constants";
 import { createCompositeFavicon } from "../../../shared/favicon";
+import { Side } from "../../../shared/types";
 import { getUrlBase } from "../../../shared/urls";
 import { Searchbar } from "./Searchbar";
 import { SplitContext } from "./SplitContext";
@@ -16,7 +17,7 @@ export class View {
   private urlPreview: string | null = null;
 
   private size: number;
-  private side: "left" | "right";
+  private side: Side;
 
   private containerRef: HTMLDivElement | null;
   private iframeRef: HTMLIFrameElement | null;
@@ -24,7 +25,7 @@ export class View {
   private refreshBtn: HTMLButtonElement | null;
   private closeBtn: HTMLButtonElement | null;
 
-  constructor(url: string | null, size: number, side: "left" | "right") {
+  constructor(url: string | null, size: number, side: Side) {
     this.loadUrl(url);
 
     this.size = size;
@@ -54,8 +55,9 @@ export class View {
     });
 
     this.searchbarTrigger?.addEventListener("click", () => {
-      Searchbar.setActiveSide(this.side);
-      Searchbar.open({ splitInstance: this, defaultUrl: this.url });
+      const searchbarInstance = Searchbar.getInstance();
+      searchbarInstance.open({ splitInstance: this, defaultUrl: this.url });
+      SplitContext.getInstance().setActiveSide(this.side);
     });
 
     this.refreshBtn?.addEventListener("click", () => {
@@ -73,23 +75,20 @@ export class View {
       //this.requestIframeData();
     });
 
+    const context = SplitContext.getInstance();
     window.addEventListener("message", (e) => {
       if (e.data && e.data.type === "IFRAME_FOCUSED") {
         if (this.iframeRef && e.source === this.iframeRef.contentWindow) {
-          View.activate(this.side);
+          context.setActiveSide(this.side);
         }
       }
       if (e.data && e.data.type === "SWITCH_FOCUS") {
-        View.activate(e.data.direction);
+        context.setActiveSide(e.data.direction);
       }
     });
-
-    if (side === "left") {
-      View.activate("left");
-    }
   }
 
-  public static activate(side: "left" | "right") {
+  public static activate(side: Side) {
     const leftContainer = View.leftSplitInstance?.containerRef;
     const rightContainer = View.rightSplitInstance?.containerRef;
 
@@ -109,7 +108,7 @@ export class View {
   }
 
   /** Load a new URL into the specified side's split */
-  public static loadUrl(side: "left" | "right", newUrl: string) {
+  public static loadUrl(side: Side, newUrl: string) {
     const splitInstance = side === "left" ? View.leftSplitInstance : View.rightSplitInstance;
     return splitInstance.loadUrl(newUrl);
   }
@@ -137,16 +136,7 @@ export class View {
       else console.warn("No iframe reference found");
       //this.requestIframeData();
 
-      Searchbar.close();
-
-      let updatedLeftUrl: string | null = null;
-      let updatedRightUrl: string | null = null;
-
-      if ("left" === this.side) updatedLeftUrl = this.url;
-      if ("right" === this.side) updatedRightUrl = this.url;
-
-      const context = SplitContext.getInstance();
-      context.updateUrl(this.side, this.url);
+      Searchbar.getInstance().close();
 
       return true;
     } catch (err) {
