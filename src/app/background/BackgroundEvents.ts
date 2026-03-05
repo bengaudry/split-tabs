@@ -1,4 +1,4 @@
-import { ThemeColors } from "./types";
+import { ThemeColors } from "../../shared/themes/types";
 import { Orientation, Side } from "../../shared/types";
 
 export const BACKGROUND_EVENT_TYPES = [

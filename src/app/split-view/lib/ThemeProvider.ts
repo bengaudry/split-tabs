@@ -1,5 +1,7 @@
-import { changeCssVariableValue, getRgbValuesFromBackgroundColor, getUserScheme } from "../../../shared/colors";
 import { Observer } from "../../../shared/observability/Observer";
+import { browserThemeColorToRgbValues, changeCssVariableValue } from "../../../shared/colors/utils";
+import { knownThemesColors } from "../../../shared/themes/knownThemesColors";
+import { getPrefferedUserScheme } from "../../../shared/themes/utils";
 import { SplitContext } from "./SplitContext";
 
 export type SplitViewTheme = {
@@ -32,24 +34,6 @@ const THEME_PROPERTY_NAMES = {
   rightViewTextColor: "--right-pane-text-color"
 } as const;
 
-const DEFAULT_LIGHT_THEME: SplitViewTheme = {
-  defaultBackgroundColor: "234, 234, 237",
-  defaultInputBackgroundColor: "222, 222, 225",
-  defaultPrimaryTextColor: "0, 0, 0",
-  defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "200, 200, 200",
-  defaultActiveBorderColor: "100, 100, 100"
-};
-
-const DEFAULT_DARK_THEME: SplitViewTheme = {
-  defaultBackgroundColor: "28, 27, 34",
-  defaultInputBackgroundColor: "20, 19, 24",
-  defaultPrimaryTextColor: "255, 255, 255",
-  defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "75, 75, 75",
-  defaultActiveBorderColor: "150, 150, 150"
-};
-
 export class ThemeProvider implements Observer<SplitContext> {
   private theme: SplitViewTheme;
 
@@ -65,9 +49,22 @@ export class ThemeProvider implements Observer<SplitContext> {
     });
   }
 
+  public static themeColorsToSplitViewThemeColors(themeColors: Record<string, string>): SplitViewTheme {
+    return {
+      defaultBackgroundColor: themeColors.backgroundColor,
+      defaultInputBackgroundColor: themeColors.inputBackground,
+      defaultPrimaryTextColor: themeColors.textColor,
+      defaultSecondaryTextColor: themeColors.secondaryTextColor,
+      defaultBorderColor: themeColors.borderColor,
+      defaultActiveBorderColor: themeColors.activeBorderColor
+    };
+  }
+
   /** Get the default theme based on the user's system preference */
   private getDefaultTheme(): SplitViewTheme {
-    return getUserScheme() === "dark" ? DEFAULT_DARK_THEME : DEFAULT_LIGHT_THEME;
+    return getPrefferedUserScheme() === "dark"
+      ? ThemeProvider.themeColorsToSplitViewThemeColors(knownThemesColors.Dark)
+      : ThemeProvider.themeColorsToSplitViewThemeColors(knownThemesColors.Light);
   }
 
   /** Resets the theme to the default one */
@@ -113,7 +110,10 @@ export class ThemeProvider implements Observer<SplitContext> {
 
       // If the value is a string representing a color, convert it to rgb values
       if (typeof value === "string") {
-        cssValue = getRgbValuesFromBackgroundColor(value);
+        const rgbValues = browserThemeColorToRgbValues(value);
+        if (rgbValues) {
+          cssValue = rgbValues.toString();
+        }
       } else if (Array.isArray(value)) {
         // In some versions, rgb values are put in an array ([r, g, b])
         cssValue = value.join(", ");

@@ -1,4 +1,4 @@
-import { changeCssVariableValue, getRgbValuesFromBackgroundColor, invertRgbValues } from "../../../shared/colors";
+import { changeCssVariableValue, invertRgbValues } from "../../../shared/colors/utils";
 import { MIN_VIEW_PERCENTAGE } from "../../../shared/constants";
 import { createCompositeFavicon } from "../../../shared/favicon";
 import { getUrlBase } from "../../../shared/urls";
@@ -166,10 +166,11 @@ export class View {
     changeCssVariableValue(`--${this.side}-pane-view-percentage`, `${this.size}%`);
   }
 
+  // TODO :
   /**
    * Requests icon, colors from website when iframe src changes
    */
-  private requestIframeData = () => {
+  /* private requestIframeData = () => {
     console.log(`[${this.side} Split] Requesting iframe data`);
     if (!this.iframeRef?.contentWindow || !this.iframeRef.src) return;
     this.iframeRef.contentWindow.postMessage({ type: "REQUEST_IFRAME_DATA" }, this.iframeRef.src);
@@ -193,5 +194,5 @@ export class View {
         createCompositeFavicon(View.leftPaneIcon, View.rightPaneIcon);
       }
     });
-  };
+  }; */
 }

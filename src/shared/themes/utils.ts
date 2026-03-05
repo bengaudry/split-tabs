@@ -1,6 +1,15 @@
-import { ThemeColor } from "../../../shared/types";
-import { BrowserTheme, ThemeColors } from "../types";
+import { ThemeColor } from "../types";
+import { ThemeColors } from "./types";
+import { BrowserTheme } from "../../app/background/types";
 import { knownThemesColors } from "./knownThemesColors";
+
+/** Returns the user's preferred color scheme */
+export function getPrefferedUserScheme(): "dark" | "light" {
+  if (window.matchMedia && window.matchMedia("(prefers-color-scheme: dark)").matches) {
+    return "dark";
+  }
+  return "light";
+}
 
 /**
  * Converts a theme color value, which can be in various formats (string, number, RGB array), to a CSS color string.

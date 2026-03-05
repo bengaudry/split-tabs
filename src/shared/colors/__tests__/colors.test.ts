@@ -1,5 +1,5 @@
 import { it, describe, expect } from "vitest";
-import { hexToRgba, isRgbValuesColorString, isRgbaValuesColorString } from "../colors";
+import { isRgbValuesColorString, isRgbaValuesColorString } from "../utils";
 
 describe("colors", () => {
   describe("isRgbValuesColorString", () => {

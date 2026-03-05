@@ -1,8 +1,8 @@
 import { FORBIDDEN_HOSTNAMES } from "../../shared/constants";
 import { updateIcons } from "./icons";
 import { BackgroundContext } from "./BackgroundContext";
-import { getThemeColors } from "./themes/theme";
-import { BrowserMessageSender, BrowserTab, BrowserTabId } from "./types";
+import { getThemeColors } from "../../shared/themes/utils";
+import { BrowserMessageSender, BrowserTab } from "./types";
 import { Side } from "../../shared/types";
 import { createContextMenu } from "./contextMenu";
 

@@ -1,4 +1,4 @@
-import { changeCssVariableValue } from "../../../shared/colors";
+import { changeCssVariableValue } from "../../../shared/colors/utils";
 import { MIN_VIEW_PERCENTAGE } from "../../../shared/constants";
 import { Observer } from "../../../shared/observability/Observer";
 import type { Orientation, Side } from "../../../shared/types";

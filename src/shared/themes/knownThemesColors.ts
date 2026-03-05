@@ -1,4 +1,4 @@
-import { ThemeColors } from "../types";
+import { ThemeColors } from "../../shared/themes/types";
 
 export const knownThemesColors: Record<string, ThemeColors> = {
   // default Firefox dark theme

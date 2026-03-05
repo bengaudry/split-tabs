@@ -9,7 +9,8 @@ import {
   UpdateThemeColorsBackgroundEvent
 } from "./BackgroundEvents";
 import { SplitEvent, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "../split-view/lib/SplitEvents";
-import { BrowserTab, ThemeColors } from "./types";
+import { BrowserTab } from "./types";
+import type { ThemeColors } from "../../shared/themes/types";
 import type { Orientation } from "../../shared/types";
 
 export class BackgroundContext extends Context {
