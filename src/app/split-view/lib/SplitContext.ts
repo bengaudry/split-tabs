@@ -39,20 +39,24 @@ export class SplitContext extends Context implements Observable<SplitContext> {
     super();
   }
 
-  public updateUrl(side: Side, url: string | null) {
-    console.info("[SplitContext] > Updating URL for side " + side + ": " + url);
+  private setUrl(side: Side, url: string | null) {
     if (side === "left") {
       this.leftUrl = url;
     } else {
       this.rightUrl = url;
     }
+  }
+
+  public updateUrl(side: Side, url: string | null) {
+    console.info("[SplitContext] > Updating URL for side " + side + ": " + url);
+    this.setUrl(side, url);
     this.dispatchToBackground("UPDATE_URLS");
     this.notifyObservers();
   }
 
   public updateUrls(leftUrl: string | null, rightUrl: string | null) {
-    this.leftUrl = leftUrl;
-    this.rightUrl = rightUrl;
+    this.setUrl("left", leftUrl);
+    this.setUrl("right", rightUrl);
     this.dispatchToBackground("UPDATE_URLS");
     this.notifyObservers();
   }
