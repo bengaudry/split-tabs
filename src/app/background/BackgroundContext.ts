@@ -12,6 +12,8 @@ import { SplitEvent, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "split
 import { BrowserTab } from "./types";
 import type { ThemeColors } from "shared/themes/types";
 import type { Orientation } from "shared/types";
+import { knownThemesColors } from "shared/themes/knownThemesColors";
+import { getPrefferedUserScheme } from "shared/themes/utils";
 
 export class BackgroundContext extends Context {
   private static instance: BackgroundContext;

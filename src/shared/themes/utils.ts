@@ -2,6 +2,7 @@ import { ThemeColor } from "../types";
 import { ThemeColors } from "./types";
 import { BrowserTheme } from "../../app/background/types";
 import { knownThemesColors } from "./knownThemesColors";
+import { BackgroundContext } from "background/BackgroundContext";
 
 /** Returns the user's preferred color scheme */
 export function getPrefferedUserScheme(): "dark" | "light" {
@@ -98,6 +99,17 @@ function generateThemeColorsFromBrowserTheme(theme: BrowserTheme): ThemeColors {
  */
 export async function getThemeColors(theme?: BrowserTheme): Promise<ThemeColors> {
   const activeThemeName = await getActiveThemeName();
+
+  const context = BackgroundContext.getInstance();
+
+  if (!Boolean(context.getSetting("match-with-firefox-theme"))) {
+    if (getPrefferedUserScheme() === "dark") {
+      return knownThemesColors.Dark;
+    } else {
+      return knownThemesColors.Light;
+    }
+  }
+
   if (activeThemeName && activeThemeName in knownThemesColors) {
     // TODO : if activeThemeName == null, switch on the default theme (dark or light) based on the system preferences
     console.info(`[Theme] > Using known colors for theme: ${activeThemeName}`);

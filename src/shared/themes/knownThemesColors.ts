@@ -41,4 +41,4 @@ export const knownThemesColors: Record<string, ThemeColors> = {
     secondaryTextColor: "#bbc3e0",
     iconsColor: "#bbc3e0"
   }
-};
+} as const;

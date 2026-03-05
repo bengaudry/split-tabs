@@ -1,10 +1,11 @@
 import { FORBIDDEN_HOSTNAMES } from "shared/constants";
 import { updateIcons } from "./icons";
 import { BackgroundContext } from "./BackgroundContext";
-import { getThemeColors } from "shared/themes/utils";
+import { getPrefferedUserScheme, getThemeColors } from "shared/themes/utils";
 import { BrowserMessageSender, BrowserTab } from "./types";
 import { Side } from "shared/types";
 import { createContextMenu } from "./contextMenu";
+import { knownThemesColors } from "shared/themes/knownThemesColors";
 
 console.info("[background.ts] > Loaded");
 
@@ -158,6 +159,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
 browser.theme.onUpdated.addListener(function ({ theme }) {
   const context = BackgroundContext.getInstance();
+
   getThemeColors(theme).then((themeColors) => {
     context.setThemeColors(themeColors);
     updateIcons(context.getTab()?.id);
