@@ -11,7 +11,7 @@ import { ThemeProvider } from "./lib/ThemeProvider";
 // Wait for the split view tab to be fully loaded to avoid issues
 // accessing elements and events
 document.addEventListener("DOMContentLoaded", () => {
-  const splitViewInstance = new SplitView();
+  const splitViewInstance = SplitView.getInstance();
   const themeProviderInstance = new ThemeProvider();
 
   const context = SplitContext.getInstance();

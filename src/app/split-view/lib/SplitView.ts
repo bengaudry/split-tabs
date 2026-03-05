@@ -7,6 +7,15 @@ import { SplitContext } from "./SplitContext";
 import { View } from "./View";
 
 export class SplitView implements Observer<SplitContext> {
+  private static instance: SplitView;
+
+  public static getInstance(): SplitView {
+    if (!SplitView.instance) {
+      SplitView.instance = new SplitView();
+    }
+    return SplitView.instance;
+  }
+
   private orientation: Orientation = "horizontal";
 
   private leftSplit: View;
@@ -14,7 +23,7 @@ export class SplitView implements Observer<SplitContext> {
 
   private isUserResizingViews = false;
 
-  constructor() {
+  private constructor() {
     SplitContext.getInstance().addObserver(this);
     Searchbar.initialize();
 
