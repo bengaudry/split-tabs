@@ -91,6 +91,12 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
   if (message.sender === "split") {
     context.updateFromSplitDispatch(message.event);
+
+    switch (message.event.type) {
+      case "REQUEST_UPDATE_THEME":
+        context.setThemeColors(await getThemeColors());
+        break;
+    }
   }
 
   if (message.sender === "settings") {
@@ -117,7 +123,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       return null;
 
     // Fetch opened tabs on browser to make suggestions to user
-    case "FETCH_TABS":
+    case "REQUEST_FETCH_TABS":
       // Query all tabs in the current window
       const tabs = await fetchTabs(sender, sendResponse);
       return {
@@ -126,7 +132,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       };
 
     // Close one of the tabs in the split
-    case "CLOSE_SPLIT":
+    case "REQUEST_CLOSE_SPLIT":
       const urlToKeep = message.keep === "left" ? context.getLeftUrl() : context.getRightUrl();
       if (urlToKeep && tab?.id !== undefined) {
         browser.tabs.create({
@@ -145,7 +151,7 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       });
       return null;
 
-    case "OPEN_EXTERNAL_URL":
+    case "REQUEST_OPEN_EXTERNAL_URL":
       await browser.tabs.create({
         url: message.url,
         discarded: false

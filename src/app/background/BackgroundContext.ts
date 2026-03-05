@@ -8,12 +8,10 @@ import {
   UpdateRightUrlBackgroundEvent,
   UpdateThemeColorsBackgroundEvent
 } from "./BackgroundEvents";
-import { SplitEvent, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "split-view/lib/SplitEvents";
+import { SplitEvent, UpdateUrlsSplitEvent } from "split-view/lib/SplitEvents";
 import { BrowserTab } from "./types";
 import type { ThemeColors } from "shared/themes/types";
 import type { Orientation } from "shared/types";
-import { knownThemesColors } from "shared/themes/knownThemesColors";
-import { getPrefferedUserScheme } from "shared/themes/utils";
 
 export class BackgroundContext extends Context {
   private static instance: BackgroundContext;
@@ -142,11 +140,6 @@ export class BackgroundContext extends Context {
         const updateUrlsEvent = event as UpdateUrlsSplitEvent;
         if (updateUrlsEvent.leftUrl !== undefined) this.setLeftUrl(updateUrlsEvent.leftUrl);
         if (updateUrlsEvent.rightUrl !== undefined) this.setRightUrl(updateUrlsEvent.rightUrl);
-        break;
-      }
-      case "UPDATE_SETTING": {
-        const updateSettingEvent = event as UpdateSettingSplitEvent;
-        this.setSetting(updateSettingEvent.key, updateSettingEvent.value);
         break;
       }
       default:

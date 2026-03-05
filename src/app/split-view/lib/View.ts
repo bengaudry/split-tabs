@@ -66,7 +66,7 @@ export class View {
 
     this.closeBtn?.addEventListener("click", () => {
       browser.runtime.sendMessage({
-        type: "CLOSE_SPLIT",
+        type: "REQUEST_CLOSE_SPLIT",
         keep: side === "left" ? "right" : "left"
       });
     });

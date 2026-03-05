@@ -160,7 +160,7 @@ export class Searchbar {
 
     try {
       const response = await browser.runtime.sendMessage({
-        type: "FETCH_TABS"
+        type: "REQUEST_FETCH_TABS"
       });
 
       if (response.type !== "TABS_DATA") return;

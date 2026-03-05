@@ -45,7 +45,7 @@ export class ThemeProvider implements Observer<SplitContext> {
     // Listen for system theme changes
     window.matchMedia("(prefers-color-scheme: dark)").addEventListener("change", () => {
       this.setTheme(this.getDefaultTheme());
-      browser.runtime.sendMessage({ type: "GET_THEME" });
+      browser.runtime.sendMessage({ type: "REQUEST_UPDATE_THEME" });
     });
   }
 

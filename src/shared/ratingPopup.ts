@@ -41,7 +41,7 @@ export async function handleExtensionRating() {
     askToStopShowingRatingPopup();
 
     await browser.runtime.sendMessage({
-      type: "OPEN_EXTERNAL_URL",
+      type: "REQUEST_OPEN_EXTERNAL_URL",
       url: "https://addons.mozilla.org/fr/firefox/addon/split-tabs/?utm_source=addons.mozilla.org&utm_medium=referral&utm_content=search"
     });
   } finally {
