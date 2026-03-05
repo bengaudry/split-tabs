@@ -43,7 +43,7 @@ export async function getThemeColors(theme: Theme): Promise<ThemeColors> {
     theme.colors?.icons,
     theme.colors?.sidebar_border
   ]);
-  const inputBackground = bestColorOf([theme.colors?.toolbar_field]);
+  const inputBackground = bestColorOf([theme.colors?.frame, theme.colors?.toolbar_field]);
   const secondaryTextColor = bestColorOf([theme.colors?.toolbar_field_highlight]);
   const iconsColor = bestColorOf([theme.colors?.icons]);
 
