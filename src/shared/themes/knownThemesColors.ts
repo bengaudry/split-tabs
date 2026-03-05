@@ -1,5 +1,10 @@
 import { ThemeColors } from "shared/themes/types";
 
+/**
+ * To make a new theme compatible with the extension, contributors must
+ * add its colors configuration to this knownThemesColors object.
+ * Please include a link to the original theme if applicable.
+ */
 export const knownThemesColors: Record<string, ThemeColors> = {
   // default Firefox dark theme
   Dark: {
