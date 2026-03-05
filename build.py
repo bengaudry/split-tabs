@@ -236,16 +236,24 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
     spinner.start("Copying icons directory\n")
 
     icons_map = {
-        "icon-32.png": "icon-32.png",
-        "icon-48.png": "icon-48.png",
-        "browser-action-icon.svg": "browser-action-icon.svg",
+        "browser-action-icon-black-32.png": "browser-action-icon-black-32.png",
+        "browser-action-icon-black-48.png": "browser-action-icon-black-48.png",
+        "browser-action-icon-black-64.png": "browser-action-icon-black-64.png",
+        "browser-action-icon-black-128.png": "browser-action-icon-black-128.png",
+        "browser-action-icon-white-32.png": "browser-action-icon-white-32.png",
+        "browser-action-icon-white-48.png": "browser-action-icon-white-48.png",
+        "browser-action-icon-white-64.png": "browser-action-icon-white-64.png",
+        "browser-action-icon-white-128.png": "browser-action-icon-white-128.png",
+        "browser-action-icon-white.svg": "browser-action-icon-white.svg",
+        "browser-action-icon-black.svg": "browser-action-icon-black.svg",
+        "browser-action-icon-gray.svg": "browser-action-icon-gray.svg",
     }
 
     if not is_packaging_for_publish:
         # change icons for development version
-        icons_map["icon-32.png"] = "wip-icon-32.png"
-        icons_map["icon-48.png"] = "wip-icon-48.png"
-        icons_map["browser-action-icon.svg"] = "wip-browser-action-icon.svg"
+        icons_map["browser-action-icon-black-32.png"] = "wip-icon-32.png"
+        icons_map["browser-action-icon-black-48.png"] = "wip-icon-48.png"
+        icons_map["browser-action-icon-gray.svg"] = "wip-icon-svg.svg"
 
     try:
         # copy icons to build/icons

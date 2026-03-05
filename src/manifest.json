@@ -1,6 +1,6 @@
 {
   "manifest_version": 2,
-  "name": "Side by Side",
+  "name": "Side by Side - Development",
   "version": "2.3.0",
   "description": "Opens two tabs into a split view that can be resized.",
   "permissions": [
@@ -15,13 +15,16 @@
     "management"
   ],
   "icons": {
-    "32": "../icons/icon-32.png",
-    "48": "../icons/icon-48.png"
+    "32": "icons/browser-action-icon-gray.svg",
+    "48": "icons/browser-action-icon-gray.svg"
   },
   "page_action": {
     "browser_style": true,
     "default_icon": {
-      "32": "icons/browser-action-icon.svg"
+      "32": "icons/browser-action-icon-black-32.png",
+      "48": "icons/browser-action-icon-black-48.png",
+      "64": "icons/browser-action-icon-black-64.png",
+      "128": "icons/browser-action-icon-black-128.png"
     },
     "pinned": true,
     "show_matches": ["http://*/*", "https://*/*"],
