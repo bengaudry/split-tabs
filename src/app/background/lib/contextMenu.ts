@@ -1,5 +1,5 @@
 import { BackgroundContext } from "./BackgroundContext";
-import { BrowserTabId } from "./types";
+import { BrowserTabId } from "../types";
 
 const contextMenuItems = [
   {

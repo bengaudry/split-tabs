@@ -6,7 +6,7 @@ import {
   UpdateOrientationBackgroundEvent,
   UpdateRightUrlBackgroundEvent,
   UpdateThemeColorsBackgroundEvent
-} from "background/BackgroundEvents";
+} from "background/lib/BackgroundEvents";
 import { SplitEvent, SplitEventType, UpdateUrlsSplitEvent } from "./SplitEvents";
 import { Observable } from "shared/observability/Observable";
 import { Observer } from "shared/observability/Observer";

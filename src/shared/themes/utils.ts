@@ -2,7 +2,7 @@ import { ThemeColor } from "../types";
 import { ThemeColors } from "./types";
 import { BrowserTheme } from "../../app/background/types";
 import { knownThemesColors } from "./knownThemesColors";
-import { BackgroundContext } from "background/BackgroundContext";
+import { BackgroundContext } from "background/lib/BackgroundContext";
 
 /** Returns the user's preferred color scheme */
 export function getPrefferedUserScheme(): "dark" | "light" {

@@ -1,11 +1,10 @@
 import { FORBIDDEN_HOSTNAMES } from "shared/constants";
-import { updateIcons } from "./icons";
-import { BackgroundContext } from "./BackgroundContext";
-import { getPrefferedUserScheme, getThemeColors } from "shared/themes/utils";
+import { updateIcons } from "./lib/icons";
+import { BackgroundContext } from "./lib/BackgroundContext";
+import { getThemeColors } from "shared/themes/utils";
 import { BrowserMessageSender, BrowserTab } from "./types";
 import { Side } from "shared/types";
-import { createContextMenu } from "./contextMenu";
-import { knownThemesColors } from "shared/themes/knownThemesColors";
+import { createContextMenu } from "./lib/contextMenu";
 
 console.info("[background.ts] > Loaded");
 
