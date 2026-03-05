@@ -1,4 +1,4 @@
-import { FORBIDDEN_HOSTNAMES } from "./constants";
+import { FORBIDDEN_HOSTNAMES } from "../constants";
 
 /** Returns an array of urls that are allowed to be opened in the split view */
 export function filterIncorrectTabs(

@@ -1,5 +1,5 @@
 import { ThemeColors } from "shared/themes/types";
-import { Orientation } from "./types";
+import { Orientation } from "../types";
 
 export abstract class Context {
   protected leftUrl: string | null;
