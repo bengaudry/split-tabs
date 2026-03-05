@@ -1,4 +1,6 @@
+import hslToRgbConverter from "hsl-to-rgb";
 import { RgbColor } from "./RgbColor";
+import { hslRegex, rgbaFunctionRegex, rgbaValuesRegex, rgbFunctionRegex, rgbValuesRegex } from "./verifiers";
 
 /**
  * Converts a hexadecimal color code to a rgb string
@@ -22,8 +24,7 @@ export function hexaToRgbColor(hexa: string): RgbColor {
 }
 
 export function rgbFunctionToRgbColor(rgbFunction: string): RgbColor | null {
-  const rgbRegex = /^rgb\(\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*\)$/;
-  const match = rgbFunction.match(rgbRegex);
+  const match = rgbFunction.match(rgbFunctionRegex);
 
   if (match) {
     const r = parseInt(match[1]);
@@ -36,9 +37,7 @@ export function rgbFunctionToRgbColor(rgbFunction: string): RgbColor | null {
 }
 
 export function rgbaFunctionToRgbColor(rgbaFunction: string): RgbColor | null {
-  const rgbaRegex =
-    /^rgba\(\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*,\s*(\d+\.?\d*)\s*\)$/;
-  const match = rgbaFunction.match(rgbaRegex);
+  const match = rgbaFunction.match(rgbaFunctionRegex);
 
   if (match) {
     const r = parseInt(match[1]);
@@ -52,8 +51,7 @@ export function rgbaFunctionToRgbColor(rgbaFunction: string): RgbColor | null {
 }
 
 export function rgbValuesToRgbColor(rgbValues: string): RgbColor | null {
-  const rgbRegex = /^\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*$/;
-  const match = rgbValues.match(rgbRegex);
+  const match = rgbValues.match(rgbValuesRegex);
 
   if (match) {
     const r = parseInt(match[1]);
@@ -66,8 +64,7 @@ export function rgbValuesToRgbColor(rgbValues: string): RgbColor | null {
 }
 
 export function rgbaValuesToRgbColor(rgbaValues: string): RgbColor | null {
-  const rgbaRegex = /^\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*,\s*([0-2]?[0-9]?[0-9])\s*,\s*(\d+\.?\d*)\s*$/;
-  const match = rgbaValues.match(rgbaRegex);
+  const match = rgbaValues.match(rgbaValuesRegex);
 
   if (match) {
     const r = parseInt(match[1]);
@@ -93,5 +90,24 @@ export function rgbaArrayToRgbColor(rgbaArray: number[]): RgbColor | null {
     const [r, g, b, a] = rgbaArray;
     return new RgbColor(r, g, b, a);
   }
+  return null;
+}
+
+/**
+ * Converts a hsl() function string to a RgbColor object
+ * @param hslFunction The hsl() function string to convert (e.g. "hsl(120, 100%, 50%)")
+ */
+export function hslFunctionToRgbColor(hslFunction: string): RgbColor | null {
+  const match = hslFunction.match(hslRegex);
+
+  if (match) {
+    const h = parseInt(match[1]);
+    const s = parseInt(match[2]) / 100;
+    const l = parseInt(match[3]) / 100;
+
+    const values = hslToRgbConverter(h, s, l);
+    return new RgbColor(values[0], values[1], values[2]);
+  }
+
   return null;
 }

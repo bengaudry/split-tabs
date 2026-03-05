@@ -5,6 +5,6 @@
     "noImplicitReturns": true,
     "strict": true
   },
-  "include": ["src/app/split-view/**/*.ts"],
+  "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]
 }

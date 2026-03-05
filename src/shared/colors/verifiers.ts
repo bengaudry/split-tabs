@@ -1,9 +1,15 @@
 import { cssColorsNames } from "./cssColorsNames";
 
-export const rgbRegex = /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]$/;
-export const rgbaRegex = /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,\s*\d+\.?\d*$/;
+export const rgbFunctionRegex = /^rgb\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*\)$/;
+export const rgbaFunctionRegex = /^rgba\(\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d{1,3})\s*,\s*(\d+\.?\d*)\s*\)$/;
+
+export const rgbValuesRegex = /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]$/;
+export const rgbaValuesRegex = /^[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,[0-2]?[0-9]?[0-9]\s?,\s*\d+\.?\d*$/;
+
 export const hexRegex = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
 export const hexaRegex = /^#(?:[0-9a-fA-F]{4}){1,2}$/;
+
+export const hslRegex = /^hsla?\(\s*(\d{1,3})\s*,\s*(\d{1,3})%\s*,\s*(\d{1,3})%\s*(?:,\s*(\d+\.?\d*)\s*)?\)$/;
 
 /**
  * Checks if a color string is in the format of "r, g, b" where r, g and b are integers between 0 and 255
@@ -13,8 +19,7 @@ export const hexaRegex = /^#(?:[0-9a-fA-F]{4}){1,2}$/;
  * isRgbColorString("255, 255, 255") // true
  */
 export function isRgbValuesColorString(color: string): boolean {
-  const rgbRegex = /^\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*$/;
-  return rgbRegex.test(color);
+  return rgbValuesRegex.test(color);
 }
 
 /**
@@ -26,8 +31,7 @@ export function isRgbValuesColorString(color: string): boolean {
  * isRgbaColorString("255, 255, 255, 1") // true
  */
 export function isRgbaValuesColorString(color: string): boolean {
-  const rgbaRegex = /^\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*,\s*[0-2]?[0-9]?[0-9]\s*,\s*\d+\.?\d*\s*$/;
-  return rgbaRegex.test(color);
+  return rgbaValuesRegex.test(color);
 }
 
 /**
@@ -41,7 +45,6 @@ export function isRgbaValuesColorString(color: string): boolean {
  * isHexColorString("#ggg") // false
  */
 export function isHexColorString(color: string): boolean {
-  const hexRegex = /^#(?:[0-9a-fA-F]{3}){1,2}$/;
   return hexRegex.test(color);
 }
 
@@ -56,7 +59,6 @@ export function isHexColorString(color: string): boolean {
  * isHexaColorString("#gggg") // false
  */
 export function isHexaColorString(color: string): boolean {
-  const hexaRegex = /^#(?:[0-9a-fA-F]{4}){1,2}$/;
   return hexaRegex.test(color);
 }
 
