@@ -1,4 +1,4 @@
-import { Context } from "shared/Context";
+import { Context } from "shared/context/Context";
 import {
   BackgroundEvent,
   BackgroundEventType,
@@ -9,7 +9,7 @@ import {
   UpdateThemeColorsBackgroundEvent
 } from "./BackgroundEvents";
 import { SplitEvent, UpdateUrlsSplitEvent } from "split-view/lib/SplitEvents";
-import { BrowserTab } from "./types";
+import { BrowserTab } from "../types";
 import type { ThemeColors } from "shared/themes/types";
 import type { Orientation } from "shared/types";
 

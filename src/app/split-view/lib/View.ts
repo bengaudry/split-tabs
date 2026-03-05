@@ -1,8 +1,6 @@
-import { changeCssVariableValue, invertRgbValues } from "shared/colors/utils";
+import { changeCssVariableValue } from "shared/colors/utils";
 import { MIN_VIEW_PERCENTAGE } from "shared/constants";
-import { createCompositeFavicon } from "shared/favicon";
 import { Side } from "shared/types";
-import { getUrlBase } from "shared/urls";
 import { Searchbar } from "./Searchbar";
 import { SplitContext } from "./SplitContext";
 

@@ -1,5 +1,5 @@
 import { Side } from "shared/types";
-import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "shared/urls";
+import { addProtocolToUrl, filterIncorrectTabs, isUrlLike } from "shared/utils/urls";
 import { SplitContext } from "./SplitContext";
 import { View } from "./View";
 
