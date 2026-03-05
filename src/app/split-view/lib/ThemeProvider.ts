@@ -1,7 +1,7 @@
-import { Observer } from "../../../shared/observability/Observer";
-import { browserThemeColorToRgbValues, changeCssVariableValue } from "../../../shared/colors/utils";
-import { knownThemesColors } from "../../../shared/themes/knownThemesColors";
-import { getPrefferedUserScheme } from "../../../shared/themes/utils";
+import { Observer } from "shared/observability/Observer";
+import { browserThemeColorToRgbValues, changeCssVariableValue } from "shared/colors/utils";
+import { knownThemesColors } from "shared/themes/knownThemesColors";
+import { getPrefferedUserScheme } from "shared/themes/utils";
 import { SplitContext } from "./SplitContext";
 
 export type SplitViewTheme = {

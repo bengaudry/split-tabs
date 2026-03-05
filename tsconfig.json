@@ -3,7 +3,15 @@
     "moduleResolution": "bundler",
     "target": "es2021",
     "noImplicitReturns": true,
-    "strict": true
+    "strict": true,
+    "noImplicitThis": true,
+    "paths": {
+      "background/*": ["./src/app/background/*"],
+      "popup/*": ["./src/app/popup/*"],
+      "settings/*": ["./src/app/settings/*"],
+      "split-view/*": ["./src/app/split-view/*"],
+      "shared/*": ["./src/shared/*"]
+    }
   },
   "include": ["src/**/*.ts"],
   "exclude": ["node_modules"]

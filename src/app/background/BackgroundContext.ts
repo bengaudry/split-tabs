@@ -1,4 +1,4 @@
-import { Context } from "../../shared/Context";
+import { Context } from "shared/Context";
 import {
   BackgroundEvent,
   BackgroundEventType,
@@ -8,10 +8,10 @@ import {
   UpdateRightUrlBackgroundEvent,
   UpdateThemeColorsBackgroundEvent
 } from "./BackgroundEvents";
-import { SplitEvent, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "../split-view/lib/SplitEvents";
+import { SplitEvent, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "split-view/lib/SplitEvents";
 import { BrowserTab } from "./types";
-import type { ThemeColors } from "../../shared/themes/types";
-import type { Orientation } from "../../shared/types";
+import type { ThemeColors } from "shared/themes/types";
+import type { Orientation } from "shared/types";
 
 export class BackgroundContext extends Context {
   private static instance: BackgroundContext;

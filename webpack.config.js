@@ -11,7 +11,14 @@ module.exports = {
     filename: "[name].js"
   },
   resolve: {
-    extensions: [".ts", ".js"]
+    extensions: [".ts", ".js"],
+    alias: {
+      background: path.resolve(__dirname, "./src/app/background/"),
+      popup: path.resolve(__dirname, "./src/app/popup/"),
+      settings: path.resolve(__dirname, "./src/app/settings/"),
+      "split-view": path.resolve(__dirname, "./src/app/split-view/"),
+      shared: path.resolve(__dirname, "./src/shared/")
+    }
   },
   module: {
     rules: [

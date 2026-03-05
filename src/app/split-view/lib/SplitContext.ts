@@ -1,4 +1,4 @@
-import { Context } from "../../../shared/Context";
+import { Context } from "shared/Context";
 import {
   BackgroundEvent,
   InitExtensionBackgroundEvent,
@@ -6,11 +6,11 @@ import {
   UpdateOrientationBackgroundEvent,
   UpdateRightUrlBackgroundEvent,
   UpdateThemeColorsBackgroundEvent
-} from "../../background/BackgroundEvents";
+} from "background/BackgroundEvents";
 import { SplitEvent, SplitEventType, UpdateUrlsSplitEvent } from "./SplitEvents";
-import { Observable } from "../../../shared/observability/Observable";
-import { Observer } from "../../../shared/observability/Observer";
-import { Orientation, Side } from "../../../shared/types";
+import { Observable } from "shared/observability/Observable";
+import { Observer } from "shared/observability/Observer";
+import { Orientation, Side } from "shared/types";
 
 export class SplitContext extends Context implements Observable<SplitContext> {
   private static instance: SplitContext;

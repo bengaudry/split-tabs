@@ -1,4 +1,4 @@
-import { ThemeColors } from "../shared/themes/types";
+import { ThemeColors } from "shared/themes/types";
 import { Orientation } from "./types";
 
 export abstract class Context {

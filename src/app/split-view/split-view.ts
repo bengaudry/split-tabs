@@ -1,8 +1,4 @@
-import {
-  handleCancelExtensionRating,
-  handleExtensionRating,
-  showRatingPopupIfAuthorized
-} from "../../shared/ratingPopup";
+import { handleCancelExtensionRating, handleExtensionRating, showRatingPopupIfAuthorized } from "shared/ratingPopup";
 import { Searchbar } from "./lib/Searchbar";
 import { SplitContext } from "./lib/SplitContext";
 import { SplitView } from "./lib/SplitView";
