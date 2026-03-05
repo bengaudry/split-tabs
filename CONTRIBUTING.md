@@ -1,6 +1,6 @@
-# Guide to contributing to Split Tabs repository
+# Guide to contributing to Side by Side repository
 
-First off, thank you for considering contributing to Split Tabs!
+First off, thank you for considering contributing to Side by Side!
 
 ## Getting Started
 

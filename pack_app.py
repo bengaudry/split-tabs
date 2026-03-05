@@ -10,7 +10,7 @@ from halo import Halo
 # CONSTANTS
 
 # Strings
-ADDON_TITLE = "Split Tabs"
+ADDON_TITLE = "Side by Side"
 
 # Directories paths
 BASE_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
@@ -379,7 +379,7 @@ def main():
             os.system('git commit -m "Version ' + updated_manifest["version"] + '"')
             os.system("git push origin master")
             print("Changes pushed to github")
-        open_in_firefox("https://addons.mozilla.org/fr/developers/addon/split-tabs/versions/submit/")
+        open_in_firefox("https://addons.mozilla.org/fr/developers/addon/side-by-side/versions/submit/")
     else:
         open_in_firefox("about:debugging#/runtime/this-firefox")
 

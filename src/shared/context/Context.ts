@@ -17,11 +17,11 @@ export abstract class Context {
     this.themeColors = {};
 
     const storedSettings = Object.keys(localStorage).filter(
-      (key) => key.startsWith("split-tabs-") && key.endsWith("-setting")
+      (key) => key.startsWith("side-by-side-") && key.endsWith("-setting")
     );
     const parsedSettings = new Map<string, any>();
     storedSettings.forEach((settingKey) => {
-      const settingName = settingKey.replace("split-tabs-", "").replace("-setting", "");
+      const settingName = settingKey.replace("side-by-side-", "").replace("-setting", "");
       const settingValue = localStorage.getItem(settingKey);
       if (settingValue === "true") {
         parsedSettings.set(settingName, true);

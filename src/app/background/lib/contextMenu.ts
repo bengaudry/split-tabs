@@ -30,9 +30,9 @@ const contextMenuItems = [
  */
 export function createContextMenu() {
   browser.contextMenus.create({
-    id: "split-tabs-context-menu",
+    id: "side-by-side-context-menu",
     type: "separator",
-    title: "Split tabs",
+    title: "Side by Side",
     contexts: ["all"]
   });
 
@@ -40,7 +40,7 @@ export function createContextMenu() {
 
   for (const { id, title, onClick } of contextMenuItems) {
     browser.contextMenus.create({
-      id: "split-tabs-context-submenu-" + id,
+      id: "side-by-side-context-submenu-" + id,
       title,
       contexts: ["all"]
     });
@@ -56,7 +56,7 @@ export function createContextMenu() {
 
     if (typeof info.menuItemId !== "string") return;
 
-    const onClick = clickMap.get(info.menuItemId.replace("split-tabs-context-submenu-", ""));
+    const onClick = clickMap.get(info.menuItemId.replace("side-by-side-context-submenu-", ""));
     if (onClick) {
       onClick(activeTab.id as BrowserTabId);
     }

@@ -1,8 +1,8 @@
-# Firefox Split Tabs
+# Side by Side - Firefox Addon
 
-Split Tabs is a powerful Firefox extension that allows you to display and manage two websites simultaneously in a customizable split-view interface.
+Side by Side is a powerful Firefox extension that allows you to display and manage two websites simultaneously in a customizable split-view interface.
 
-[![Firefox Add-ons](https://img.shields.io/amo/v/split-tabs.svg)](https://addons.mozilla.org/firefox/addon/split-tabs/)
+[![Firefox Add-ons](https://img.shields.io/amo/v/side-by-side.svg)](https://addons.mozilla.org/firefox/addon/side-by-side/)
 [![License: Apache 2.0](https://img.shields.io/badge/License-Apache%202.0-blue.svg)](https://opensource.org/licenses/Apache-2.0)
 
 ## Preview
@@ -11,11 +11,11 @@ You can split your tabs either vertically or horizontally, making it easier to m
 
 Horizontal split example:
 
-![Split tabs horizontally](./assets/horizontal_split_preview.png)
+![Split horizontally](./assets/horizontal_split_preview.png)
 
 Vertical split example:
 
-![Split tabs vertically](./assets/vertical_split_preview.png)
+![Split vertically](./assets/vertical_split_preview.png)
 
 ## Features
 
@@ -34,15 +34,15 @@ Vertical split example:
 
 ### Installation
 
-You can install the official version from the [Firefox Add-ons Marketplace](https://addons.mozilla.org/firefox/addon/split-tabs/).
+You can install the official version from the [Firefox Add-ons Marketplace](https://addons.mozilla.org/firefox/addon/side-by-side/).
 
 ### Manual installation for developers
 
 1. **Clone the repository**:
 
    ```sh
-   git clone https://github.com/YOUR_USERNAME/split-tabs.git
-   cd split-tabs
+   git clone https://github.com/YOUR_USERNAME/side-by-side.git
+   cd side-by-side
    ```
 
 2. **Install dependencies**:

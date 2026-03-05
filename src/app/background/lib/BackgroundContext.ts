@@ -63,7 +63,7 @@ export class BackgroundContext extends Context {
   public setSetting(key: string, value: string | number | boolean) {
     this.settings[key] = value;
     this.dispatchToSplit("UPDATE_SETTING");
-    localStorage.setItem("split-tabs-" + key + "-setting", value.toString());
+    localStorage.setItem("side-by-side-" + key + "-setting", value.toString());
   }
 
   public getTab() {
