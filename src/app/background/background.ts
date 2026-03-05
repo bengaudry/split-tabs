@@ -1,7 +1,7 @@
 import { FORBIDDEN_HOSTNAMES } from "../../shared/constants";
 import { updateIcons } from "./icons";
 import { BackgroundContext } from "./BackgroundContext";
-import { getThemeColors } from "./theme";
+import { getThemeColors } from "./themes/theme";
 import { MessageSender, Tab, TabId } from "./types";
 import { Side } from "../../shared/types";
 import { createContextMenu } from "./contextMenu";

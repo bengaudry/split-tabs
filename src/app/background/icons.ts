@@ -1,5 +1,5 @@
 import { IS_DEV } from "../../shared/constants";
-import { getThemeColors } from "./theme";
+import { getThemeColors } from "./themes/theme";
 import { TabId } from "./types";
 
 // use of a global variable to store the icon object URL, to avoid creating multiple URLs and leaking memory

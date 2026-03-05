@@ -11,7 +11,8 @@
     "<all_urls>",
     "theme",
     "contextMenus",
-    "scripting"
+    "scripting",
+    "management"
   ],
   "icons": {
     "32": "../icons/icon-32.png",

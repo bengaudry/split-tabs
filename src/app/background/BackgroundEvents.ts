@@ -1,5 +1,4 @@
 import { ThemeColors } from "./types";
-import { BackgroundContext } from "./BackgroundContext";
 import { Orientation, Side } from "../../shared/types";
 
 export const BACKGROUND_EVENT_TYPES = [
