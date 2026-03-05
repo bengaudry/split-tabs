@@ -1,4 +1,6 @@
 import { changeCssVariableValue, getRgbValuesFromBackgroundColor, getUserScheme } from "../../../shared/colors";
+import { Observer } from "../../../shared/observability/Observer";
+import { SplitContext } from "./SplitContext";
 
 export type SplitViewTheme = {
   defaultBackgroundColor: string;
@@ -6,6 +8,7 @@ export type SplitViewTheme = {
   defaultPrimaryTextColor: string;
   defaultSecondaryTextColor: string;
   defaultBorderColor: string;
+  defaultActiveBorderColor: string;
 
   leftViewBackgroundColor?: string;
   leftViewTextColor?: string;
@@ -14,26 +17,28 @@ export type SplitViewTheme = {
   rightViewTextColor?: string;
 };
 
-const THEME_PROPERTY_NAMES: Record<keyof SplitViewTheme, string> = {
+const THEME_PROPERTY_NAMES = {
   defaultBackgroundColor: "--main-background-color",
   defaultInputBackgroundColor: "--input-background-color",
   defaultPrimaryTextColor: "--primary-text-color",
   defaultSecondaryTextColor: "--secondary-text-color",
   defaultBorderColor: "--border-color",
+  defaultActiveBorderColor: "--active-border-color",
 
   leftViewBackgroundColor: "--left-pane-background-color",
   leftViewTextColor: "--left-pane-text-color",
 
   rightViewBackgroundColor: "--right-pane-background-color",
   rightViewTextColor: "--right-pane-text-color"
-};
+} as const;
 
 const DEFAULT_LIGHT_THEME: SplitViewTheme = {
   defaultBackgroundColor: "234, 234, 237",
   defaultInputBackgroundColor: "222, 222, 225",
   defaultPrimaryTextColor: "0, 0, 0",
   defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "200, 200, 200"
+  defaultBorderColor: "200, 200, 200",
+  defaultActiveBorderColor: "100, 100, 100"
 };
 
 const DEFAULT_DARK_THEME: SplitViewTheme = {
@@ -41,13 +46,15 @@ const DEFAULT_DARK_THEME: SplitViewTheme = {
   defaultInputBackgroundColor: "20, 19, 24",
   defaultPrimaryTextColor: "255, 255, 255",
   defaultSecondaryTextColor: "128, 128, 128",
-  defaultBorderColor: "75, 75, 75"
+  defaultBorderColor: "75, 75, 75",
+  defaultActiveBorderColor: "150, 150, 150"
 };
 
-export class ThemeProvider {
+export class ThemeProvider implements Observer<SplitContext> {
   private theme: SplitViewTheme;
 
   constructor() {
+    SplitContext.getInstance().addObserver(this);
     this.theme = { ...this.getDefaultTheme() };
     this.setTheme(this.theme);
 
@@ -60,16 +67,12 @@ export class ThemeProvider {
 
   /** Get the default theme based on the user's system preference */
   private getDefaultTheme(): SplitViewTheme {
-    console.log("dark :", DEFAULT_DARK_THEME);
-    console.log("light :", DEFAULT_LIGHT_THEME);
     return getUserScheme() === "dark" ? DEFAULT_DARK_THEME : DEFAULT_LIGHT_THEME;
   }
 
   /** Resets the theme to the default one */
   public resetThemeToDefault() {
-    console.info("Resetting theme to default values");
     const defaultTheme = this.getDefaultTheme();
-    console.log(defaultTheme);
     this.setTheme(defaultTheme);
     this.setThemeProperties([
       ["leftViewBackgroundColor", defaultTheme.defaultBackgroundColor],
@@ -108,8 +111,6 @@ export class ThemeProvider {
 
       let cssValue: string | null = null;
 
-      console.log(`[ThemeProvider] Setting theme property ${key} to value:`, value, typeof value);
-
       // If the value is a string representing a color, convert it to rgb values
       if (typeof value === "string") {
         cssValue = getRgbValuesFromBackgroundColor(value);
@@ -120,15 +121,20 @@ export class ThemeProvider {
 
       if (!cssValue) continue;
 
-      if ("defaultPrimaryTextColor" === key) {
-        browser.runtime.sendMessage({
-          type: "UPDATE_ICON_COLOR",
-          color: `rgb(${cssValue})`
-        });
-      }
-
       this.theme[key] = cssValue;
       changeCssVariableValue(this.matchThemePropertyToCssVariable(key), cssValue);
     }
+  }
+
+  public update(o: SplitContext): void {
+    const themeColors = o.getThemeColors();
+    this.setThemeProperties([
+      ["defaultBackgroundColor", themeColors.backgroundColor],
+      ["defaultInputBackgroundColor", themeColors.inputBackground],
+      ["defaultPrimaryTextColor", themeColors.textColor],
+      ["defaultSecondaryTextColor", themeColors.secondaryTextColor],
+      ["defaultBorderColor", themeColors.borderColor],
+      ["defaultActiveBorderColor", themeColors.activeBorderColor]
+    ]);
   }
 }

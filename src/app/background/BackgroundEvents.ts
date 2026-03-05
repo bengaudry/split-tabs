@@ -1,4 +1,6 @@
 import { ThemeColors } from "./types";
+import { BackgroundContext } from "./BackgroundContext";
+import { Orientation, Side } from "../../shared/types";
 
 export const BACKGROUND_EVENT_TYPES = [
   "LOAD_URLS",
@@ -6,7 +8,7 @@ export const BACKGROUND_EVENT_TYPES = [
   "UPDATE_RIGHT_URL",
   "UPDATE_ORIENTATION",
   "UPDATE_SETTING",
-  "THEME_COLORS",
+  "UPDATE_THEME_COLORS",
   "INIT_EXTENSION",
   "TABS_DATA"
 ] as const;
@@ -52,16 +54,34 @@ export class UpdateThemeColorsBackgroundEvent extends BackgroundEvent {
   themeColors: ThemeColors;
 
   constructor(themeColors: ThemeColors) {
-    super("THEME_COLORS");
+    super("UPDATE_THEME_COLORS");
     this.themeColors = themeColors;
   }
 }
 
 export class InitExtensionBackgroundEvent extends BackgroundEvent {
-  settings: { [key: string]: string | number | boolean };
+  side: Side;
+  url: string | null;
+  orientation: Orientation;
+  themeColors: ThemeColors;
+  settings: {
+    [key: string]: string | number | boolean;
+  };
 
-  constructor(settings: { [key: string]: string | number | boolean }) {
+  constructor(initialBackgroundContext: {
+    side: Side;
+    url: string | null;
+    orientation: Orientation;
+    themeColors: ThemeColors;
+    settings: {
+      [key: string]: string | number | boolean;
+    };
+  }) {
     super("INIT_EXTENSION");
-    this.settings = settings;
+    this.side = initialBackgroundContext.side;
+    this.url = initialBackgroundContext.url;
+    this.orientation = initialBackgroundContext.orientation;
+    this.themeColors = initialBackgroundContext.themeColors;
+    this.settings = initialBackgroundContext.settings;
   }
 }

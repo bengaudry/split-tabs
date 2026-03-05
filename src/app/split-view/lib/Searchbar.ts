@@ -59,7 +59,6 @@ export class Searchbar {
     searchbarInput.addEventListener("keyup", (e: KeyboardEvent) => {
       if ("Enter" === e.key) {
         const input = e.target as HTMLInputElement | null;
-        console.log(input, input?.value);
         Searchbar.handleSearchBarEndInput(input?.value ?? "");
       }
     });

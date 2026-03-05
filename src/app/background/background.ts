@@ -1,8 +1,8 @@
 import { FORBIDDEN_HOSTNAMES } from "../../shared/constants";
 import { updateIcons } from "./icons";
 import { BackgroundContext } from "./BackgroundContext";
-import { getThemeColors, sendThemeToFront } from "./theme";
-import { MessageSender, TabId } from "./types";
+import { getThemeColors } from "./theme";
+import { MessageSender, Tab, TabId } from "./types";
 import { Side } from "../../shared/types";
 import { createContextMenu } from "./contextMenu";
 
@@ -70,8 +70,7 @@ async function fetchTabs(sender: MessageSender, sendResponse: (response?: any) =
     });
     return tabs;
   } catch (error) {
-    console.error("background.ts > Error while fetching tabs");
-    console.error(error);
+    console.error("background.ts > Error while fetching tabs", error);
     if (sender.tab && sender.tab.id) {
       browser.tabs.sendMessage(sender.tab.id, {
         type: "TABS_DATA",
@@ -114,7 +113,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
   switch (message.type) {
     case "INIT_EXT":
       console.info("[background.ts] > Initializing extension");
-      console.info(message.side);
       handleInitializeExtension(message.side);
       return null;
 
@@ -154,12 +152,6 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
       });
       return null;
 
-    case "GET_THEME":
-      if (tab?.id === undefined) return null;
-      const theme = await browser.theme.getCurrent();
-      sendThemeToFront(tab.id as TabId, theme);
-      return null;
-
     default:
       return null;
   }
@@ -167,27 +159,55 @@ browser.runtime.onMessage.addListener(async (message, sender, sendResponse) => {
 
 browser.theme.onUpdated.addListener(function ({ theme }) {
   const context = BackgroundContext.getInstance();
-  const tab = context.getTab();
-  if (tab?.id === undefined) return;
-  sendThemeToFront(tab.id as TabId, theme);
-  updateIcons(tab.id as TabId);
+  getThemeColors(theme).then((themeColors) => {
+    context.setThemeColors(themeColors);
+    updateIcons(context.getTab()?.id);
+  });
 });
+
+function getActiveTab(): Promise<Tab | null> {
+  return browser.tabs
+    .query({
+      active: true,
+      currentWindow: true
+    })
+    .then((tabs) => {
+      if (tabs.length > 0) {
+        return tabs[0] ?? null;
+      }
+      return null;
+    })
+    .catch((error) => {
+      console.error("background.ts > Error while getting active tab:", error);
+      return null;
+    });
+}
 
 const handleInitializeExtension = async (side: Side) => {
   try {
     // Get the current tab's URL
-    const activeTabs = await browser.tabs.query({
-      active: true,
-      currentWindow: true
-    });
-    const activeTab = activeTabs[0];
+    const activeTab = await getActiveTab();
 
     if (!activeTab?.id) {
       console.error("background.ts > No active tab found");
       return;
     }
 
+    // initialize context
     const currentUrl = isForbiddenUrl(activeTab.url) ? null : activeTab.url;
+
+    const context = BackgroundContext.getInstance();
+
+    if (Boolean(context.getSetting("close-tab-before-opening"))) {
+      browser.tabs.remove(activeTab.id);
+    }
+
+    const themeColors = await getThemeColors(await browser.theme.getCurrent());
+    context.setThemeColors(themeColors);
+
+    context.setLeftUrl(side === "left" || side === "top" ? (currentUrl ?? null) : null);
+    context.setRightUrl(side === "right" || side === "bottom" ? (currentUrl ?? null) : null);
+    context.setOrientation(side === "top" || side === "bottom" ? "vertical" : "horizontal");
 
     // Creates a new tab containing the split view
     const splitViewTab = await browser.tabs.create({
@@ -200,54 +220,19 @@ const handleInitializeExtension = async (side: Side) => {
       return;
     }
 
-    BackgroundContext.getInstance(); // initialize the singleton instance of BackgroundContext, which will dispatch the INIT_EXTENSION event to the split page
-
-    const context = BackgroundContext.getInstance();
     context.setTab(splitViewTab);
 
-    console.log(context.getSetting("close-tab-before-opening"));
-    if (Boolean(context.getSetting("close-tab-before-opening"))) {
-      console.log("Active tab", activeTab);
-      browser.tabs.remove(activeTab.id);
-    }
-
-    const themeColors = await getThemeColors(await browser.theme.getCurrent());
-
     // Wait for the tab to be fully loaded, and send informations
-    browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo, updatedTab) {
+    browser.tabs.onUpdated.addListener(function listener(tabId, changeInfo) {
       if (splitViewTab?.id && tabId === splitViewTab.id && changeInfo.status === "complete") {
         // Remove the listener to avoid multiple calls
         browser.tabs.onUpdated.removeListener(listener);
-
-        context.setLeftUrl(side === "left" || side === "top" ? (currentUrl ?? null) : null);
-        context.setRightUrl(side === "right" || side === "bottom" ? (currentUrl ?? null) : null);
-
-        console.info("background.ts > Sending SET_ORIENTATION");
-        browser.tabs.sendMessage(splitViewTab.id, {
-          type: "SET_ORIENTATION",
-          orientation: side === "top" || side === "bottom" ? "vertical" : "horizontal"
-        });
-
-        console.info("background.ts > Sending LOAD_URLS");
-        // Send the LOAD_URLS event to the split-view page
-        browser.tabs.sendMessage(splitViewTab.id, {
-          type: "LOAD_URLS",
-          leftUrl: context.getLeftUrl(),
-          rightUrl: context.getRightUrl()
-        });
-
-        console.info("background.ts > Sending BROWSER_COLORS");
-        // Send the BROWSER_COLORS data to the split-view page
-        browser.tabs.sendMessage(splitViewTab.id, {
-          type: "BROWSER_COLORS",
-          ...themeColors
-        });
+        context.dispatchToSplit("INIT_EXTENSION");
       }
     });
 
     createContextMenu();
   } catch (err) {
-    console.error("background.ts > Error while initializing extension :");
-    console.error(err);
+    console.error("background.ts > Error while initializing extension :", err);
   }
 };

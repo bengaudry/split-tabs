@@ -11,7 +11,6 @@ const hideRatingPopup = () => {
 
 export async function showRatingPopupIfAuthorized() {
   const isUnauthorized = localStorage.getItem("stop-showing-rating-popup");
-  console.info("[RatingPopup] > Is unauthorized to show the rating popup? ", isUnauthorized);
   if (Boolean(isUnauthorized)) return;
   showRatingPopup();
 }

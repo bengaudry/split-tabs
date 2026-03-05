@@ -55,4 +55,12 @@ export abstract class Context {
   public getSetting(key: string) {
     return this.settings[key];
   }
+
+  public getSettings() {
+    return { ...this.settings };
+  }
+
+  public getThemeColors(): ThemeColors {
+    return this.themeColors;
+  }
 }

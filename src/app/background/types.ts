@@ -5,9 +5,11 @@ export type TabId = Branded<number, "TabId">;
 export type ThemeColors = {
   backgroundColor?: string;
   textColor?: string;
-  inputBorder?: string;
+  borderColor?: string;
+  activeBorderColor?: string;
   inputBackground?: string;
   secondaryTextColor?: string;
+  iconsColor?: string;
 };
 
 export type Tab = browser.tabs.Tab;

@@ -1,22 +1,5 @@
-import { updateIcons } from "./icons";
-import { TabId, Theme, ThemeColors } from "./types";
-
-/**
- * Sends the theme colors to the split view page, so that it can adapt its colors to match the browser theme.
- * @param tabId the id of the tab containing the split view
- * @param theme the theme (got from browser.theme.getCurrent()) to extract colors from
- */
-export async function sendThemeToFront(tabId: TabId, theme: Theme) {
-  const themeColors = await getThemeColors(theme);
-
-  // Send the BROWSER_COLORS data to the split-view page
-  browser.tabs.sendMessage(tabId, {
-    type: "BROWSER_COLORS",
-    ...themeColors
-  });
-
-  updateIcons(tabId);
-}
+import { ThemeColor } from "../../shared/types";
+import { Theme, ThemeColors } from "./types";
 
 function themeColorToCssColor(themeColor: any): string | undefined {
   if (typeof themeColor === "string") {
@@ -36,24 +19,41 @@ function themeColorToCssColor(themeColor: any): string | undefined {
   return undefined;
 }
 
+function bestColorOf(colors: (ThemeColor | null | undefined)[]): ThemeColor | null {
+  for (const color of colors) {
+    if (color && color !== "transparent") {
+      return color;
+    }
+  }
+  return null;
+}
+
 /**
  * Extracts relevant colors from the theme object
  */
 export async function getThemeColors(theme: Theme): Promise<ThemeColors> {
   // Get the current theme
-  console.log(theme.colors);
+  console.info("[Theme] > Extracting colors from theme: ", theme);
 
-  const backgroundColor = theme.colors?.frame ?? theme.colors?.sidebar_highlight;
-  const textColor = theme.colors?.tab_text ?? theme.colors?.toolbar_field_text;
-  const inputBorder = theme.colors?.sidebar_border ?? theme.colors?.toolbar_field_border ?? theme.colors?.tab_line;
-  const inputBackground = theme.colors?.toolbar_field;
-  const secondaryTextColor = theme.colors?.toolbar_field_highlight;
+  const backgroundColor = bestColorOf([theme.colors?.frame, theme.colors?.sidebar_highlight]);
+  const textColor = bestColorOf([theme.colors?.tab_text, theme.colors?.toolbar_field_text]);
+  const borderColor = bestColorOf([theme.colors?.toolbar_field_border, theme.colors?.tab_line, theme.colors?.toolbar]);
+  const activeBorderColor = bestColorOf([
+    theme.colors?.popup_border,
+    theme.colors?.icons,
+    theme.colors?.sidebar_border
+  ]);
+  const inputBackground = bestColorOf([theme.colors?.toolbar_field]);
+  const secondaryTextColor = bestColorOf([theme.colors?.toolbar_field_highlight]);
+  const iconsColor = bestColorOf([theme.colors?.icons]);
 
   return {
     backgroundColor: themeColorToCssColor(backgroundColor) ?? "#ffffff",
     textColor: themeColorToCssColor(textColor) ?? "#000",
-    inputBorder: themeColorToCssColor(inputBorder) ?? "#ccc",
+    borderColor: themeColorToCssColor(borderColor) ?? "#ccc",
+    activeBorderColor: themeColorToCssColor(activeBorderColor) ?? "#ccc",
     inputBackground: themeColorToCssColor(inputBackground) ?? "#222",
-    secondaryTextColor: themeColorToCssColor(secondaryTextColor) ?? "#ccc"
+    secondaryTextColor: themeColorToCssColor(secondaryTextColor) ?? "#ccc",
+    iconsColor: themeColorToCssColor(iconsColor) ?? "#000"
   };
 }

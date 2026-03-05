@@ -5,7 +5,6 @@ const topTrigger = document.getElementById("top-trigger");
 const bottomTrigger = document.getElementById("bottom-trigger");
 
 leftTrigger?.addEventListener("click", () => {
-  console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
     side: "left"
@@ -13,7 +12,6 @@ leftTrigger?.addEventListener("click", () => {
 });
 
 rightTrigger?.addEventListener("click", () => {
-  console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
     side: "right"
@@ -21,7 +19,6 @@ rightTrigger?.addEventListener("click", () => {
 });
 
 topTrigger?.addEventListener("click", () => {
-  console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
     side: "top"
@@ -29,7 +26,6 @@ topTrigger?.addEventListener("click", () => {
 });
 
 bottomTrigger?.addEventListener("click", () => {
-  console.info("clicked");
   browser.runtime.sendMessage({
     type: "INIT_EXT",
     side: "bottom"

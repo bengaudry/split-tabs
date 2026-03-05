@@ -70,7 +70,7 @@ export class View {
     });
 
     this.iframeRef?.addEventListener("load", () => {
-      this.requestIframeData();
+      //this.requestIframeData();
     });
 
     window.addEventListener("message", (e) => {
@@ -116,7 +116,6 @@ export class View {
 
   /** Load a new URL into this split's iframe */
   public loadUrl(newUrl: string | null | undefined): boolean {
-    console.log(`[${this.side} Split] Loading URL: `, newUrl);
     if (!newUrl) return false;
     if (!this.iframeRef) return false;
 
@@ -136,7 +135,7 @@ export class View {
 
       if (this.iframeRef) this.iframeRef.src = this.url;
       else console.warn("No iframe reference found");
-      this.requestIframeData();
+      //this.requestIframeData();
 
       Searchbar.close();
 

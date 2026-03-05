@@ -47,7 +47,7 @@ async function createIconObjectUrl() {
   try {
     const themeColors = await getThemeColors(await browser.theme.getCurrent());
 
-    let color = themeColors.textColor;
+    let color = themeColors.iconsColor;
     if (!color) {
       if (window.matchMedia("(prefers-color-scheme: dark)").matches) {
         color = "#fbfbfe"; // default icon color for dark theme in firefox
@@ -56,7 +56,6 @@ async function createIconObjectUrl() {
 
     if (Array.isArray(color)) color = `rgb(${color.join(",")})`;
 
-    console.info("updating icon color with :", color);
     // Try to get the accent color from the theme
     const svg = generateSVG(color);
 

@@ -7,7 +7,7 @@ import {
   UpdateRightUrlBackgroundEvent,
   UpdateThemeColorsBackgroundEvent
 } from "../../background/BackgroundEvents";
-import { SplitEvent, SplitEventType, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "./SplitEvents";
+import { SplitEvent, SplitEventType, UpdateUrlsSplitEvent } from "./SplitEvents";
 import { Observable } from "../../../shared/observability/Observable";
 import { Observer } from "../../../shared/observability/Observer";
 import { Orientation, Side } from "../../../shared/types";
@@ -98,7 +98,12 @@ export class SplitContext extends Context implements Observable<SplitContext> {
     // Update context properties based on the event type
     switch (event.type) {
       case "INIT_EXTENSION":
-        this.settings = (event as InitExtensionBackgroundEvent).settings;
+        const initEvent = event as InitExtensionBackgroundEvent;
+        this.updateUrl(initEvent.side, initEvent.url);
+        this.updateOrientation(initEvent.orientation);
+        this.settings = initEvent.settings;
+        this.themeColors = initEvent.themeColors;
+        this.notifyObservers();
         break;
       case "UPDATE_LEFT_URL":
         this.updateUrl("left", (event as UpdateLeftUrlBackgroundEvent).leftUrl);
@@ -109,8 +114,9 @@ export class SplitContext extends Context implements Observable<SplitContext> {
       case "UPDATE_ORIENTATION":
         this.updateOrientation((event as UpdateOrientationBackgroundEvent).orientation);
         break;
-      case "THEME_COLORS":
+      case "UPDATE_THEME_COLORS":
         this.themeColors = (event as UpdateThemeColorsBackgroundEvent).themeColors;
+        this.notifyObservers();
         break;
       default:
         break;

@@ -1,4 +1,3 @@
-import { getUserScheme } from "../../shared/colors";
 import {
   handleCancelExtensionRating,
   handleExtensionRating,
@@ -16,6 +15,7 @@ document.addEventListener("DOMContentLoaded", () => {
   const themeProviderInstance = new ThemeProvider();
 
   const context = SplitContext.getInstance();
+  context.addObserver(themeProviderInstance);
   context.addObserver(splitViewInstance);
 
   // Listen for messages from the background script
@@ -27,64 +27,13 @@ document.addEventListener("DOMContentLoaded", () => {
       context.updateFromBackgroundEvent(message.event);
     }
 
-    switch (message.type) {
-      // Initial url load
-      case "LOAD_URLS":
-        if (message.leftUrl !== null) {
-          splitViewInstance.loadUrl("left", message.leftUrl);
-        } else {
-          Searchbar.setActiveSide("left");
-          Searchbar.forbidClose();
-          Searchbar.open({
-            splitInstance: splitViewInstance.getInstanceOfSide("left")
-          });
-        }
-
-        if (message.rightUrl !== null) {
-          splitViewInstance.loadUrl("right", message.rightUrl);
-        } else {
-          Searchbar.setActiveSide("right");
-          Searchbar.forbidClose();
-          Searchbar.open({
-            splitInstance: splitViewInstance.getInstanceOfSide("right")
-          });
-        }
-        break;
-
-      // Set the background color if provided
-      case "BROWSER_COLORS":
-        console.log(message.backgroundColor, typeof message.backgroundColor);
-        browser.runtime
-          .sendMessage({
-            type: "GET_SETTING",
-            key: "match-with-firefox-theme"
-          })
-          .then((response) => {
-            console.log("[split-view.ts] > SETTING_VALUE", response);
-            if (response.type === "SETTING_VALUE" && response.value === "false") {
-              console.info("Resetting to default colors because the setting asks so");
-              themeProviderInstance.resetThemeToDefault();
-              return;
-            }
-          });
-
-        if (getUserScheme() === "dark") themeProviderInstance.resetThemeToDefault();
-        else {
-          console.info("Setting custom theme colors");
-          themeProviderInstance.setThemeProperties([
-            ["defaultBackgroundColor", message.backgroundColor],
-            ["defaultBorderColor", message.inputBorder],
-            ["defaultInputBackgroundColor", message.inputBackground],
-            ["defaultPrimaryTextColor", message.textColor],
-            ["defaultSecondaryTextColor", message.secondaryTextColor]
-          ]);
-        }
-        break;
-
-      // Change the orientation when context menu pressed
-      case "SET_ORIENTATION":
-        splitViewInstance.setOrientation(message.orientation);
-        break;
+    // open searchbar when initializing the extension in order to open the second split
+    if (message.event?.type === "INIT_EXTENSION") {
+      Searchbar.setActiveSide(message.side);
+      Searchbar.forbidClose();
+      Searchbar.open({
+        splitInstance: splitViewInstance.getInstanceOfSide(message.side)
+      });
     }
   });
 

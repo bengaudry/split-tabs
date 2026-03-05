@@ -47,7 +47,7 @@ export class BackgroundContext extends Context {
 
   public setThemeColors(themeColors: ThemeColors) {
     this.themeColors = themeColors;
-    this.dispatchToSplit("THEME_COLORS");
+    this.dispatchToSplit("UPDATE_THEME_COLORS");
   }
 
   public toggleOrientation() {
@@ -78,7 +78,7 @@ export class BackgroundContext extends Context {
    * Note: This function assumes that the split page is open and has a listener for the dispatched events.
    * If the split page is not open, the dispatched event will not be received by any listener, but it will still update the context values in this class.
    */
-  private dispatchToSplit(eventType: BackgroundEventType) {
+  public dispatchToSplit(eventType: BackgroundEventType) {
     if (!this.dispatchNextEvent) return; // Prevent dispatching if the flag is set to false (to avoid feedback loops)
 
     const tabId = this.getTab()?.id;
@@ -98,11 +98,18 @@ export class BackgroundContext extends Context {
       case "UPDATE_ORIENTATION":
         event = new UpdateOrientationBackgroundEvent(this.orientation);
         break;
-      case "THEME_COLORS":
+      case "UPDATE_THEME_COLORS":
         event = new UpdateThemeColorsBackgroundEvent(this.themeColors);
         break;
       case "INIT_EXTENSION":
-        event = new InitExtensionBackgroundEvent(this.settings);
+        const side = this.leftUrl && !this.rightUrl ? "left" : !this.leftUrl && this.rightUrl ? "right" : "left";
+        event = new InitExtensionBackgroundEvent({
+          side,
+          url: side === "left" ? this.leftUrl : this.rightUrl,
+          orientation: this.orientation,
+          themeColors: this.themeColors,
+          settings: this.settings
+        });
         break;
       default:
         console.warn(`Warning: Unknown background event type "${eventType}"`);
@@ -144,7 +151,7 @@ export class BackgroundContext extends Context {
         break;
     }
 
-    console.info("New background context after processing event from split page:", {
+    console.info("New background context after processing event (" + event.type + ") from split page:", {
       leftUrl: this.leftUrl,
       rightUrl: this.rightUrl,
       orientation: this.orientation,
