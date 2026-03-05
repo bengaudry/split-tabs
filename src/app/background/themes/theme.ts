@@ -1,7 +1,13 @@
 import { ThemeColor } from "../../../shared/types";
-import { Theme, ThemeColors } from "../types";
+import { BrowserTheme, ThemeColors } from "../types";
 import { knownThemesColors } from "./knownThemesColors";
 
+/**
+ * Converts a theme color value, which can be in various formats (string, number, RGB array), to a CSS color string.
+ * It handles different formats of theme colors, including hex strings, numeric values, and RGB arrays, ensuring that the resulting color is in a valid CSS format.
+ * @param themeColor the theme color value to convert, which can be a string (e.g., "#ff0000"), a number (e.g., 0xff0000), or an RGB array (e.g., [255, 0, 0]).
+ * @returns the CSS color string corresponding to the input theme color. If the input format is unrecognized, it returns undefined.
+ */
 function themeColorToCssColor(themeColor: any): string | undefined {
   if (typeof themeColor === "string") {
     return themeColor;
@@ -20,6 +26,12 @@ function themeColorToCssColor(themeColor: any): string | undefined {
   return undefined;
 }
 
+/**
+ * Finds the best color from an array of theme colors, ignoring null, undefined and transparent values.
+ * The order of the colors in the array represents their priority, with the first valid color being returned.
+ * @param colors an array of theme colors to choose from, which can be in various formats (string, number, RGB array) and may include null, undefined or "transparent" values that should be ignored.
+ * @returns the best color found in the array. If no valid color is found, it returns null.
+ */
 function bestColorOf(colors: (ThemeColor | null | undefined)[]): ThemeColor | null {
   for (const color of colors) {
     if (color && color !== "transparent") {
@@ -41,20 +53,11 @@ async function getActiveThemeName() {
 }
 
 /**
- * Extracts relevant colors from the theme object
+ * Generates a ThemeColors object by extracting and converting colors from the given browser theme.
+ * @param theme the browser theme object from which to extract colors. This object typically contains a "colors" property with various color values used in the browser's UI.
+ * @returns a ThemeColors object containing CSS color strings for different UI elements, derived from the input theme. If certain colors cannot be extracted, it falls back to default values to ensure the extension's UI remains visually consistent with the browser theme.
  */
-export async function getThemeColors(theme: Theme): Promise<ThemeColors> {
-  // Get the current theme
-  console.info("[Theme] > Extracting colors from theme: ", theme);
-
-  const activeThemeName = await getActiveThemeName();
-  console.info("[Theme] > Active theme name: ", activeThemeName);
-  if (activeThemeName && activeThemeName in knownThemesColors) {
-    // TODO : if activeThemeName == null, switch on the default theme (dark or light) based on the system preferences
-    console.info(`[Theme] > Using known colors for theme: ${activeThemeName}`);
-    return knownThemesColors[activeThemeName];
-  }
-
+function generateThemeColorsFromBrowserTheme(theme: BrowserTheme): ThemeColors {
   const { colors } = theme;
 
   const backgroundColor = bestColorOf([colors?.frame, colors?.frame_inactive, colors?.accentcolor]);
@@ -74,4 +77,33 @@ export async function getThemeColors(theme: Theme): Promise<ThemeColors> {
     secondaryTextColor: themeColorToCssColor(secondaryTextColor) ?? "#ccc",
     iconsColor: themeColorToCssColor(iconsColor) ?? "#000"
   };
+}
+
+/**
+ * Generates a themeColors object based on the current browser theme.
+ * It first tries to match the active theme with a list of known themes to use predefined colors.
+ * If the active theme is not recognized, it extracts colors from the browser's theme using the Theme API,
+ * applying heuristics to determine the best colors for different UI elements.
+ * This ensures that the extension's UI remains visually consistent with the user's chosen browser theme,
+ * even if it's an unknown or custom theme.
+ */
+export async function getThemeColors(theme?: BrowserTheme): Promise<ThemeColors> {
+  const activeThemeName = await getActiveThemeName();
+  if (activeThemeName && activeThemeName in knownThemesColors) {
+    // TODO : if activeThemeName == null, switch on the default theme (dark or light) based on the system preferences
+    console.info(`[Theme] > Using known colors for theme: ${activeThemeName}`);
+    return knownThemesColors[activeThemeName];
+  }
+
+  if (!theme) {
+    try {
+      theme = await browser.theme.getCurrent();
+    } catch (error) {
+      console.error("[Theme] > Error fetching current theme: ", error);
+      return knownThemesColors["Light"]; // fallback to light theme colors
+      // TODO : fallback to dark or light theme colors based on the system preferences
+    }
+  }
+  console.info(`[Theme] > Unknown theme ${activeThemeName}. Extracting colors from theme: `, theme);
+  return generateThemeColorsFromBrowserTheme(theme);
 }

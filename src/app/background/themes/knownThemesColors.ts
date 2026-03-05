@@ -35,7 +35,7 @@ export const knownThemesColors: Record<string, ThemeColors> = {
   "Catppuccin Mocha - Blue": {
     backgroundColor: "#11111b",
     textColor: "#c5ceeb",
-    borderColor: "#2f2e33",
+    borderColor: "#37384a",
     activeBorderColor: "#89b4fa",
     inputBackground: "#1e1e2e",
     secondaryTextColor: "#bbc3e0",

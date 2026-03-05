@@ -9,13 +9,13 @@ import {
   UpdateThemeColorsBackgroundEvent
 } from "./BackgroundEvents";
 import { SplitEvent, UpdateSettingSplitEvent, UpdateUrlsSplitEvent } from "../split-view/lib/SplitEvents";
-import { Tab, ThemeColors } from "./types";
+import { BrowserTab, ThemeColors } from "./types";
 import type { Orientation } from "../../shared/types";
 
 export class BackgroundContext extends Context {
   private static instance: BackgroundContext;
 
-  private tab: Tab | null;
+  private tab: BrowserTab | null;
   private dispatchNextEvent: boolean = true;
 
   private constructor() {
@@ -55,7 +55,7 @@ export class BackgroundContext extends Context {
     this.dispatchToSplit("UPDATE_ORIENTATION");
   }
 
-  public setTab(tab: Tab | null) {
+  public setTab(tab: BrowserTab | null) {
     this.tab = tab;
   }
 

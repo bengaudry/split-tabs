@@ -1,6 +1,6 @@
 import { IS_DEV } from "../../shared/constants";
 import { getThemeColors } from "./themes/theme";
-import { TabId } from "./types";
+import { BrowserTabId } from "./types";
 
 // use of a global variable to store the icon object URL, to avoid creating multiple URLs and leaking memory
 // (since each call to URL.createObjectURL creates a new URL that needs to be revoked)
@@ -45,7 +45,7 @@ function generateSVG(fillColor: string) {
  */
 async function createIconObjectUrl() {
   try {
-    const themeColors = await getThemeColors(await browser.theme.getCurrent());
+    const themeColors = await getThemeColors();
 
     let color = themeColors.iconsColor;
     if (!color) {
@@ -84,7 +84,7 @@ async function getIconObjectUrl() {
  * ensuring that it matches the current browser theme colors.
  * @param tabId the id of the tab for which to update the page action icon. This is typically the tab containing the split view, but can be any tab where the page action is shown.
  */
-async function updatePageIcon(tabId: TabId) {
+async function updatePageIcon(tabId: BrowserTabId) {
   try {
     const iconUrl = await getIconObjectUrl();
     if (!iconUrl) return;
@@ -108,7 +108,7 @@ async function updatePageIcon(tabId: TabId) {
  * Updates the favicon of the specified tab to match the extension icon, ensuring visual consistency with the browser theme.
  * @param tabId the id of the tab for which to update the favicon. This is typically the tab containing the split view, but can be any tab where the favicon should reflect the extension icon.
  */
-async function updateTabFavicon(tabId: TabId) {
+async function updateTabFavicon(tabId: BrowserTabId) {
   try {
     const iconUrl = await getIconObjectUrl();
     if (!iconUrl) return;
@@ -146,6 +146,6 @@ async function updateTabFavicon(tabId: TabId) {
  */
 export async function updateIcons(tabId: number | undefined) {
   if (!tabId) return;
-  updatePageIcon(tabId as TabId);
-  updateTabFavicon(tabId as TabId);
+  updatePageIcon(tabId as BrowserTabId);
+  updateTabFavicon(tabId as BrowserTabId);
 }

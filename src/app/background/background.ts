@@ -2,7 +2,7 @@ import { FORBIDDEN_HOSTNAMES } from "../../shared/constants";
 import { updateIcons } from "./icons";
 import { BackgroundContext } from "./BackgroundContext";
 import { getThemeColors } from "./themes/theme";
-import { MessageSender, Tab, TabId } from "./types";
+import { BrowserMessageSender, BrowserTab, BrowserTabId } from "./types";
 import { Side } from "../../shared/types";
 import { createContextMenu } from "./contextMenu";
 
@@ -61,7 +61,7 @@ function isForbiddenUrl(url: string | undefined | null) {
   return false;
 }
 
-async function fetchTabs(sender: MessageSender, sendResponse: (response?: any) => void) {
+async function fetchTabs(sender: BrowserMessageSender, sendResponse: (response?: any) => void) {
   try {
     const tabs = await browser.tabs.query({ currentWindow: true });
     sendResponse({
@@ -165,7 +165,7 @@ browser.theme.onUpdated.addListener(function ({ theme }) {
   });
 });
 
-function getActiveTab(): Promise<Tab | null> {
+function getActiveTab(): Promise<BrowserTab | null> {
   return browser.tabs
     .query({
       active: true,
@@ -202,7 +202,7 @@ const handleInitializeExtension = async (side: Side) => {
       browser.tabs.remove(activeTab.id);
     }
 
-    const themeColors = await getThemeColors(await browser.theme.getCurrent());
+    const themeColors = await getThemeColors();
     context.setThemeColors(themeColors);
 
     context.setLeftUrl(side === "left" || side === "top" ? (currentUrl ?? null) : null);

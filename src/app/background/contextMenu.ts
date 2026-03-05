@@ -1,11 +1,11 @@
 import { BackgroundContext } from "./BackgroundContext";
-import { TabId } from "./types";
+import { BrowserTabId } from "./types";
 
 const contextMenuItems = [
   {
     title: "Reverse tabs",
     id: "reverse-tabs",
-    onClick: (tabId: TabId | undefined) => {
+    onClick: (tabId: BrowserTabId | undefined) => {
       if (!tabId) return;
       const context = BackgroundContext.getInstance();
       const leftUrl = context.getLeftUrl();
@@ -17,7 +17,7 @@ const contextMenuItems = [
   {
     title: "Toggle orientation",
     id: "toggle-orientation",
-    onClick: (tabId: TabId | undefined) => {
+    onClick: (tabId: BrowserTabId | undefined) => {
       if (!tabId) return;
       const context = BackgroundContext.getInstance();
       context.toggleOrientation();
@@ -36,7 +36,7 @@ export function createContextMenu() {
     contexts: ["all"]
   });
 
-  const clickMap = new Map<string, (tabId: TabId | undefined) => void>();
+  const clickMap = new Map<string, (tabId: BrowserTabId | undefined) => void>();
 
   for (const { id, title, onClick } of contextMenuItems) {
     browser.contextMenus.create({
@@ -58,7 +58,7 @@ export function createContextMenu() {
 
     const onClick = clickMap.get(info.menuItemId.replace("split-tabs-context-submenu-", ""));
     if (onClick) {
-      onClick(activeTab.id as TabId);
+      onClick(activeTab.id as BrowserTabId);
     }
   });
 }

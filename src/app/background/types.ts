@@ -1,7 +1,5 @@
 import { Branded } from "../../shared/types";
 
-export type TabId = Branded<number, "TabId">;
-
 export type ThemeColors = {
   backgroundColor?: string;
   textColor?: string;
@@ -12,6 +10,8 @@ export type ThemeColors = {
   iconsColor?: string;
 };
 
-export type Tab = browser.tabs.Tab;
-export type MessageSender = browser.runtime.MessageSender;
-export type Theme = browser._manifest.ThemeType;
+export type BrowserTabId = Branded<number, "TabId">;
+
+export type BrowserTab = browser.tabs.Tab;
+export type BrowserMessageSender = browser.runtime.MessageSender;
+export type BrowserTheme = browser._manifest.ThemeType;
