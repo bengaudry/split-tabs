@@ -1,7 +1,7 @@
 *.zip
 
-build/
-build_backup/
+dist/
+dist_backup/
 packages/
 node_modules/
 venv/

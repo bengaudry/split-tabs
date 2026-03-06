@@ -7,7 +7,7 @@ module.exports = {
     background: "./src/app/background/background.ts"
   },
   output: {
-    path: path.resolve(__dirname, "build"),
+    path: path.resolve(__dirname, "dist"),
     filename: "[name].js"
   },
   resolve: {

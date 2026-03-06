@@ -17,7 +17,7 @@ BASE_DIR_PATH = os.path.dirname(os.path.abspath(__file__))
 ICONS_DIR_PATH = os.path.join(BASE_DIR_PATH, "icons")
 SRC_DIR_PATH = os.path.join(BASE_DIR_PATH, "src")
 APP_DIR_PATH = os.path.join(SRC_DIR_PATH, "app")
-BUILD_DIR_PATH = os.path.join(BASE_DIR_PATH, "build")
+DIST_DIR_PATH = os.path.join(BASE_DIR_PATH, "dist")
 
 # Files paths
 MANIFEST_FILE_PATH = os.path.join(SRC_DIR_PATH, "manifest.json")
@@ -44,7 +44,7 @@ def exit_with_error(message: str, error: Exception = None):
 
     print(Style.RESET_ALL)
 
-    restore_build_dir_from_backup()
+    restore_dist_dir_from_backup()
     sys.exit(1)
 
 
@@ -112,91 +112,91 @@ def update_manifest_data(manifest: dict, is_packaging_for_publish: bool):
     return manifest
 
 
-def export_manifest_to_build_dir(manifest: dict):
-    """Exports the updated manifest to the build directory"""
+def export_manifest_to_dist_dir(manifest: dict):
+    """Exports the updated manifest to the dist directory"""
 
-    spinner.start("Exporting manifest to build directory\n")
-    manifest_path_in_build_dir = os.path.join(BUILD_DIR_PATH, "manifest.json")
+    spinner.start("Exporting manifest to dist directory\n")
+    manifest_path_in_dist_dir = os.path.join(DIST_DIR_PATH, "manifest.json")
     try:
-        with open(manifest_path_in_build_dir, "w") as f:
+        with open(manifest_path_in_dist_dir, "w") as f:
             json.dump(manifest, f, indent=4)
         spinner.succeed()
     except Exception as e:
         exit_with_error("Error exporting manifest", e)
 
 
-def create_build_dir_backup():
-    """Creates a backup of the build directory"""
+def create_dist_dir_backup():
+    """Creates a backup of the dist directory"""
 
-    if build_dir_exists():
-        spinner.start("Creating build directory backup\n")
-        backup_path = BUILD_DIR_PATH + "_backup"
+    if dist_dir_exists():
+        spinner.start("Creating dist directory backup\n")
+        backup_path = DIST_DIR_PATH + "_backup"
 
         try:
             if os.path.exists(backup_path):
                 shutil.rmtree(backup_path)
-            shutil.copytree(BUILD_DIR_PATH, backup_path)
+            shutil.copytree(DIST_DIR_PATH, backup_path)
             spinner.succeed()
         except Exception as e:
-            exit_with_error("Error creating build directory backup", e)
+            exit_with_error("Error creating dist directory backup", e)
 
 
-def remove_build_dir_backup():
-    """Removes the backup of the build directory"""
+def remove_dist_dir_backup():
+    """Removes the backup of the dist directory"""
 
-    backup_path = BUILD_DIR_PATH + "_backup"
+    backup_path = DIST_DIR_PATH + "_backup"
     if os.path.exists(backup_path):
-        spinner.start("Removing build directory backup\n")
+        spinner.start("Removing dist directory backup\n")
 
         try:
             shutil.rmtree(backup_path)
             spinner.succeed()
         except Exception as e:
-            exit_with_error("Error removing build directory backup", e)
+            exit_with_error("Error removing dist directory backup", e)
 
 
-def build_dir_exists() -> bool:
-    """Checks if the build directory exists"""
+def dist_dir_exists() -> bool:
+    """Checks if the dist directory exists"""
 
-    return os.path.exists(BUILD_DIR_PATH) and os.path.isdir(BUILD_DIR_PATH)
+    return os.path.exists(DIST_DIR_PATH) and os.path.isdir(DIST_DIR_PATH)
 
 
-def create_build_dir_if_not_exists():
-    """Creates the build directory if it does not exist"""
+def create_dist_dir_if_not_exists():
+    """Creates the dist directory if it does not exist"""
 
-    if not build_dir_exists():
-        spinner.start("Creating build directory\n")
-        os.mkdir(BUILD_DIR_PATH)
+    if not dist_dir_exists():
+        spinner.start("Creating dist directory\n")
+        os.mkdir(DIST_DIR_PATH)
         spinner.succeed()
 
 
-def clear_build_dir():
-    """Clears the build directory"""
+def clear_dist_dir():
+    """Clears the dist directory"""
 
     try:
-        if build_dir_exists():
-            spinner.start("Clearing build directory\n")
-            for root, dirs, files in os.walk(BUILD_DIR_PATH, topdown=False):
+        if dist_dir_exists():
+            spinner.start("Clearing dist directory\n")
+            for root, dirs, files in os.walk(DIST_DIR_PATH, topdown=False):
                 for file in files:
                     os.remove(os.path.join(root, file))
                 for dir in dirs:
                     os.rmdir(os.path.join(root, dir))
             spinner.succeed()
     except Exception as e:
-        exit_with_error("Error clearing build directory", e)
+        exit_with_error("Error clearing dist directory", e)
 
 
-def prepare_build_dir():
-    """Prepares the build directory by creating or cleaning it"""
+def prepare_dist_dir():
+    """Prepares the dist directory by creating or cleaning it"""
 
-    if build_dir_exists():
-        create_build_dir_backup()
-        clear_build_dir()
+    if dist_dir_exists():
+        create_dist_dir_backup()
+        clear_dist_dir()
     else:
-        create_build_dir_if_not_exists()
+        create_dist_dir_if_not_exists()
 
-    # Create the icons directory in the build directory
-    os.mkdir(os.path.join(BUILD_DIR_PATH, "icons"))
+    # Create the icons directory in the dist directory
+    os.mkdir(os.path.join(DIST_DIR_PATH, "icons"))
 
 
 def remove_old_extension_zip_if_exists(is_packaging_for_publish: bool):
@@ -213,26 +213,26 @@ def remove_old_extension_zip_if_exists(is_packaging_for_publish: bool):
             exit_with_error("Error removing old extension.zip", e)
 
 
-def restore_build_dir_from_backup():
-    """Restores the build directory from its backup"""
+def restore_dist_dir_from_backup():
+    """Restores the dist directory from its backup"""
 
-    backup_path = BUILD_DIR_PATH + "_backup"
+    backup_path = DIST_DIR_PATH + "_backup"
     if os.path.exists(backup_path):
-        spinner.start("Restoring build directory from backup\n")
+        spinner.start("Restoring dist directory from backup\n")
 
         try:
-            if build_dir_exists():
-                shutil.rmtree(BUILD_DIR_PATH)
-            shutil.copytree(backup_path, BUILD_DIR_PATH)
+            if dist_dir_exists():
+                shutil.rmtree(DIST_DIR_PATH)
+            shutil.copytree(backup_path, DIST_DIR_PATH)
             spinner.succeed()
         except Exception as e:
-            exit_with_error("Error restoring build directory from backup", e)
+            exit_with_error("Error restoring dist directory from backup", e)
 
 
-def copy_icons_to_build_dir(is_packaging_for_publish: bool):
-    """Copies the icons to the build directory based on the packaging method"""
+def copy_icons_to_dist_dir(is_packaging_for_publish: bool):
+    """Copies the icons to the dist directory based on the packaging method"""
 
-    # Copy the icons directory to the build directory
+    # Copy the icons directory to the dist directory
     spinner.start("Copying icons directory\n")
 
     icons_map = {
@@ -256,11 +256,11 @@ def copy_icons_to_build_dir(is_packaging_for_publish: bool):
         icons_map["browser-action-icon-gray.svg"] = "wip-icon-svg.svg"
 
     try:
-        # copy icons to build/icons
+        # copy icons to dist/icons
         for dest_icon, src_icon in icons_map.items():
             shutil.copyfile(
                 os.path.join(ICONS_DIR_PATH, src_icon),
-                os.path.join(BUILD_DIR_PATH, "icons", dest_icon),
+                os.path.join(DIST_DIR_PATH, "icons", dest_icon),
             )
         spinner.succeed()
     except Exception as e:
@@ -289,48 +289,48 @@ def change_dev_value_in_constants_file(is_dev: bool):
         exit_with_error("Error updating constants file", e)
 
 
-def copy_src_files_to_build_dir():
-    """Copy the src directory and the subfolders content to the build directory root"""
+def copy_src_files_to_dist_dir():
+    """Copy the src directory and the subfolders content to the dist directory root"""
 
     spinner.start("Copying src directory\n")
 
     src_root_files = ["manifest.json"]
     for file in src_root_files:
-        shutil.copyfile(os.path.join(SRC_DIR_PATH, file), os.path.join(BUILD_DIR_PATH, file))
+        shutil.copyfile(os.path.join(SRC_DIR_PATH, file), os.path.join(DIST_DIR_PATH, file))
 
     split_view_directory = os.path.join(APP_DIR_PATH, "split-view")
     split_view_files = ["content-script.js", "split-view.html", "styles.css"]
     for file in split_view_files:
-        shutil.copyfile(os.path.join(split_view_directory, file), os.path.join(BUILD_DIR_PATH, file))
+        shutil.copyfile(os.path.join(split_view_directory, file), os.path.join(DIST_DIR_PATH, file))
 
     popup_directory = os.path.join(APP_DIR_PATH, "popup")
     popup_files = ["popup.html", "popup.js"]
     for file in popup_files:
-        shutil.copyfile(os.path.join(popup_directory, file), os.path.join(BUILD_DIR_PATH, file))
+        shutil.copyfile(os.path.join(popup_directory, file), os.path.join(DIST_DIR_PATH, file))
 
     settings_directory = os.path.join(APP_DIR_PATH, "settings")
     settings_files = ["settings.html", "settings.js"]
     for file in settings_files:
-        shutil.copyfile(os.path.join(settings_directory, file), os.path.join(BUILD_DIR_PATH, file))
+        shutil.copyfile(os.path.join(settings_directory, file), os.path.join(DIST_DIR_PATH, file))
 
     styles_directory = os.path.join(SRC_DIR_PATH, "styles")
     styles_files = ["reset.css"]
     for file in styles_files:
-        shutil.copyfile(os.path.join(styles_directory, file), os.path.join(BUILD_DIR_PATH, file))
+        shutil.copyfile(os.path.join(styles_directory, file), os.path.join(DIST_DIR_PATH, file))
 
     spinner.succeed()
 
 
 def copy_files_to_dir(is_packaging_for_publish: bool):
-    """Copies necessary files to the build directory"""
+    """Copies necessary files to the dist directory"""
 
     try:
-        copy_src_files_to_build_dir()
+        copy_src_files_to_dist_dir()
     except Exception as e:
         exit_with_error("Error copying src files: ", e)
 
     try:
-        copy_icons_to_build_dir(is_packaging_for_publish)
+        copy_icons_to_dist_dir(is_packaging_for_publish)
     except Exception as e:
         exit_with_error("Error copying icons: ", e)
 
@@ -343,10 +343,10 @@ def run_webpack():
     spinner.succeed()
 
 
-def compress_build_dir(is_packaging_for_publish: bool, newVersion: str):
-    """Compresses the build directory into a zip file based on the packaging method"""
+def compress_dist_dir(is_packaging_for_publish: bool, newVersion: str):
+    """Compresses the dist directory into a zip file based on the packaging method"""
 
-    spinner.start("Compressing build directory\n")
+    spinner.start("Compressing dist directory\n")
 
     # Compress into a zip file
     if is_packaging_for_publish:
@@ -354,7 +354,7 @@ def compress_build_dir(is_packaging_for_publish: bool, newVersion: str):
     else:
         zip_path = os.path.join(BASE_DIR_PATH, "extension")
 
-    shutil.make_archive(zip_path, "zip", BUILD_DIR_PATH)
+    shutil.make_archive(zip_path, "zip", DIST_DIR_PATH)
     spinner.succeed()
 
 
@@ -368,16 +368,16 @@ def main():
 
     remove_old_extension_zip_if_exists(is_packaging_for_publish)
 
-    prepare_build_dir()
+    prepare_dist_dir()
     change_dev_value_in_constants_file(not is_packaging_for_publish)
     run_webpack()
     copy_files_to_dir(is_packaging_for_publish)
 
     manifest = read_current_manifest()
     updated_manifest = update_manifest_data(manifest, is_packaging_for_publish)
-    export_manifest_to_build_dir(updated_manifest)
+    export_manifest_to_dist_dir(updated_manifest)
 
-    compress_build_dir(is_packaging_for_publish, updated_manifest["version"])
+    compress_dist_dir(is_packaging_for_publish, updated_manifest["version"])
 
     if is_packaging_for_publish:
         print("\nPush changes to github ?")
@@ -391,7 +391,7 @@ def main():
     else:
         open_in_firefox("about:debugging#/runtime/this-firefox")
 
-    remove_build_dir_backup()
+    remove_dist_dir_backup()
 
     print("\nPackaging complete")
 
