@@ -6,7 +6,8 @@ import {
   UpdateLeftUrlBackgroundEvent,
   UpdateOrientationBackgroundEvent,
   UpdateRightUrlBackgroundEvent,
-  UpdateThemeColorsBackgroundEvent
+  UpdateThemeColorsBackgroundEvent,
+  UpdateUrlsBackgroundEvent
 } from "./BackgroundEvents";
 import { SplitEvent, UpdateUrlsSplitEvent } from "split-view/lib/SplitEvents";
 import { BrowserTab } from "../types";
@@ -39,6 +40,12 @@ export class BackgroundContext extends Context {
   public setRightUrl(url: string | null) {
     this.rightUrl = url;
     this.dispatchToSplit("UPDATE_RIGHT_URL");
+  }
+
+  public setUrls(leftUrl: string | null, rightUrl: string | null) {
+    this.leftUrl = leftUrl;
+    this.rightUrl = rightUrl;
+    this.dispatchToSplit("UPDATE_URLS");
   }
 
   public setOrientation(orientation: Orientation) {
@@ -95,6 +102,9 @@ export class BackgroundContext extends Context {
         break;
       case "UPDATE_RIGHT_URL":
         event = new UpdateRightUrlBackgroundEvent(this.rightUrl);
+        break;
+      case "UPDATE_URLS":
+        event = new UpdateUrlsBackgroundEvent(this.leftUrl, this.rightUrl);
         break;
       case "UPDATE_ORIENTATION":
         event = new UpdateOrientationBackgroundEvent(this.orientation);

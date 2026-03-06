@@ -106,7 +106,8 @@ export class Searchbar {
       url = googleUrl.toString();
     }
     if (searchbarInput) searchbarInput.value = "";
-    View.loadUrl(SplitContext.getInstance().getActiveSide(), url);
+    const context = SplitContext.getInstance();
+    context.updateUrl(context.getActiveSide(), url);
     this.enableClose();
   }
 
@@ -135,13 +136,13 @@ export class Searchbar {
   }
 
   /** Open the searchbar and set the default URL if provided */
-  public open({ splitInstance, defaultUrl }: { splitInstance?: View; defaultUrl?: string | null }) {
+  public open({ defaultUrl }: { defaultUrl?: string | null }) {
     const searchbarWrapper = this.getSearchbarWrapperRef();
     const searchbarInput = this.getSearchbarInputRef();
 
     if (!searchbarWrapper || !searchbarInput) return;
 
-    if (splitInstance) this.populateToolbarLinkContainer(splitInstance);
+    this.populateToolbarLinkContainer();
 
     this.initialValue = defaultUrl || null;
 
@@ -154,7 +155,7 @@ export class Searchbar {
   /** Fetches browser opened tabs and creates links to them
    *  inside the toolbar
    */
-  public async populateToolbarLinkContainer(splitInstance: View) {
+  public async populateToolbarLinkContainer() {
     const searchbarWrapper = this.getSearchbarWrapperRef();
     if (!searchbarWrapper) return;
 
@@ -186,7 +187,8 @@ export class Searchbar {
 
         button.addEventListener("click", () => {
           this.enableClose();
-          splitInstance.loadUrl(tab.url);
+          const context = SplitContext.getInstance();
+          context.updateUrl(context.getActiveSide(), tab.url ?? "");
         });
         if (toolbarLinksContainer) toolbarLinksContainer.appendChild(button);
       }

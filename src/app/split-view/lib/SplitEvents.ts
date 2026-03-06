@@ -1,4 +1,6 @@
 export const SPLIT_EVENT_TYPES = [
+  "UPDATE_LEFT_URL",
+  "UPDATE_RIGHT_URL",
   "UPDATE_URLS",
   "REQUEST_FETCH_TABS",
   "REQUEST_CLOSE_SPLIT",
@@ -13,6 +15,24 @@ export abstract class SplitEvent {
 
   constructor(type: SplitEventType) {
     this.type = type;
+  }
+}
+
+export class UpdateLeftUrlSplitEvent extends SplitEvent {
+  leftUrl: string | null;
+
+  constructor(leftUrl: string | null) {
+    super("UPDATE_LEFT_URL");
+    this.leftUrl = leftUrl;
+  }
+}
+
+export class UpdateRightUrlSplitEvent extends SplitEvent {
+  rightUrl: string | null;
+
+  constructor(rightUrl: string | null) {
+    super("UPDATE_RIGHT_URL");
+    this.rightUrl = rightUrl;
   }
 }
 

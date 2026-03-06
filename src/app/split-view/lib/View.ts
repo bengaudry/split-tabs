@@ -54,7 +54,7 @@ export class View {
 
     this.searchbarTrigger?.addEventListener("click", () => {
       const searchbarInstance = Searchbar.getInstance();
-      searchbarInstance.open({ splitInstance: this, defaultUrl: this.url });
+      searchbarInstance.open({ defaultUrl: this.url });
       SplitContext.getInstance().setActiveSide(this.side);
     });
 
@@ -69,9 +69,9 @@ export class View {
       });
     });
 
-    this.iframeRef?.addEventListener("load", () => {
-      //this.requestIframeData();
-    });
+    /* this.iframeRef?.addEventListener("load", () => {
+      this.requestIframeData();
+    }); */
 
     const context = SplitContext.getInstance();
     window.addEventListener("message", (e) => {

@@ -5,9 +5,16 @@ import {
   UpdateLeftUrlBackgroundEvent,
   UpdateOrientationBackgroundEvent,
   UpdateRightUrlBackgroundEvent,
-  UpdateThemeColorsBackgroundEvent
+  UpdateThemeColorsBackgroundEvent,
+  UpdateUrlsBackgroundEvent
 } from "background/lib/BackgroundEvents";
-import { SplitEvent, SplitEventType, UpdateUrlsSplitEvent } from "./SplitEvents";
+import {
+  SplitEvent,
+  SplitEventType,
+  UpdateLeftUrlSplitEvent,
+  UpdateRightUrlSplitEvent,
+  UpdateUrlsSplitEvent
+} from "./SplitEvents";
 import { Observable } from "shared/observability/Observable";
 import { Observer } from "shared/observability/Observer";
 import { Orientation, Side } from "shared/types";
@@ -35,6 +42,14 @@ export class SplitContext extends Context implements Observable<SplitContext> {
     }
 
     this.observers.forEach((observer) => observer.update(this));
+  }
+
+  public stopEventDispatch() {
+    this.dispatchNextEvent = false;
+  }
+
+  public allowEventDispatch() {
+    this.dispatchNextEvent = true;
   }
 
   private constructor() {
@@ -92,6 +107,12 @@ export class SplitContext extends Context implements Observable<SplitContext> {
 
     let event: SplitEvent;
     switch (eventType) {
+      case "UPDATE_LEFT_URL":
+        event = new UpdateLeftUrlSplitEvent(this.leftUrl);
+        break;
+      case "UPDATE_RIGHT_URL":
+        event = new UpdateRightUrlSplitEvent(this.rightUrl);
+        break;
       case "UPDATE_URLS":
         event = new UpdateUrlsSplitEvent(this.leftUrl, this.rightUrl);
         break;
@@ -119,6 +140,10 @@ export class SplitContext extends Context implements Observable<SplitContext> {
         this.settings = initEvent.settings;
         this.themeColors = initEvent.themeColors;
         this.notifyObservers();
+        break;
+      case "UPDATE_URLS":
+        const updateUrlsEvent = event as UpdateUrlsBackgroundEvent;
+        this.updateUrls(updateUrlsEvent.leftUrl, updateUrlsEvent.rightUrl);
         break;
       case "UPDATE_LEFT_URL":
         this.updateUrl("left", (event as UpdateLeftUrlBackgroundEvent).leftUrl);

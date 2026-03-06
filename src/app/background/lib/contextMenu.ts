@@ -8,10 +8,10 @@ const contextMenuItems = [
     onClick: (tabId: BrowserTabId | undefined) => {
       if (!tabId) return;
       const context = BackgroundContext.getInstance();
+      console.info("[ContextMenu] > Reversing tabs in split view");
       const leftUrl = context.getLeftUrl();
       const rightUrl = context.getRightUrl();
-      context.setLeftUrl(rightUrl ?? null);
-      context.setRightUrl(leftUrl ?? null);
+      context.setUrls(rightUrl ?? null, leftUrl ?? null);
     }
   },
   {

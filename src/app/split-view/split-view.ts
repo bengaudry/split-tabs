@@ -17,7 +17,6 @@ document.addEventListener("DOMContentLoaded", () => {
 
   const context = SplitContext.getInstance();
   context.addObserver(themeProviderInstance);
-  context.addObserver(splitViewInstance);
 
   // Listen for messages from the background script
   browser.runtime.onMessage.addListener((message) => {
@@ -31,13 +30,13 @@ document.addEventListener("DOMContentLoaded", () => {
     // open searchbar when initializing the extension in order to open the second split
     if (message.event?.type === "INIT_EXTENSION") {
       console.log(message.event);
+      context.stopEventDispatch();
       const awaitingUrlSide = message.event.side === "left" ? "right" : "left";
       context.updateOrientation(message.event.orientation);
       context.setActiveSide(awaitingUrlSide);
+      context.allowEventDispatch();
       searchbarInstance.forbidClose();
-      searchbarInstance.open({
-        splitInstance: splitViewInstance.getInstanceOfSide(awaitingUrlSide)
-      });
+      searchbarInstance.open({});
     }
   });
 

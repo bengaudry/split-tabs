@@ -5,6 +5,7 @@ export const BACKGROUND_EVENT_TYPES = [
   "LOAD_URLS",
   "UPDATE_LEFT_URL",
   "UPDATE_RIGHT_URL",
+  "UPDATE_URLS",
   "UPDATE_ORIENTATION",
   "UPDATE_SETTING",
   "UPDATE_THEME_COLORS",
@@ -36,6 +37,17 @@ export class UpdateRightUrlBackgroundEvent extends BackgroundEvent {
 
   constructor(rightUrl: string | null) {
     super("UPDATE_RIGHT_URL");
+    this.rightUrl = rightUrl;
+  }
+}
+
+export class UpdateUrlsBackgroundEvent extends BackgroundEvent {
+  leftUrl: string | null;
+  rightUrl: string | null;
+
+  constructor(leftUrl: string | null, rightUrl: string | null) {
+    super("UPDATE_URLS");
+    this.leftUrl = leftUrl;
     this.rightUrl = rightUrl;
   }
 }
